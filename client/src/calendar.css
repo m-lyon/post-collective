@@ -1,0 +1,92 @@
+.day {
+    aspect-ratio: 1 / 1;
+    width: 8em;
+    /* line-height: 10em; */
+    border-radius: 0.5em;
+    /* border: 1px; */
+    /* border-style: solid; */
+    padding: 0px;
+    /* position: relative; */
+    margin: 0.4em;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    cursor: default;
+}
+
+.day-date-text {
+    height: 2em;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.select-box {
+    font-size: 14px;
+    height: 3.4em;
+    line-height: 3.4em;
+    /* margin-bottom: 0.2em; */
+    /* margin-left: 0.15em; */
+    /* margin-right: 0.15em; */
+    /* align-self: flex-end; */
+    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
+    /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    /* vertical-align: bottom; */
+    /* border: 1px; */
+    /* border-style: solid; */
+    /* border-color: aquamarine; */
+    /* margin: 1em; */
+    /* position: absolute; */
+    bottom: 0;
+}
+
+.select-box-lower {
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+}
+
+.day-name {
+    /* float: left; */
+    margin-left: 0.3em;
+    margin-top: 0.1em;
+}
+
+.date {
+    /* float: right; */
+    margin-right: 0.3em;
+    margin-top: 0.1em;
+}
+
+.calendar-day {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 14.28%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.calendar {
+    display: flex;
+    flex-direction: column;
+}
+
+.hvr-grow {
+    display: inline-block;
+    vertical-align: middle;
+    transform: translateZ(0);
+    /* box-shadow: 0 0 1px rgba(0, 0, 0, 0); */
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    transition-duration: 0.3s;
+    transition-property: transform;
+}
+
+.hvr-grow:hover,
+.hvr-grow:focus,
+.hvr-grow:active {
+    transform: scale(1.05);
+}
