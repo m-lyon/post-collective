@@ -1,25 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { CalendarDay } from "./CalendarDay.js";
-
+import Row from "react-bootstrap/Row";
 
 export function Calendar(props) {
-    const [selectedDay, setSelectedDay] = useState('');
-    const calendarDays = props.days.map((day) => {
-        const [dayStr, dateStr] = day.split(" ");
-        return <CalendarDay
-            day={dayStr}
-            date={dateStr}
-            key={dateStr}
-            id={dateStr}
-            isSelected={dateStr === selectedDay}
-            onClick={() => { setSelectedDay(dateStr) }}
-            unselect={() => { setSelectedDay('') }}
-        />
-    });
+  const calendarDays = props.days.map((day) => {
+    const [dayStr, dateStr] = day.split(" ");
+    return <CalendarDay day={dayStr} date={dateStr} key={dateStr} />;
+  });
 
-    return (
-        <div className="row">
-            {calendarDays}
-        </div>
-    );
+  return <Row>{calendarDays}</Row>;
 }
