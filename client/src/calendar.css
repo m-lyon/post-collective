@@ -26,20 +26,9 @@
     font-size: 14px;
     height: 3.4em;
     line-height: 3.4em;
-    /* margin-bottom: 0.2em; */
-    /* margin-left: 0.15em; */
-    /* margin-right: 0.15em; */
-    /* align-self: flex-end; */
-    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
-    /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-    /* vertical-align: bottom; */
-    /* border: 1px; */
-    /* border-style: solid; */
-    /* border-color: aquamarine; */
-    /* margin: 1em; */
-    /* position: absolute; */
     bottom: 0;
+    cursor: pointer;
 }
 
 .select-box-lower {
