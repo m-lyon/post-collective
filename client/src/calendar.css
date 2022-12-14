@@ -15,6 +15,13 @@
     cursor: default;
 }
 
+.available {
+    box-shadow: rgba(23, 157, 32, 0.8) 0px 3px 8px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(23, 157, 32, 0.3);
+}
+
 .day-date-text {
     height: 2em;
     display: flex;
@@ -78,4 +85,27 @@
 .hvr-grow:focus,
 .hvr-grow:active {
     transform: scale(1.05);
+}
+
+
+.dropoff-btns-enter {
+  opacity: 0;
+}
+
+.dropoff-btns-enter-active {
+  opacity: 1;
+  transition: opacity 300ms;
+}
+
+.dropoff-btns-exit {
+  opacity: 1;
+}
+
+.dropoff-btns-exit-active {
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.row {
+    max-width: 1100px;
 }
