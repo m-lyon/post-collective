@@ -1,55 +1,89 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CalendarDay } from './CalendarDay.js';
-import Row from 'react-bootstrap/Row';
-import Container from 'react-bootstrap/Container';
-import { Navbar, Nav } from 'react-bootstrap';
+import { Row, Navbar, Nav, Container } from 'react-bootstrap';
 
-const calendarDaysList = [
-    ['Mon 28/11', false],
-    ['Tue 29/11', false],
-    ['Wed 30/11', false],
-    ['Thu 01/12', false],
-    ['Fri 02/12', false],
-    ['Sat 03/12', false],
-    ['Sun 04/12', false],
-    ['Mon 05/12', false],
-];
+// TODO: make api take in dates in request
+// TODO: animation for changing of days
+// TODO: make top of dates a little bit gray
 
-function setAvailableDays(days, setDays, daysAvailable) {
-    const availableDays = days.map((day) => {
-        return daysAvailable.includes(day[0]) ? [day[0], true] : [day[0], false];
+/**
+ * Initialises the dates
+ * @param {*} numDays
+ * @returns
+ */
+function getInitialDates(numDays = 7) {
+    const days = [];
+    const availibility = [];
+    for (let i = 0; i < numDays; i++) {
+        const nextDay = new Date();
+        nextDay.setDate(nextDay.getDate() + i);
+        days.push(nextDay);
+        availibility.push(false);
+    }
+    return [days, availibility];
+}
+
+/**
+ * Function that sets days Array to previous/next set of days
+ * @param {Array} days
+ * @param {*} setDays
+ * @param {String} operator
+ */
+function setNewDays(days, setDays, operator) {
+    const newDays = [];
+    for (let day of days) {
+        const newDay = new Date(day);
+        if (operator === '+') {
+            newDay.setDate(day.getDate() + days.length);
+        } else if (operator === '-') {
+            newDay.setDate(day.getDate() - days.length);
+        } else {
+            throw 'Invalid operator given to setNewDays';
+        }
+        newDays.push(newDay);
+    }
+    setDays(newDays);
+}
+
+function setAvailableDays(days, setAvailibility, daysAvailable) {
+    const availibility = days.map((day) => {
+        return daysAvailable.includes(day.toISOString().slice(0, 10));
     });
-    setDays(availableDays);
+    setAvailibility(availibility);
 }
 
 export function Calendar(props) {
-    const [days, setDays] = useState(calendarDaysList);
-    const calendarDays = days.map((day) => {
-        const [dayStr, dateStr] = day[0].split(' ');
-        return <CalendarDay day={dayStr} date={dateStr} key={dateStr} isAvailable={day[1]} />;
-    });
+    const [initialDays, initialAvailibility] = getInitialDates();
+
+    const [days, setDays] = useState(initialDays);
+    const [availibility, setAvailibility] = useState(initialAvailibility);
 
     useEffect(() => {
         async function getDaysAvailable() {
             try {
                 const response = await axios.get('http://localhost:9000/days');
-                setAvailableDays(days, setDays, response.data);
+                setAvailableDays(days, setAvailibility, response.data);
             } catch (error) {
                 console.error(error);
             }
         }
         getDaysAvailable();
-        // setAvailableDays(days, setDays, ['Mon 28/11', 'Wed 30/11']);
-    }, []);
+    }, [days]);
 
-    // useEffect(() => {
-    //     const testAvail = ['Mon 28/11', 'Wed 30/11']; // TODO: make this an API call
-    //     const availableDays = days.map((day) => {
-    //         return testAvail.includes(day[0]) ? [day[0], true] : [day[0], false];
-    //     });
-    //     setDays(availableDays);
-    // }, []);
+    const calendarDays = days.map((day, index) => {
+        const dayStr = day.toDateString().slice(0, 3);
+        const dateArray = day.toISOString().slice(5, 10).split('-');
+        const dateStr = `${dateArray[1]}/${dateArray[0]}`;
+        return (
+            <CalendarDay
+                day={dayStr}
+                date={dateStr}
+                key={dateStr}
+                isAvailable={availibility[index]}
+            />
+        );
+    });
 
     return (
         <>
@@ -63,6 +97,14 @@ export function Calendar(props) {
             </Navbar>
             <Container className='justify-content-center'>
                 <Row className='text-center'>{calendarDays}</Row>
+                <Row className='justify-content-end'>
+                    <div className='hvr-grow arrow' onClick={() => setNewDays(days, setDays, '-')}>
+                        &#8592;
+                    </div>
+                    <div className='hvr-grow arrow' onClick={() => setNewDays(days, setDays, '+')}>
+                        &#8594;
+                    </div>
+                </Row>
             </Container>
         </>
     );

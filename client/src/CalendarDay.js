@@ -27,7 +27,7 @@ export function CalendarDay({ day, date, isAvailable }) {
             >
                 <div className='select-box-parent' ref={nodeRef}>
                     <RequestDropoff unselect={() => setSelected(false)} />
-                    <div className='select-box select-box-lower bg-white text-grey'>
+                    <div className='select-box select-box-lower bg-white text-grey hvr-grow2'>
                         Offer Pickup
                     </div>
                 </div>

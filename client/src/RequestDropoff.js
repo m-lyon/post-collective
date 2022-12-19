@@ -9,7 +9,10 @@ export function RequestDropoff(props) {
 
     return (
         <>
-            <div className='select-box bg-white text-grey' onClick={() => setModalShow(true)}>
+            <div
+                className='select-box bg-white text-grey hvr-grow2'
+                onClick={() => setModalShow(true)}
+            >
                 Request Drop-off
             </div>
             <SelectDropoffModal
