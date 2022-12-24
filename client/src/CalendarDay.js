@@ -5,9 +5,17 @@ import { CSSTransition } from 'react-transition-group';
 
 export function CalendarDay({ day, date, isAvailable }) {
     const [isSelected, setSelected] = useState(false);
+    const nodeRefMain = useRef(null);
     const nodeRef = useRef(null);
 
     return (
+        // <CSSTransition
+        //     nodeRef={nodeRef}
+        //     in={true}
+        //     timeout={200}
+        //     classNames='calendar-trans'
+        //     unmountOnExit={true}
+        // >
         <Col
             sm={4}
             className={`hvr-grow day bg-white ${isAvailable ? 'available' : ''}`}
@@ -33,5 +41,6 @@ export function CalendarDay({ day, date, isAvailable }) {
                 </div>
             </CSSTransition>
         </Col>
+        // </CSSTransition>
     );
 }
