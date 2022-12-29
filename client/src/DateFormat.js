@@ -4,6 +4,11 @@ class DateFormat extends Date {
         return this.toISOString().slice(0, 10);
     }
 
+    getDateInitStr() {
+        // MM/DD/YYYY
+        // TODO
+    }
+
     getDayStr() {
         // Mon
         return this.toDateString().slice(0, 3);

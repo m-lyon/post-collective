@@ -1,16 +1,22 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cors = require('cors');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const testAPIRouter = require('./routes/testAPI');
-const testDaysRouter = require('./routes/test_days');
+const availabilityRouter = require('./routes/availability');
 
-var app = express();
+const app = express();
+
+const mongoose = require('mongoose');
+mongoose.set('strictQuery', false);
+mongoose
+    .connect('mongodb://127.0.0.1:27017/balmoralHouse')
+    .then(() => console.log('we connected!'))
+    .catch(() => console.log('we didnt connect :('));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,15 +24,14 @@ app.set('view engine', 'jade');
 
 app.use(cors());
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json()); // parses JSON requests
+app.use(express.urlencoded({ extended: false })); // parses url-encoded form requests
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/testAPI', testAPIRouter);
-app.use('/days', testDaysRouter);
+app.use('/availability', availabilityRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

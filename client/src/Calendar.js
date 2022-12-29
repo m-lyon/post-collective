@@ -2,13 +2,19 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CalendarDay } from './CalendarDay.js';
 import { Row, Navbar, Nav, Container } from 'react-bootstrap';
+import NavDropdown from 'react-bootstrap/NavDropdown';
 import { CSSTransition } from 'react-transition-group';
 import { DateFormat } from './DateFormat.js';
 
 // TODO: build database, connect database to backend
+//      - Write React logic for offered date
+//      - Write logic to show requested & offered for both users
+
+// TODO: incorporate css clamp(min, vw, max) function into calendar day.
 // TODO: animation for changing of days
 // TODO: make top of dates a little bit gray
 // TODO: make login
+// TODO: messages functionality where user offering gets message of new dropoff request.
 // TODO: write logic for booking
 
 /**
@@ -26,6 +32,15 @@ function getInitialDates(numDays = 7) {
         availibility.push(false);
     }
     return [days, availibility];
+}
+
+function LoginNavDropdown({ currentUser, setUser }) {
+    return (
+        <NavDropdown title={`User: ${currentUser}`} id='user-toggle'>
+            <NavDropdown.Item onClick={() => setUser('Matt')}>Toggle to Matt</NavDropdown.Item>
+            <NavDropdown.Item onClick={() => setUser('Gooby')}>Toggle to Gooby</NavDropdown.Item>
+        </NavDropdown>
+    );
 }
 
 /**
@@ -61,12 +76,14 @@ export function Calendar(props) {
     const [initialDays, initialAvailibility] = getInitialDates();
     const [days, setDays] = useState(initialDays);
     const [availibility, setAvailibility] = useState(initialAvailibility);
+    const [user, setUser] = useState('Matt');
 
     useEffect(() => {
         async function getDaysAvailable() {
             try {
-                const response = await axios.get('http://localhost:9000/days', {
+                const response = await axios.get('http://localhost:9000/availability', {
                     params: {
+                        user: user,
                         startDate: days[0].getDateStr(),
                         endDate: days[days.length - 1].getDateStr(),
                     },
@@ -77,7 +94,7 @@ export function Calendar(props) {
             }
         }
         getDaysAvailable();
-    }, [days]);
+    }, [days, user]);
 
     const calendarDays = days.map((day, index) => {
         return (
@@ -96,7 +113,7 @@ export function Calendar(props) {
                 <Container>
                     <Navbar.Brand href='#home'>Balmoral House Post Collective</Navbar.Brand>
                     <Nav>
-                        <Nav.Link href='#login'>Login</Nav.Link>
+                        <LoginNavDropdown currentUser={user} setUser={setUser} />
                     </Nav>
                 </Container>
             </Navbar>
