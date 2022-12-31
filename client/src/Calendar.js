@@ -17,29 +17,25 @@ import { DateFormat } from './DateFormat.js';
 // TODO: messages functionality where user offering gets message of new dropoff request.
 // TODO: write logic for booking
 
-/**
- * Initialises the dates
- * @param {*} numDays
- * @returns
- */
-function getInitialDates(numDays = 7) {
-    const days = [];
-    const availibility = [];
-    for (let i = 0; i < numDays; i++) {
-        const nextDay = new DateFormat();
-        nextDay.setDate(nextDay.getDate() + i);
-        days.push(nextDay);
-        availibility.push(false);
-    }
-    return [days, availibility];
-}
-
 function LoginNavDropdown({ currentUser, setUser }) {
     return (
         <NavDropdown title={`User: ${currentUser}`} id='user-toggle'>
             <NavDropdown.Item onClick={() => setUser('Matt')}>Toggle to Matt</NavDropdown.Item>
             <NavDropdown.Item onClick={() => setUser('Gooby')}>Toggle to Gooby</NavDropdown.Item>
         </NavDropdown>
+    );
+}
+
+function NavigationArrows({ days, setDays }) {
+    return (
+        <Row className='justify-content-end'>
+            <div className='hvr-grow arrow' onClick={() => setNewDays(days, setDays, '-')}>
+                &#8592;
+            </div>
+            <div className='hvr-grow arrow' onClick={() => setNewDays(days, setDays, '+')}>
+                &#8594;
+            </div>
+        </Row>
     );
 }
 
@@ -65,23 +61,23 @@ function setNewDays(days, setDays, operator) {
     setDays(newDays);
 }
 
-function setAvailableDays(days, setAvailibility, daysAvailable) {
+function setAvailableDays(days, setAvailibility, offeredDates) {
+    const daysAvailable = offeredDates.map((offer) => offer.date);
     const availibility = days.map((day) => {
         return daysAvailable.includes(day.getDateStr());
     });
     setAvailibility(availibility);
 }
 
-export function Calendar(props) {
-    const [initialDays, initialAvailibility] = getInitialDates();
+export function Calendar({ initialDays }) {
     const [days, setDays] = useState(initialDays);
-    const [availibility, setAvailibility] = useState(initialAvailibility);
+    const [availibility, setAvailibility] = useState(initialDays.map(() => false));
     const [user, setUser] = useState('Matt');
 
     useEffect(() => {
         async function getDaysAvailable() {
             try {
-                const response = await axios.get('http://localhost:9000/availability', {
+                const response = await axios.get('http://localhost:9000/offered', {
                     params: {
                         user: user,
                         startDate: days[0].getDateStr(),
@@ -119,14 +115,7 @@ export function Calendar(props) {
             </Navbar>
             <Container className='justify-content-center'>
                 <Row className='text-center'>{calendarDays}</Row>
-                <Row className='justify-content-end'>
-                    <div className='hvr-grow arrow' onClick={() => setNewDays(days, setDays, '-')}>
-                        &#8592;
-                    </div>
-                    <div className='hvr-grow arrow' onClick={() => setNewDays(days, setDays, '+')}>
-                        &#8594;
-                    </div>
-                </Row>
+                <NavigationArrows days={days} setDays={setDays} />
             </Container>
         </>
     );

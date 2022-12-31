@@ -38,12 +38,22 @@ function parseDate(dateStr) {
 //     return getDateRange(startDate, endDate);
 // }
 
-async function getAvailability(name, startDate, endDate) {
+async function getOffersForUser(name, startDate, endDate) {
     const user = await User.findOne({ name: name });
     if (user === null) {
         return []; // User not found
     }
-    const days = await OfferedDate.findDateRange(user._id, startDate, endDate);
+    console.log(user);
+    const offers = await OfferedDate.findDateRangeForUser(
+        user._id,
+        parseDate(startDate),
+        parseDate(endDate)
+    );
+    return offers.map((offer) => ({
+        date: offer.date.toISOString().slice(0, 10),
+        aptNum: offer.aptNum,
+    }));
+    const days = await OfferedDate.findDateRangeForUser(user._id, startDate, endDate);
     // TODO: use DateFormat method when can figure out export syntax
     return days.map((day) => new Date(day).toISOString().slice(0, 10));
 }
@@ -55,13 +65,13 @@ router.get('/', async function (req, res) {
         res.send('This route will eventually send all availability for a given user');
         return;
     }
+    const { user, startDate, endDate } = req.query;
 
     // TODO: should change filtering to work if only startDate or endDate is provided
-    const startDate = parseDate(req.query.startDate);
-    const endDate = parseDate(req.query.endDate);
-    const availability = await getAvailability(req.query.user, startDate, endDate);
+    // TODO: use DateFormat method when can figure out export syntax
+    const offers = await getOffersForUser(user, startDate, endDate);
 
-    res.send(availability);
+    res.send(offers);
 });
 
 router.get('/:day', function (req, res) {
@@ -69,8 +79,10 @@ router.get('/:day', function (req, res) {
     res.send(`This route will return the availability for the day: ${req.params.day}`);
 });
 
-router.put('/:day', function (req, res) {
-    // TODO
+router.put('/:day', async function (req, res) {
+    // try {
+    // TODO: make database call
+    // }
     res.send(`This route will set a user as availabile for the day: ${req.params.day}`);
 });
 

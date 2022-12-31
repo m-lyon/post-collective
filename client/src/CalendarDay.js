@@ -5,7 +5,9 @@ import { CSSTransition } from 'react-transition-group';
 
 export function CalendarDay({ day, date, isAvailable }) {
     const [isSelected, setSelected] = useState(false);
-    const nodeRefMain = useRef(null);
+    const [available, setAvailability] = useState(false);
+    // console.log(available);
+    // const nodeRefMain = useRef(null);
     const nodeRef = useRef(null);
 
     return (

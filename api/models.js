@@ -18,13 +18,26 @@ const requestedDateSchema = new Schema({
     offeredDate: { type: Schema.Types.ObjectId, ref: 'OfferedDate', required: true },
 });
 
-offeredDateSchema.statics.findDateRange = async function (user_id, startDate, endDate) {
-    const days = await this.find({ user: user_id, date: { $gte: startDate, $lt: endDate } });
+offeredDateSchema.statics.findDateRangeForUser = async function (user_id, startDate, endDate) {
+    const days = await this.find({
+        user: { $ne: user_id },
+        date: { $gte: startDate, $lte: endDate },
+    }).populate('user', 'aptNum');
     if (days.length === 0) {
         return [];
     }
-    return days.map((day) => day.date);
+    return days.map((day) => {
+        return { date: day.date, aptNum: day.user.aptNum };
+    });
 };
+
+// offeredDateSchema.statics.findDateRangeForUser = async function (user_id, startDate, endDate) {
+//     const days = await this.find({ user: user_id, date: { $gte: startDate, $lte: endDate } });
+//     if (days.length === 0) {
+//         return [];
+//     }
+//     return days.map((day) => day.date);
+// };
 
 const RequestedDate = mongoose.model('RequestedDate', requestedDateSchema);
 const OfferedDate = mongoose.model('OfferedDate', offeredDateSchema);

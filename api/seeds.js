@@ -7,17 +7,23 @@ mongoose
     .then(() => console.log('we connected!'))
     .catch(() => console.log('we didnt connect :('));
 
-function createUsers() {
+async function createUsers() {
+    await User.collection.drop();
     const matt = new User({ name: 'Matt', aptNum: 17 });
-    matt.save();
+    await matt.save();
+    const gooby = new User({ name: 'Gooby', aptNum: 702 });
+    await gooby.save();
 }
 
 async function createDates() {
+    OfferedDate.collection.drop();
     // Create days array
     const days = [];
-    days.push(new Date());
+    let day = new Date();
+    day = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+    days.push(day);
     for (let i = 2; i < 5; i += 2) {
-        const day = new Date();
+        const day = new Date(days[0]);
         day.setDate(days[0].getDate() + i);
         days.push(day);
     }
@@ -31,4 +37,9 @@ async function createDates() {
     }
 }
 
-createDates();
+async function createData() {
+    await createUsers();
+    await createDates();
+}
+
+createData();
