@@ -31,14 +31,6 @@ offeredDateSchema.statics.findDateRangeForUser = async function (user_id, startD
     });
 };
 
-// offeredDateSchema.statics.findDateRangeForUser = async function (user_id, startDate, endDate) {
-//     const days = await this.find({ user: user_id, date: { $gte: startDate, $lte: endDate } });
-//     if (days.length === 0) {
-//         return [];
-//     }
-//     return days.map((day) => day.date);
-// };
-
 const RequestedDate = mongoose.model('RequestedDate', requestedDateSchema);
 const OfferedDate = mongoose.model('OfferedDate', offeredDateSchema);
 
