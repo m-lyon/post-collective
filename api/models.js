@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
 const { Schema } = mongoose;
+const parseDate = require('./date_utils');
 
 const userSchema = new Schema({
     name: { type: String, required: true },
@@ -18,7 +19,7 @@ const requestedDateSchema = new Schema({
     offeredDate: { type: Schema.Types.ObjectId, ref: 'OfferedDate', required: true },
 });
 
-offeredDateSchema.statics.findDateRangeForUser = async function (user_id, startDate, endDate) {
+async function findDateRangeForUser(user_id, startDate, endDate) {
     const days = await this.find({
         user: { $ne: user_id },
         date: { $gte: startDate, $lte: endDate },
@@ -29,7 +30,10 @@ offeredDateSchema.statics.findDateRangeForUser = async function (user_id, startD
     return days.map((day) => {
         return { date: day.date, aptNum: day.user.aptNum };
     });
-};
+}
+
+offeredDateSchema.statics.findDateRangeForUser = findDateRangeForUser;
+requestedDateSchema.statics.findDateRangeForUser = findDateRangeForUser;
 
 const RequestedDate = mongoose.model('RequestedDate', requestedDateSchema);
 const OfferedDate = mongoose.model('OfferedDate', offeredDateSchema);
@@ -44,6 +48,26 @@ userSchema.post('remove', async function () {
 
 const User = mongoose.model('User', userSchema);
 
+async function getDatesForUser(modelClass, name, startDate, endDate) {
+    // TODO: change this to user_id eventually. Will need to change frontend code to
+    // accomodate.
+    const user = await User.findOne({ name: name });
+    if (user === null) {
+        return []; // User not found
+    }
+
+    const offers = await modelClass.findDateRangeForUser(
+        user._id,
+        parseDate(startDate),
+        parseDate(endDate)
+    );
+    return offers.map((offer) => ({
+        date: offer.date.toISOString().slice(0, 10),
+        aptNum: offer.aptNum,
+    }));
+}
+
 exports.User = User;
 exports.RequestedDate = RequestedDate;
 exports.OfferedDate = OfferedDate;
+exports.getDatesForUser = getDatesForUser;

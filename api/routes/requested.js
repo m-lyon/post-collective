@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const parseDate = require('../date_utils');
-const { User, OfferedDate, getDatesForUser } = require('../models');
+const { User, RequestedDate, OfferedDate, getDatesForUser } = require('../models');
 
 router.get('/', async function (req, res) {
     // TODO: this route should eventually return all available days
@@ -14,7 +14,7 @@ router.get('/', async function (req, res) {
 
     // TODO: should change filtering to work if only startDate or endDate is provided
     // TODO: use DateFormat method when can figure out export syntax
-    const offers = await getDatesForUser(OfferedDate, user, startDate, endDate);
+    const offers = await getDatesForUser(RequestedDate, user, startDate, endDate);
 
     res.send(offers);
 });
@@ -24,7 +24,7 @@ router.get('/', async function (req, res) {
  */
 router.get('/:date', async function (req, res) {
     const date = parseDate(req.params.date);
-    const offer = await OfferedDate.find({ date: date }).populate('user');
+    const offer = await RequestedDate.find({ date: date }).populate('user date');
     res.send(offer);
 });
 
@@ -32,30 +32,38 @@ router.get('/:date', async function (req, res) {
  * Adds an offer to a date given a user
  */
 router.put('/:date', async function (req, res) {
+    const { userId, offeredDateId } = req.query;
     // Check user exists
-    // TODO: this is giving 23:00:00 datetimes for some reason..
     try {
-        await User.findById(req.query.user);
+        await User.findById(userId);
     } catch (err) {
         res.status(400).send({ status: 400, error: 'user-not-found' });
         return;
     }
-    const data = { date: parseDate(req.params.date), user: req.query.user };
+
+    // Check date offered exists
+    try {
+        await OfferedDate.findById(offeredDateId);
+    } catch (err) {
+        res.status(400).send({ status: 400, error: 'offered-date-not-found' });
+        return;
+    }
+    const data = { date: parseDate(req.params.date), user: userId, date: offeredDateId };
 
     // Verify user does not already have offer on that day
-    let offer = await OfferedDate.findOne(data);
+    let offer = await RequestedDate.findOne(data);
     if (offer !== null) {
-        res.status(400).send({ status: 400, error: 'already-offered' });
+        res.status(400).send({ status: 400, error: 'already-requested' });
         return;
     }
 
-    // Add offer to database
+    // Add request to database
     try {
-        offer = new OfferedDate(data);
-        await offer.save(); // do rejects from a promise throw an exception?
+        request = new RequestedDate(data);
+        await request.save(); // do rejects from a promise throw an exception?
         res.send();
     } catch {
-        res.status(400).send({ status: 400, error: 'cannot-add-offer' });
+        res.status(400).send({ status: 400, error: 'cannot-add-request' });
         return;
     }
 });
@@ -74,15 +82,15 @@ router.delete('/:date', async function (req, res) {
     const data = { date: parseDate(req.params.date), user: user._id };
 
     // Verify offer exists on that day
-    let offer = await OfferedDate.findOne(data);
-    if (offer === null) {
-        res.status(400).send({ status: 400, error: 'offer-doesnt-exist' });
+    let request = await RequestedDate.findOne(data);
+    if (request === null) {
+        res.status(400).send({ status: 400, error: 'request-doesnt-exist' });
         return;
     }
 
     // Delete offer
     try {
-        await offer.remove();
+        await request.remove();
         res.send();
     } catch {
         res.status(400).send({ status: 400, error: 'cannot-remove-offer' });
