@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const parseDate = require('../date_utils');
-const { RequestedDate, OfferedDate, getDatesForUser } = require('../models');
-const { checkUserExists } = require('./utils');
+const { RequestedDate, getDatesForUser } = require('../models');
+const { checkUserExists, checkOfferedDateExists } = require('./utils');
 
 router.get('/', async function (req, res) {
     // TODO: this route should eventually return all available days
@@ -33,7 +33,7 @@ router.get('/:date', async function (req, res) {
  * Adds an offer to a date given a user
  */
 router.put('/:date', async function (req, res) {
-    const { userId, offeredDateId } = req.query;
+    let { user, offeredDate } = req.query;
     // Check user exists
     const userExists = await checkUserExists(req, res);
     if (!userExists) {
@@ -41,13 +41,18 @@ router.put('/:date', async function (req, res) {
     }
 
     // Check date offered exists
-    try {
-        await OfferedDate.findById(offeredDateId);
-    } catch (err) {
-        res.status(400).send({ status: 400, error: 'offered-date-not-found' });
+    offeredDate = await checkOfferedDateExists(req, res);
+    if (offeredDate === null) {
         return;
     }
-    const data = { date: parseDate(req.params.date), user: userId, date: offeredDateId };
+
+    // TODO: validate that offeredDate and requestedDate have same date...
+    if (offeredDate.date.toDateString() !== parseDate(req.params.date).toDateString()) {
+        res.status(400).send({ status: 400, error: 'dates-mismatch' });
+        return;
+    }
+
+    const data = { date: parseDate(req.params.date), user: user, offeredDate: offeredDate };
 
     // Verify user does not already have offer on that day
     let offer = await RequestedDate.findOne(data);
@@ -61,7 +66,8 @@ router.put('/:date', async function (req, res) {
         request = new RequestedDate(data);
         await request.save(); // do rejects from a promise throw an exception?
         res.send();
-    } catch {
+    } catch (err) {
+        console.log(err.message);
         res.status(400).send({ status: 400, error: 'cannot-add-request' });
         return;
     }
