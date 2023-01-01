@@ -5,7 +5,6 @@ import './calendar.css';
 import { DateFormat } from './DateFormat.js';
 
 function getInitialDates(numDays = 7) {
-    console.log('ive been called');
     const days = [];
     const availibility = [];
     for (let i = 0; i < numDays; i++) {

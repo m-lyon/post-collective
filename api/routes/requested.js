@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const parseDate = require('../date_utils');
-const { User, RequestedDate, OfferedDate, getDatesForUser } = require('../models');
+const { RequestedDate, OfferedDate, getDatesForUser } = require('../models');
+const { checkUserExists } = require('./utils');
 
 router.get('/', async function (req, res) {
     // TODO: this route should eventually return all available days
@@ -34,10 +35,8 @@ router.get('/:date', async function (req, res) {
 router.put('/:date', async function (req, res) {
     const { userId, offeredDateId } = req.query;
     // Check user exists
-    try {
-        await User.findById(userId);
-    } catch (err) {
-        res.status(400).send({ status: 400, error: 'user-not-found' });
+    const userExists = await checkUserExists(req, res);
+    if (!userExists) {
         return;
     }
 
@@ -72,14 +71,11 @@ router.put('/:date', async function (req, res) {
  * Removes offered date from database
  */
 router.delete('/:date', async function (req, res) {
-    let user;
-    try {
-        user = await User.findById(req.query.user);
-    } catch (err) {
-        res.status(400).send({ status: 400, error: 'user-not-found' });
+    const userExists = await checkUserExists(req, res);
+    if (!userExists) {
         return;
     }
-    const data = { date: parseDate(req.params.date), user: user._id };
+    const data = { date: parseDate(req.params.date), user: req.query.user };
 
     // Verify offer exists on that day
     let request = await RequestedDate.findOne(data);

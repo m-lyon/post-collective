@@ -6,6 +6,8 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { CSSTransition } from 'react-transition-group';
 import { DateFormat } from './DateFormat.js';
 
+const users = { Matt: '63b06817440bc7f56bf2f574', Gooby: '63b06817440bc7f56bf2f576' };
+
 // TODO: build database, connect database to backend
 //      - Write React logic for offered date
 //      - Write logic to show requested & offered for both users
@@ -79,7 +81,7 @@ export function Calendar({ initialDays }) {
             try {
                 const response = await axios.get('http://localhost:9000/offered', {
                     params: {
-                        user: user,
+                        user: users[user], // TODO: implement proper method
                         startDate: days[0].getDateStr(),
                         endDate: days[days.length - 1].getDateStr(),
                     },

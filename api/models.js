@@ -48,10 +48,8 @@ userSchema.post('remove', async function () {
 
 const User = mongoose.model('User', userSchema);
 
-async function getDatesForUser(modelClass, name, startDate, endDate) {
-    // TODO: change this to user_id eventually. Will need to change frontend code to
-    // accomodate.
-    const user = await User.findOne({ name: name });
+async function getDatesForUser(modelClass, userId, startDate, endDate) {
+    const user = await User.findById(userId);
     if (user === null) {
         return []; // User not found
     }
