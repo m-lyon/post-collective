@@ -4,7 +4,7 @@ import { Calendar } from './Calendar.js';
 import './calendar.css';
 import { DateFormat } from './DateFormat.js';
 
-function getInitialDates(numDays = 7) {
+function getInitialDates(numDays = 1) {
     const days = [];
     const availibility = [];
     for (let i = 0; i < numDays; i++) {

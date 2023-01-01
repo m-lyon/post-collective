@@ -153,17 +153,17 @@
     transform: scale(0.9);
   }
   
-  .calendar-trans-enter-active {
+.calendar-trans-enter-active {
     transform: translateX(0);
     transition: transform 300ms;
-    /* transition: opacity 2000ms; */
-  }
+/* transition: opacity 2000ms; */
+}
   
-  .calendar-trans-exit {
+.calendar-trans-exit {
     opacity: 1;
-  }
+}
   
-  .calendar-trans-exit-active {
+.calendar-trans-exit-active {
     opacity: 0;
     transition: opacity 1000ms;
-  }
+}

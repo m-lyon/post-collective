@@ -20,6 +20,7 @@ const requestedDateSchema = new Schema({
 });
 
 async function findDateRangeForUser(user_id, startDate, endDate) {
+    // if undefined startDate logic here
     const days = await this.find({
         user: { $ne: user_id },
         date: { $gte: startDate, $lte: endDate },
@@ -56,7 +57,7 @@ async function getDatesForUser(modelClass, userId, startDate, endDate) {
 
     const offers = await modelClass.findDateRangeForUser(
         user._id,
-        parseDate(startDate),
+        parseDate(startDate), // ternary op here
         parseDate(endDate)
     );
     return offers.map((offer) => ({

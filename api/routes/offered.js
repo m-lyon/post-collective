@@ -7,6 +7,7 @@ const { checkUserExists } = require('./utils');
 router.get('/', async function (req, res) {
     // TODO: this route should eventually return all available days
     // then, can additionally filter based on date range
+
     if (Object.keys(req.query).length === 0) {
         res.send('This route will eventually send all availability for a given user');
         return;
@@ -37,6 +38,7 @@ router.put('/:date', async function (req, res) {
     // TODO: this is giving 23:00:00 datetimes for some reason..
     const userExists = await checkUserExists(req, res);
     if (!userExists) {
+        // TODO: checkuserExists -> return bool + err msg, run res.send here
         return;
     }
     const data = { date: parseDate(req.params.date), user: req.query.user };

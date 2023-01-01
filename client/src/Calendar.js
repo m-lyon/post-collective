@@ -6,7 +6,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { CSSTransition } from 'react-transition-group';
 import { DateFormat } from './DateFormat.js';
 
-const users = { Matt: '63b06817440bc7f56bf2f574', Gooby: '63b06817440bc7f56bf2f576' };
+const users = { Matt: '63b1ae1d95a75e0972687d4f', Gooby: '63b1ae1d95a75e0972687d51' };
 
 // TODO: build database, connect database to backend
 //      - Write React logic for offered date
@@ -95,12 +95,14 @@ export function Calendar({ initialDays }) {
     }, [days, user]);
 
     const calendarDays = days.map((day, index) => {
+        // TODO:  wrap days.map in useMemo
         return (
             <CalendarDay
                 day={day.getDayStr()}
                 date={day.getDayMonthStr()}
                 key={day.getDayMonthStr()}
                 isAvailable={availibility[index]}
+                // can pass in setAvailbility day specific func here
             />
         );
     });
