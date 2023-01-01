@@ -12,6 +12,7 @@ export function CalendarDay({ day, date, isAvailable }) {
     const nodeRef = useRef(null); // TODO: look at that
 
     // react-mount-animation for animation
+    // https://dev.to/mijim/easily-animate-react-components-when-mount-unmount-223e
 
     return (
         // <CSSTransition
