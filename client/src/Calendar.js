@@ -3,12 +3,13 @@ import axios from 'axios';
 import { CalendarDay } from './CalendarDay.js';
 import { Row, Navbar, Nav, Container } from 'react-bootstrap';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import { CSSTransition } from 'react-transition-group';
 import { DateFormat } from './DateFormat.js';
 
-const users = { Matt: '63b1ae1d95a75e0972687d4f', Gooby: '63b1ae1d95a75e0972687d51' };
+const users = { Matt: '63b06817440bc7f56bf2f574', Gooby: '63b06817440bc7f56bf2f576' };
 
-// TODO: build database, connect database to backend
+//      - Write logic to request offered & requested data from db, populate variables
+//      - Write logic to change buttons/info based on this data (e.g modal options, whether buttons are greyed out etc)
+
 //      - Write React logic for offered date
 //      - Write logic to show requested & offered for both users
 
@@ -56,7 +57,7 @@ function setNewDays(days, setDays, operator) {
         } else if (operator === '-') {
             newDay.setDate(day.getDate() - days.length);
         } else {
-            throw 'Invalid operator given to setNewDays';
+            throw new Error('Invalid operator given to setNewDays');
         }
         newDays.push(newDay);
     }
@@ -64,7 +65,7 @@ function setNewDays(days, setDays, operator) {
 }
 
 function setAvailableDays(days, setAvailibility, offeredDates) {
-    const daysAvailable = offeredDates.map((offer) => offer.date);
+    const daysAvailable = offeredDates.map((offer) => offer.date.getDateStr());
     const availibility = days.map((day) => {
         return daysAvailable.includes(day.getDateStr());
     });
@@ -72,21 +73,27 @@ function setAvailableDays(days, setAvailibility, offeredDates) {
 }
 
 export function Calendar({ initialDays }) {
+    const [user, setUser] = useState('Matt');
     const [days, setDays] = useState(initialDays);
     const [availibility, setAvailibility] = useState(initialDays.map(() => false));
-    const [user, setUser] = useState('Matt');
+    const [requestedDays, setDaysRequested] = useState(initialDays.map(() => false));
+    const [offeredDays, setDaysOffered] = useState(initialDays.map(() => false));
 
     useEffect(() => {
         async function getDaysAvailable() {
             try {
                 const response = await axios.get('http://localhost:9000/offered', {
                     params: {
-                        user: users[user], // TODO: implement proper method
                         startDate: days[0].getDateStr(),
                         endDate: days[days.length - 1].getDateStr(),
                     },
                 });
-                setAvailableDays(days, setAvailibility, response.data);
+                const availableDays = response.data
+                    .filter((data) => data.user._id !== users[user])
+                    .map((data) => {
+                        return { date: new DateFormat(data.date), aptNum: data.user.aptNum };
+                    });
+                setAvailableDays(days, setAvailibility, availableDays);
             } catch (error) {
                 console.error(error);
             }
@@ -102,7 +109,27 @@ export function Calendar({ initialDays }) {
                 date={day.getDayMonthStr()}
                 key={day.getDayMonthStr()}
                 isAvailable={availibility[index]}
-                // can pass in setAvailbility day specific func here
+                toggleOffered={() => {
+                    // Recommended to not mutate array for setState callback
+                    const oDays = offeredDays.map((d, i) => {
+                        if (i === index) {
+                            return !d;
+                        }
+                        return d;
+                    });
+                    setDaysOffered(oDays);
+                }}
+                toggleRequested={() => {
+                    // Recommended to not mutate array for setState callback
+                    const rDays = requestedDays.map((d, i) => {
+                        if (i === index) {
+                            return !d;
+                        }
+                        return d;
+                    });
+                    setDaysRequested(rDays);
+                }}
+                isRequested={requestedDays[index]}
             />
         );
     });

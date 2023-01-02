@@ -1,21 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const parseDate = require('../date_utils');
-const { RequestedDate, getDatesForUser } = require('../models');
-const { checkUserExists, checkOfferedDateExists } = require('./utils');
+const { User } = require('../models/User');
+const { RequestedDate } = require('../models/RequestedDate');
+const { OfferedDate } = require('../models/OfferedDate');
 
 router.get('/', async function (req, res) {
-    // TODO: this route should eventually return all available days
-    // then, can additionally filter based on date range
-    if (Object.keys(req.query).length === 0) {
-        res.send('This route will eventually send all availability for a given user');
-        return;
-    }
     const { user, startDate, endDate } = req.query;
 
-    // TODO: should change filtering to work if only startDate or endDate is provided
     // TODO: use DateFormat method when can figure out export syntax
-    const offers = await getDatesForUser(RequestedDate, user, startDate, endDate);
+    const offers = await getDates(RequestedDate, user, startDate, endDate);
 
     res.send(offers);
 });
@@ -33,26 +27,29 @@ router.get('/:date', async function (req, res) {
  * Adds an offer to a date given a user
  */
 router.put('/:date', async function (req, res) {
-    let { user, offeredDate } = req.query;
+    let { user, offeredDateId } = req.query;
     // Check user exists
-    const userExists = await checkUserExists(req, res);
-    if (!userExists) {
+    let { status, msg } = await User.checkExists(req.query.user);
+    if (!status) {
+        res.status(400).send({ status: 400, error: msg });
         return;
     }
 
     // Check date offered exists
-    offeredDate = await checkOfferedDateExists(req, res);
-    if (offeredDate === null) {
+    let offeredDate;
+    ({ status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId));
+    if (!status) {
+        res.status(400).send({ status: 400, error: msg });
         return;
     }
 
-    // TODO: validate that offeredDate and requestedDate have same date...
-    if (offeredDate.date.toDateString() !== parseDate(req.params.date).toDateString()) {
+    // Validate that offeredDate and requestedDate have same date
+    if (offeredDate.toDateString() !== parseDate(req.params.date).toDateString()) {
         res.status(400).send({ status: 400, error: 'dates-mismatch' });
         return;
     }
 
-    const data = { date: parseDate(req.params.date), user: user, offeredDate: offeredDate };
+    const data = { date: parseDate(req.params.date), user: user, offeredDate: offeredDateId };
 
     // Verify user does not already have offer on that day
     let offer = await RequestedDate.findOne(data);
@@ -77,7 +74,7 @@ router.put('/:date', async function (req, res) {
  * Removes offered date from database
  */
 router.delete('/:date', async function (req, res) {
-    const userExists = await checkUserExists(req, res);
+    const userExists = await User.checkExists(req, res);
     if (!userExists) {
         return;
     }

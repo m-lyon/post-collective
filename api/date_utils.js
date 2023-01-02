@@ -1,4 +1,7 @@
 function parseDate(dateStr) {
+    if (dateStr === undefined) {
+        return dateStr;
+    }
     // YYYY-MM-DD
     const [year, month, day] = dateStr.split('-');
 

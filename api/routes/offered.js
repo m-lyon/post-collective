@@ -1,24 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const parseDate = require('../date_utils');
-const { OfferedDate, getDatesForUser } = require('../models');
-const { checkUserExists } = require('./utils');
+const { User } = require('../models/User');
+const { OfferedDate } = require('../models/OfferedDate');
 
 router.get('/', async function (req, res) {
-    // TODO: this route should eventually return all available days
-    // then, can additionally filter based on date range
-
-    if (Object.keys(req.query).length === 0) {
-        res.send('This route will eventually send all availability for a given user');
+    const { user, startDate, endDate } = req.query;
+    const { status, msg } = await User.checkExists(user);
+    if (!status && msg !== 'user-id-not-provided') {
+        res.status(400).send({ status: 400, error: msg });
         return;
     }
-    const { user, startDate, endDate } = req.query;
-
-    // TODO: should change filtering to work if only startDate or endDate is provided
-    // TODO: use DateFormat method when can figure out export syntax
-    const offers = await getDatesForUser(OfferedDate, user, startDate, endDate);
-
-    res.send(offers);
+    const dates = await OfferedDate.findDates(user, parseDate(startDate), parseDate(endDate));
+    console.log(dates);
+    res.send(dates);
 });
 
 /**
@@ -36,9 +31,9 @@ router.get('/:date', async function (req, res) {
 router.put('/:date', async function (req, res) {
     // Check user exists
     // TODO: this is giving 23:00:00 datetimes for some reason..
-    const userExists = await checkUserExists(req, res);
-    if (!userExists) {
-        // TODO: checkuserExists -> return bool + err msg, run res.send here
+    const { status, msg } = await User.checkExists(req.query.user);
+    if (!status) {
+        res.status(400).send({ status: 400, error: msg });
         return;
     }
     const data = { date: parseDate(req.params.date), user: req.query.user };
@@ -65,7 +60,7 @@ router.put('/:date', async function (req, res) {
  * Removes offered date from database
  */
 router.delete('/:date', async function (req, res) {
-    const userExists = await checkUserExists(req, res);
+    const userExists = await User.checkExists(req, res);
     if (!userExists) {
         return;
     }

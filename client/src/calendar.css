@@ -26,14 +26,16 @@
     box-shadow: rgba(23, 32, 157, 0.8) 0px 3px 8px;
     border-style: solid;
     border-width: 0px;
-    border-color: rgba(23, 157, 32, 0.3);
+    border-color: rgba(23, 32, 157, 0.8);
 }
 
-/* .container {
+.requested {
+    /* color: rgba(113, 120, 15, 0.8); */
+    box-shadow: rgba(113, 120, 15, 0.8) 0px 3px 8px;
     border-style: solid;
-    border-width: 2px;
-    border-color: rgba(23, 157, 32, 0.3);
-} */
+    border-width: 0px;
+    border-color: rgba(113, 120, 15, 0.8);
+}
 
 .day-date-text {
     height: 2em;
@@ -114,7 +116,7 @@
 
 .dropoff-btns-enter-active {
   opacity: 1;
-  transition: opacity 300ms;
+  transition: opacity 500ms;
 }
 
 .dropoff-btns-exit {
@@ -123,8 +125,12 @@
 
 .dropoff-btns-exit-active {
   opacity: 0;
-  transition: opacity 150ms;
+  transition: opacity 200ms;
 }
+
+/* .dropoff-btns-exit-done {
+    visibility: hidden;
+} */
 
 .row {
     max-width: 1100px;

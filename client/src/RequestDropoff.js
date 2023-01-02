@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 export function RequestDropoff(props) {
-    const { unselect } = props;
+    const { unselect, toggle } = props;
     const [modalShow, setModalShow] = useState(false);
 
     return (
@@ -21,20 +21,29 @@ export function RequestDropoff(props) {
                     unselect();
                     setModalShow(false);
                 }}
+                toggle={toggle}
             />
         </>
     );
 }
 
 function SelectDropoffModal(props) {
+    const { show, onHide, toggle } = props;
     return (
-        <Modal {...props} centered>
+        <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Request Drop-off at Apartment</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <ButtonGroup vertical>
-                    <Button onClick={() => console.log('apt 7 clicked')}>Apartment 7</Button>
+                    <Button
+                        onClick={() => {
+                            console.log('apt 7 clicked');
+                            toggle();
+                        }}
+                    >
+                        Apartment 7
+                    </Button>
                     <Button onClick={() => console.log('apt 10 clicked')}>Apartment 10</Button>
                     <Button onClick={() => console.log('apt 22 clicked')}>Apartment 22</Button>
                 </ButtonGroup>
