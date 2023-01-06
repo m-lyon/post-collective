@@ -7,11 +7,14 @@ const { OfferedDate } = require('../models/OfferedDate');
 
 router.get('/', async function (req, res) {
     const { user, startDate, endDate } = req.query;
-
-    // TODO: use DateFormat method when can figure out export syntax
-    const offers = await getDates(RequestedDate, user, startDate, endDate);
-
-    res.send(offers);
+    const { status, msg } = await User.checkExists(user);
+    if (!status && msg !== 'user-id-not-provided') {
+        res.status(400).send({ status: 400, error: msg });
+        return;
+    }
+    const dates = await RequestedDate.findDates(user, parseDate(startDate), parseDate(endDate));
+    console.log(dates);
+    res.send(dates);
 });
 
 /**

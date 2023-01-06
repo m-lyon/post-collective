@@ -43,6 +43,82 @@ function NavigationArrows({ days, setDays }) {
 }
 
 /**
+ * Requests offered days from other users from backend
+ * @param {*} daysState
+ * @param {*} userState
+ * @param {*} offeredDays
+ */
+function getAvailableDays(daysState, userState, offers) {
+    // offeredDays is undefined for initial state
+    if (offers === undefined) {
+        return daysState.map(() => ({ state: false }));
+    }
+    const otherOffers = offers.filter((data) => data.user._id !== users[userState]);
+    const offeredStrDates = otherOffers.map((data) => new DateFormat(data.date).getDateStr());
+    console.log(daysState, offeredStrDates);
+    return daysState.map((day) => {
+        if (offeredStrDates.includes(day.getDateStr())) {
+            return {
+                state: true,
+                data: otherOffers.filter((_, index) => day.getDateStr() === offeredStrDates[index]),
+            };
+        }
+        return { state: false };
+    });
+}
+
+/**
+ * Sets the availability state used in Calendar component
+ * @param {*} daysState
+ * @param {*} setAvailibility
+ * @param {*} availableDays
+ */
+function setAvailableDaysState(daysState, userState, setAvailibility, offers) {
+    setAvailibility(getAvailableDays(daysState, userState, offers));
+}
+
+async function getOffers(days) {
+    const response = await axios.get('http://localhost:9000/offered', {
+        params: {
+            startDate: days[0].getDateStr(),
+            endDate: days[days.length - 1].getDateStr(),
+        },
+    });
+    return response.data;
+}
+
+/**
+ * Sets the offeredDay state used in Calendar component.
+ *     takes the offeredDays response from backend, sets an array
+ *     of booleans for the days that are offered by the current user
+ * @param {*} days
+ * @param {*} setAvailibility
+ * @param {*} availableDays
+ */
+function setOfferedDaysState(daysState, userState, setOffered, offers) {
+    const offeredDates = offers
+        .filter((data) => data.user._id === users[userState])
+        .map((data) => new DateFormat(data.date).getDateStr());
+    const isOfferedArray = daysState.map((day) => {
+        return offeredDates.includes(day.getDateStr());
+    });
+    setOffered(isOfferedArray);
+}
+
+function setRequestedDaysState() {}
+
+async function getRequestedDaysForUser(days, user) {
+    const response = await axios.get('http://localhost:9000/requested', {
+        params: {
+            user: user._id,
+            startDate: days[0].getDateStr(),
+            endDate: days[days.length - 1].getDateStr(),
+        },
+    });
+    return response.data;
+}
+
+/**
  * Function that sets days Array to previous/next set of days
  * @param {Array} days
  * @param {*} setDays
@@ -64,75 +140,83 @@ function setNewDays(days, setDays, operator) {
     setDays(newDays);
 }
 
-function setAvailableDays(days, setAvailibility, offeredDates) {
-    const daysAvailable = offeredDates.map((offer) => offer.date.getDateStr());
-    const availibility = days.map((day) => {
-        return daysAvailable.includes(day.getDateStr());
+function updateOfferedDayState(index, offeredDays, setOffered) {
+    // Recommended to not mutate array for setState callback
+    const oDays = offeredDays.map((d, i) => {
+        if (i === index) {
+            return !d;
+        }
+        return d;
     });
-    setAvailibility(availibility);
+    setOffered(oDays);
 }
 
-export function Calendar({ initialDays }) {
-    const [user, setUser] = useState('Matt');
-    const [days, setDays] = useState(initialDays);
-    const [availibility, setAvailibility] = useState(initialDays.map(() => false));
-    const [requestedDays, setDaysRequested] = useState(initialDays.map(() => false));
-    const [offeredDays, setDaysOffered] = useState(initialDays.map(() => false));
-
-    useEffect(() => {
-        async function getDaysAvailable() {
-            try {
-                const response = await axios.get('http://localhost:9000/offered', {
-                    params: {
-                        startDate: days[0].getDateStr(),
-                        endDate: days[days.length - 1].getDateStr(),
-                    },
-                });
-                const availableDays = response.data
-                    .filter((data) => data.user._id !== users[user])
-                    .map((data) => {
-                        return { date: new DateFormat(data.date), aptNum: data.user.aptNum };
-                    });
-                setAvailableDays(days, setAvailibility, availableDays);
-            } catch (error) {
-                console.error(error);
-            }
+function updateRequestedDayState(index, requestedDays, setRequested) {
+    // TODO: this will not just be a boolean array.
+    // Recommended to not mutate array for setState callback
+    const rDays = requestedDays.map((d, i) => {
+        if (i === index) {
+            return !d;
         }
-        getDaysAvailable();
-    }, [days, user]);
+        return d;
+    });
+    setRequested(rDays);
+}
 
-    const calendarDays = days.map((day, index) => {
+function getCalendarDaysArray(
+    days,
+    availability,
+    offeredDays,
+    setOffered,
+    requestedDays,
+    setRequested
+) {
+    return days.map((day, index) => {
         // TODO:  wrap days.map in useMemo
         return (
             <CalendarDay
                 day={day.getDayStr()}
                 date={day.getDayMonthStr()}
                 key={day.getDayMonthStr()}
-                isAvailable={availibility[index]}
-                toggleOffered={() => {
-                    // Recommended to not mutate array for setState callback
-                    const oDays = offeredDays.map((d, i) => {
-                        if (i === index) {
-                            return !d;
-                        }
-                        return d;
-                    });
-                    setDaysOffered(oDays);
-                }}
-                toggleRequested={() => {
-                    // Recommended to not mutate array for setState callback
-                    const rDays = requestedDays.map((d, i) => {
-                        if (i === index) {
-                            return !d;
-                        }
-                        return d;
-                    });
-                    setDaysRequested(rDays);
-                }}
-                isRequested={requestedDays[index]}
+                availability={availability[index]}
+                toggleOffered={() => updateOfferedDayState(index, offeredDays, setOffered)}
+                toggleRequested={() => updateRequestedDayState(index, requestedDays, setRequested)}
+                isRequested={requestedDays[index]} // TODO: this will not just be a boolean array
             />
         );
     });
+}
+
+export function Calendar({ initialDays }) {
+    const [user, setUser] = useState('Matt');
+    const [days, setDays] = useState(initialDays);
+    const [offeredDays, setOffered] = useState(initialDays.map(() => false));
+    const [availability, setAvailibility] = useState(getAvailableDays(days));
+    // TODO: requestedDays Array should be more than just array of bools,
+    // should contain user & apt info etc.
+    const [requestedDays, setRequested] = useState(initialDays.map(() => false));
+
+    useEffect(() => {
+        async function func() {
+            // TODO: consider splitting this into two useEffects, one for offeredDays & available,
+            // and one for requestedDays.
+            const offers = await getOffers(days);
+            const requestedDays = await getRequestedDaysForUser(days, user);
+            setOfferedDaysState(days, user, setOffered, offers);
+            setAvailableDaysState(days, user, setAvailibility, offers);
+            setRequestedDaysState(requestedDays);
+        }
+        func();
+    }, [days, user]);
+
+    const calendarDays = getCalendarDaysArray(
+        days,
+        availability,
+        offeredDays,
+        setOffered,
+        requestedDays,
+        setRequested
+    );
 
     return (
         <>

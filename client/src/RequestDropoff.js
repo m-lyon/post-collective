@@ -4,49 +4,61 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 export function RequestDropoff(props) {
-    const { unselect, toggle } = props;
+    const { unselect, toggle, availability } = props;
     const [modalShow, setModalShow] = useState(false);
-
+    if (availability.state) {
+        return (
+            <>
+                <div
+                    className='select-box bg-white text-grey hvr-grow2'
+                    onClick={() => {
+                        setModalShow(true);
+                        // TODO: make API request for requested day
+                    }}
+                >
+                    Request Drop-off
+                </div>
+                <SelectDropoffModal
+                    data={availability.data}
+                    show={modalShow}
+                    onHide={() => {
+                        unselect();
+                        setModalShow(false);
+                    }}
+                    toggle={toggle}
+                />
+            </>
+        );
+    }
     return (
         <>
-            <div
-                className='select-box bg-white text-grey hvr-grow2'
-                onClick={() => setModalShow(true)}
-            >
-                Request Drop-off
-            </div>
-            <SelectDropoffModal
-                show={modalShow}
-                onHide={() => {
-                    unselect();
-                    setModalShow(false);
-                }}
-                toggle={toggle}
-            />
+            <div className='select-box bg-white text-grey disabled'>Request Drop-off</div>
         </>
     );
 }
 
 function SelectDropoffModal(props) {
-    const { show, onHide, toggle } = props;
+    const { data, show, onHide, toggle } = props;
+    const buttons = data.map((offerData) => {
+        return (
+            <Button
+                key={offerData.user.aptNum}
+                onClick={() => {
+                    console.log(`apt ${offerData.user.aptNum} clicked`);
+                    toggle();
+                }}
+            >
+                Apartment {offerData.user.aptNum}
+            </Button>
+        );
+    });
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
                 <Modal.Title>Request Drop-off at Apartment</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <ButtonGroup vertical>
-                    <Button
-                        onClick={() => {
-                            console.log('apt 7 clicked');
-                            toggle();
-                        }}
-                    >
-                        Apartment 7
-                    </Button>
-                    <Button onClick={() => console.log('apt 10 clicked')}>Apartment 10</Button>
-                    <Button onClick={() => console.log('apt 22 clicked')}>Apartment 22</Button>
-                </ButtonGroup>
+                <ButtonGroup vertical>{buttons}</ButtonGroup>
             </Modal.Body>
         </Modal>
     );

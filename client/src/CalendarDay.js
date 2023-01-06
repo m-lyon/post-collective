@@ -6,16 +6,17 @@ import { CSSTransition } from 'react-transition-group';
 export function CalendarDay({
     day,
     date,
-    isAvailable,
+    availability,
     toggleOffered,
     toggleRequested,
     isRequested,
 }) {
+    // TODO: change availability to form {state: bool, data: [db data]}
     const [isSelected, setSelected] = useState(false);
     let className = '';
     if (isRequested) {
         className = 'requested';
-    } else if (isAvailable) {
+    } else if (availability.state) {
         className = 'available';
     }
 
@@ -35,7 +36,11 @@ export function CalendarDay({
             </div>
             <CSSTransition in={isSelected} timeout={200} classNames='dropoff-btns' unmountOnExit>
                 <div className='select-box-parent'>
-                    <RequestDropoff unselect={() => setSelected(false)} toggle={toggleRequested} />
+                    <RequestDropoff
+                        unselect={() => setSelected(false)}
+                        toggle={toggleRequested}
+                        availability={availability}
+                    />
                     <div className='select-box select-box-lower bg-white text-grey hvr-grow2'>
                         Offer Pickup
                     </div>

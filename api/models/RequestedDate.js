@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { findDateRangeForUser } = require('./utils');
+const { findDates } = require('./utils');
 const { Schema } = mongoose;
 
 const requestedDateSchema = new Schema({
@@ -8,7 +8,7 @@ const requestedDateSchema = new Schema({
     offeredDate: { type: Schema.Types.ObjectId, ref: 'OfferedDate', required: true },
 });
 
-requestedDateSchema.statics.findDateRangeForUser = findDateRangeForUser;
+requestedDateSchema.statics.findDates = findDates;
 
 const RequestedDate = mongoose.model('RequestedDate', requestedDateSchema);
 
