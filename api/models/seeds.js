@@ -1,6 +1,7 @@
-const { User, RequestedDate, OfferedDate } = require('./models');
-
+const { User } = require('./User');
+const { OfferedDate } = require('./OfferedDate');
 const mongoose = require('mongoose');
+
 mongoose.set('strictQuery', false);
 mongoose
     .connect('mongodb://127.0.0.1:27017/balmoralHouse')
@@ -8,15 +9,20 @@ mongoose
     .catch(() => console.log('we didnt connect :('));
 
 async function createUsers() {
-    await User.collection.drop();
+    console.log('here1');
+    if (await User.exists()) {
+        await User.collection.drop();
+    }
     const matt = new User({ name: 'Matt', aptNum: 17 });
     await matt.save();
     const gooby = new User({ name: 'Gooby', aptNum: 702 });
     await gooby.save();
+    console.log('here2');
 }
 
 async function createDates() {
     OfferedDate.collection.drop();
+    OfferedDate.createCollection();
     // Create days array
     const days = [];
     let day = new Date();

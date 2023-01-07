@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Calendar } from './Calendar.js';
+import { Calendar } from './Calendar.tsx';
 import './calendar.css';
 import { DateFormat } from './DateFormat.js';
 

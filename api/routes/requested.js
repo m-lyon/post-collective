@@ -4,6 +4,7 @@ const parseDate = require('../date_utils');
 const { User } = require('../models/User');
 const { RequestedDate } = require('../models/RequestedDate');
 const { OfferedDate } = require('../models/OfferedDate');
+const { request } = require('express');
 
 router.get('/', async function (req, res) {
     const { user, startDate, endDate } = req.query;
@@ -30,9 +31,12 @@ router.get('/:date', async function (req, res) {
  * Adds an offer to a date given a user
  */
 router.put('/:date', async function (req, res) {
-    let { user, offeredDateId } = req.query;
+    const date = req.params.date;
+    let { user, offeredDateId } = req.body;
+    console.log(date, user, offeredDateId);
+
     // Check user exists
-    let { status, msg } = await User.checkExists(req.query.user);
+    let { status, msg } = await User.checkExists(user);
     if (!status) {
         res.status(400).send({ status: 400, error: msg });
         return;
@@ -47,12 +51,14 @@ router.put('/:date', async function (req, res) {
     }
 
     // Validate that offeredDate and requestedDate have same date
-    if (offeredDate.toDateString() !== parseDate(req.params.date).toDateString()) {
+    if (offeredDate.toDateString() !== parseDate(date).toDateString()) {
         res.status(400).send({ status: 400, error: 'dates-mismatch' });
         return;
     }
 
-    const data = { date: parseDate(req.params.date), user: user, offeredDate: offeredDateId };
+    // TODO: Validate that offeredDate and requestedDate are from different users.
+
+    const data = { date: parseDate(date), user: user, offeredDate: offeredDateId };
 
     // Verify user does not already have offer on that day
     let offer = await RequestedDate.findOne(data);
@@ -63,9 +69,10 @@ router.put('/:date', async function (req, res) {
 
     // Add request to database
     try {
-        request = new RequestedDate(data);
-        await request.save(); // do rejects from a promise throw an exception?
-        res.send();
+        let request = new RequestedDate(data);
+        await request.save();
+        request = await request.populate('user');
+        res.send(request);
     } catch (err) {
         console.log(err.message);
         res.status(400).send({ status: 400, error: 'cannot-add-request' });
