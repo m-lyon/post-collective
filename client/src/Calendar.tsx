@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { CalendarDay } from './CalendarDay.js';
+import { CalendarDay } from './CalendarDay';
 import { Row, Navbar, Nav, Container } from 'react-bootstrap';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { DateFormat } from './DateFormat.js';
+import { Dispatch, SetStateAction } from 'react';
+
+import { Offer, RequestResponse, Request, RequestedDays } from './types';
+import { AvailableDays } from './types';
 
 // const users = { Matt: '63b06817440bc7f56bf2f574', Gooby: '63b06817440bc7f56bf2f576' };
 const users = { Matt: '63b8985155030c7a71481c51', Gooby: '63b8985155030c7a71481c53' };
@@ -48,48 +52,6 @@ function NavigationArrows({ days, setDays }) {
 }
 
 // TODO: refactor to remove state from AvailableDay & RequestedDay
-interface User {
-    _id: string;
-    aptNum?: number;
-}
-
-interface Offer {
-    _id: string;
-    date: string;
-    user: User;
-}
-
-/**
- * This is the raw response sent back from the API
- */
-interface RequestResponse {
-    date: Date;
-    offeredDate: string;
-    user: User;
-    _id: string;
-}
-
-/**
- * This is a parsed request object
- */
-interface Request {
-    date: string;
-    user: User;
-    offeredDate: string;
-}
-
-/**
- *
- */
-type RequestedDays = {
-    state: boolean;
-    data?: Request;
-}[];
-
-type AvailableDays = {
-    state: boolean;
-    data?: Offer[];
-}[];
 
 /**
  * Requests offered days from other users from backend
@@ -121,9 +83,10 @@ function getAvailableDaysArray(
     });
 }
 
-type SetAvailabilityFunction = (availableDays: AvailableDays) => void;
-type SetOfferedFunction = (offered: boolean[]) => void;
-type SetRequestedFunction = (requested: RequestedDays) => void;
+type SetDaysFunction = Dispatch<SetStateAction<DateFormat[]>>;
+// type SetAvailabilityFunction = Dispatch<SetStateAction<AvailableDays>>;
+type SetOfferedFunction = Dispatch<SetStateAction<boolean[]>>;
+type SetRequestedFunction = Dispatch<SetStateAction<RequestedDays>>;
 
 async function getOffers(days: DateFormat[]): Promise<Offer[]> {
     const response = await axios.get('http://localhost:9000/offered', {
@@ -140,7 +103,7 @@ async function getOffers(days: DateFormat[]): Promise<Offer[]> {
  *     takes the offeredDays response from backend, sets an array
  *     of booleans for the days that are offered by the current user
  */
-function setOfferedDaysArray(
+function setOfferedDays(
     daysState: DateFormat[],
     user: string,
     setOffered: SetOfferedFunction,
@@ -155,29 +118,33 @@ function setOfferedDaysArray(
     setOffered(isOfferedArray);
 }
 
-function setRequestedDaysArray(
+function setRequestedDays(
     daysState: DateFormat[],
     setRequested: SetRequestedFunction,
-    requestedDays: Request[]
+    requests: RequestResponse[]
 ): void {
-    const requestedDates = requestedDays.map((data) => new DateFormat(data.date).getDateStr());
-    const requestedDaysArray = daysState.map((day) => {
+    const requestedDates = requests.map((data) => new DateFormat(data.date).getDateStr());
+    const requestedDays: RequestedDays = daysState.map((day) => {
         if (requestedDates.includes(day.getDateStr())) {
             return {
                 state: true,
-                data: requestedDays.find((_, index) => {
-                    return day.getDateStr() === requestedDates[index];
-                }),
+                data: parseRequestResponse(
+                    requests.find((_, index) => {
+                        return day.getDateStr() === requestedDates[index];
+                    })
+                ),
             };
         } else {
             return { state: false };
         }
     });
-    console.log(requestedDays, requestedDaysArray);
-    setRequested(requestedDaysArray);
+    setRequested(requestedDays);
 }
 
-async function getRequestedDaysForUser(daysState: DateFormat[], user: string): Promise<Request[]> {
+async function getRequestedDaysForUser(
+    daysState: DateFormat[],
+    user: string
+): Promise<RequestResponse[]> {
     const response = await axios.get('http://localhost:9000/requested', {
         params: {
             user: user,
@@ -190,11 +157,8 @@ async function getRequestedDaysForUser(daysState: DateFormat[], user: string): P
 
 /**
  * Function that sets days Array to previous/next set of days
- * @param {Array} daysState
- * @param {*} setDays
- * @param {String} operator
  */
-function setNewDays(daysState: DateFormat[], setDays, operator) {
+function setNewDays(daysState: DateFormat[], setDays: SetDaysFunction, operator: string) {
     const newDays = [];
     for (let day of daysState) {
         const newDay = new DateFormat(day);
@@ -210,23 +174,36 @@ function setNewDays(daysState: DateFormat[], setDays, operator) {
     setDays(newDays);
 }
 
-function updateOfferedDayState(index, offeredDays, setOffered) {
+function updateOfferedDayState(
+    index: number,
+    offeredDays: boolean[],
+    setOffered: SetOfferedFunction
+) {
     // Recommended to not mutate array for setState callback
     console.log('updateOfferedDayState has been called.');
-    const oDays = offeredDays.map((d, i) => {
+    const updatedOfferedDays = offeredDays.map((d: boolean, i: number) => {
         if (i === index) {
             return !d;
         }
         return d;
     });
-    setOffered(oDays);
+    setOffered(updatedOfferedDays);
+}
+
+function parseRequestResponse(requestResponse: RequestResponse): Request {
+    return {
+        _id: requestResponse._id,
+        date: new DateFormat(requestResponse.date).getDateStr(),
+        offeredDate: requestResponse.offeredDate,
+        user: requestResponse.user,
+    };
 }
 
 function updateRequestedDayState(
     index: number,
     requestResponse: RequestResponse,
     requestedDays: RequestedDays,
-    setRequested
+    setRequested: SetRequestedFunction
 ): void {
     // Recommended to not mutate array for setState callback
     console.log('updateRequestedDayState has been called.');
@@ -235,13 +212,7 @@ function updateRequestedDayState(
             if (requestedDay.state) {
                 return { state: false };
             }
-            const { date, user, offeredDate } = requestResponse;
-            const request = {
-                date: new DateFormat(date).getDateStr(),
-                user: user,
-                offeredDate: offeredDate,
-            } satisfies Request;
-            return { state: true, data: request };
+            return { state: true, data: parseRequestResponse(requestResponse) };
         }
         return requestedDay;
     });
@@ -253,9 +224,9 @@ function getCalendarDaysArray(
     user: string,
     availability: AvailableDays,
     offeredDays: boolean[],
-    setOffered,
+    setOffered: SetOfferedFunction,
     requestedDays: RequestedDays,
-    setRequested
+    setRequested: SetRequestedFunction
 ) {
     return days.map((day, index) => {
         // TODO:  wrap days.map in useMemo
@@ -263,7 +234,7 @@ function getCalendarDaysArray(
             <CalendarDay
                 day={day.getDayStr()}
                 user={user}
-                date={day.getDayMonthStr()}
+                displayDate={day.getDayMonthStr()}
                 key={day.getDayMonthStr()}
                 availability={availability[index]}
                 toggleOffered={() => updateOfferedDayState(index, offeredDays, setOffered)}
@@ -278,20 +249,24 @@ function getCalendarDaysArray(
 
 export function Calendar({ initialDays }) {
     const [userName, setUser] = useState('Matt');
-    const [days, setDays] = useState(initialDays);
-    const [offeredDays, setOffered] = useState(days.map(() => false));
-    const [availability, setAvailability] = useState(days.map(() => ({ state: false })));
-    const [requestedDays, setRequested] = useState(days.map(() => ({ state: false })));
+    const [days, setDays] = useState<DateFormat[]>(initialDays);
+    const [offeredDays, setOffered] = useState<boolean[]>(days.map(() => false));
+    const [availability, setAvailability] = useState<AvailableDays>(
+        days.map(() => ({ state: false }))
+    );
+    const [requestedDays, setRequested] = useState<RequestedDays>(
+        days.map(() => ({ state: false }))
+    );
 
     useEffect(() => {
         async function func() {
             // TODO: consider splitting this into two useEffects, one for offeredDays & available,
             // and one for requestedDays.
             const offers = await getOffers(days);
-            const requested = await getRequestedDaysForUser(days, users[userName]);
+            const requests = await getRequestedDaysForUser(days, users[userName]);
             setAvailability(getAvailableDaysArray(days, users[userName], offers));
-            setOfferedDaysArray(days, users[userName], setOffered, offers);
-            setRequestedDaysArray(days, setRequested, requested);
+            setOfferedDays(days, users[userName], setOffered, offers);
+            setRequestedDays(days, setRequested, requests);
         }
         func();
     }, [days, userName]);

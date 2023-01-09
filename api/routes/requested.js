@@ -81,17 +81,11 @@ router.put('/:date', async function (req, res) {
 });
 
 /**
- * Removes offered date from database
+ * Removes requested date from database
  */
-router.delete('/:date', async function (req, res) {
-    const userExists = await User.checkExists(req, res);
-    if (!userExists) {
-        return;
-    }
-    const data = { date: parseDate(req.params.date), user: req.query.user };
-
+router.delete('/:dateId', async function (req, res) {
     // Verify offer exists on that day
-    let request = await RequestedDate.findOne(data);
+    const request = await RequestedDate.findById(req.params.dateId);
     if (request === null) {
         res.status(400).send({ status: 400, error: 'request-doesnt-exist' });
         return;
@@ -100,7 +94,7 @@ router.delete('/:date', async function (req, res) {
     // Delete offer
     try {
         await request.remove();
-        res.send();
+        res.send(request);
     } catch {
         res.status(400).send({ status: 400, error: 'cannot-remove-offer' });
         return;

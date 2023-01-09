@@ -1,17 +1,30 @@
 import { useState } from 'react';
 import Col from 'react-bootstrap/Col';
-import { RequestDropoff } from './RequestDropoff';
 import { CSSTransition } from 'react-transition-group';
+
+import { RequestButton } from './RequestDropoff';
+import { AvailableDay, RequestedDay } from './types';
+import { ToggleOfferedFunction, ToggleRequestedFunction } from './types';
+
+interface CalendarDayProps {
+    day: string;
+    user: string;
+    displayDate: string;
+    availability: AvailableDay;
+    toggleOffered: ToggleOfferedFunction;
+    toggleRequested: ToggleRequestedFunction;
+    requested: RequestedDay;
+}
 
 export function CalendarDay({
     day,
     user,
-    date,
+    displayDate,
     availability,
     toggleOffered,
     toggleRequested,
     requested,
-}) {
+}: CalendarDayProps) {
     // TODO: change availability to form {state: bool, data: [db data]}
     const [isSelected, setSelected] = useState(false);
     let className = '';
@@ -32,11 +45,11 @@ export function CalendarDay({
         >
             <div className='day-date-text'>
                 <span className='day-name text-grey'>{day}</span>
-                <span className='date text-grey'>{date}</span>
+                <span className='date text-grey'>{displayDate}</span>
             </div>
             <CSSTransition in={isSelected} timeout={200} classNames='dropoff-btns' unmountOnExit>
                 <div className='select-box-parent'>
-                    <RequestDropoff
+                    <RequestButton
                         user={user}
                         unselect={() => setSelected(false)}
                         toggleRequested={toggleRequested}
