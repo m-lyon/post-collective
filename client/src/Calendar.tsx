@@ -84,7 +84,6 @@ function getAvailableDaysArray(
 }
 
 type SetDaysFunction = Dispatch<SetStateAction<DateFormat[]>>;
-// type SetAvailabilityFunction = Dispatch<SetStateAction<AvailableDays>>;
 type SetOfferedFunction = Dispatch<SetStateAction<boolean[]>>;
 type SetRequestedFunction = Dispatch<SetStateAction<RequestedDays>>;
 
@@ -232,9 +231,8 @@ function getCalendarDaysArray(
         // TODO:  wrap days.map in useMemo
         return (
             <CalendarDay
-                day={day.getDayStr()}
+                date={day}
                 user={user}
-                displayDate={day.getDayMonthStr()}
                 key={day.getDayMonthStr()}
                 availability={availability[index]}
                 toggleOffered={() => updateOfferedDayState(index, offeredDays, setOffered)}
@@ -242,6 +240,7 @@ function getCalendarDaysArray(
                     updateRequestedDayState(index, request, requestedDays, setRequested)
                 }
                 requested={requestedDays[index]}
+                offered={offeredDays[index]}
             />
         );
     });

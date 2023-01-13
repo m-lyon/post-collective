@@ -47,9 +47,17 @@ interface RequestButtonProps {
     toggleRequested: ToggleRequestedFunction;
     availability: AvailableDay;
     requested: RequestedDay;
+    offered: boolean;
 }
 export function RequestButton(props: RequestButtonProps) {
-    const { user, unselect, toggleRequested, availability, requested } = props;
+    const { user, unselect, toggleRequested, availability, requested, offered } = props;
+    if (offered) {
+        if (availability.state) {
+            return <div className='select-box bg-white text-grey disabled'>Request Dropoff</div>;
+        } else {
+            return <div className='select-box bg-white text-grey disabled'>No Drop-offs</div>;
+        }
+    }
     if (requested.state) {
         return <CancelRequestButton request={requested.data} toggleRequested={toggleRequested} />;
     }

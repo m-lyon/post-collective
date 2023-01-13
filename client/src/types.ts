@@ -47,5 +47,5 @@ export type AvailableDay = {
 }
 export type AvailableDays = AvailableDay[];
 
-export type ToggleOfferedFunction = (offer: Offer) => void;
+export type ToggleOfferedFunction = () => void;
 export type ToggleRequestedFunction = (request: RequestResponse) => void;

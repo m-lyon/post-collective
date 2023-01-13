@@ -31,12 +31,12 @@ router.get('/:date', async function (req, res) {
 router.put('/:date', async function (req, res) {
     // Check user exists
     // TODO: this is giving 23:00:00 datetimes for some reason..
-    const { status, msg } = await User.checkExists(req.query.user);
+    const { status, msg } = await User.checkExists(req.body.user);
     if (!status) {
         res.status(400).send({ status: 400, error: msg });
         return;
     }
-    const data = { date: parseDate(req.params.date), user: req.query.user };
+    const data = { date: parseDate(req.params.date), user: req.body.user };
 
     // Verify user does not already have offer on that day
     let offer = await OfferedDate.findOne(data);
@@ -64,7 +64,7 @@ router.delete('/:date', async function (req, res) {
     if (!userExists) {
         return;
     }
-    const data = { date: parseDate(req.params.date), user: req.query.user };
+    const data = { date: parseDate(req.params.date), user: req.body.user };
 
     // Verify offer exists on that day
     let offer = await OfferedDate.findOne(data);

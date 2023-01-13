@@ -23,7 +23,7 @@
 }
 
 .offered {
-    box-shadow: rgba(23, 32, 157, 0.8) 0px 3px 8px;
+    box-shadow: rgba(23, 70, 157, 0.8) 0px 3px 8px;
     border-style: solid;
     border-width: 0px;
     border-color: rgba(23, 32, 157, 0.8);
@@ -54,6 +54,7 @@
 }
 
 .disabled {
+    color:rgba(65, 64, 64, 0.644);
     cursor: default;
 }
 
