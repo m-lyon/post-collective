@@ -5,8 +5,13 @@ import { DateFormat } from './DateFormat';
 
 import { RequestButton } from './RequestDropoff';
 import { OfferButton } from './OfferPickup';
+
+import { updateOfferedDays } from './offers';
+import { updateRequestedDays } from './requests';
 import { AvailableDay, RequestedDay } from './types';
 import { ToggleOfferedFunction, ToggleRequestedFunction } from './types';
+import { RequestResponse, RequestedDays, AvailableDays } from './types';
+import { SetOfferedFunction, SetRequestedFunction } from './types';
 
 interface CalendarDayProps {
     date: DateFormat;
@@ -71,4 +76,32 @@ export function CalendarDay({
             </CSSTransition>
         </Col>
     );
+}
+
+export function getCalendarDaysArray(
+    days: DateFormat[],
+    user: string,
+    availability: AvailableDays,
+    offeredDays: boolean[],
+    setOffered: SetOfferedFunction,
+    requestedDays: RequestedDays,
+    setRequested: SetRequestedFunction
+) {
+    return days.map((day, index) => {
+        // TODO:  wrap days.map in useMemo
+        return (
+            <CalendarDay
+                date={day}
+                user={user}
+                key={day.getDayMonthStr()}
+                availability={availability[index]}
+                toggleOffered={() => updateOfferedDays(index, offeredDays, setOffered)}
+                toggleRequested={(request: RequestResponse) =>
+                    updateRequestedDays(index, request, requestedDays, setRequested)
+                }
+                requested={requestedDays[index]}
+                offered={offeredDays[index]}
+            />
+        );
+    });
 }

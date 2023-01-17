@@ -1,3 +1,6 @@
+import { Dispatch, SetStateAction } from 'react';
+import { DateFormat } from './DateFormat.js';
+
 export interface User {
     _id: string;
     aptNum?: number;
@@ -49,3 +52,6 @@ export type AvailableDays = AvailableDay[];
 
 export type ToggleOfferedFunction = () => void;
 export type ToggleRequestedFunction = (request: RequestResponse) => void;
+export type SetDaysFunction = Dispatch<SetStateAction<DateFormat[]>>;
+export type SetOfferedFunction = Dispatch<SetStateAction<boolean[]>>;
+export type SetRequestedFunction = Dispatch<SetStateAction<RequestedDays>>;

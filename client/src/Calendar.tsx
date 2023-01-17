@@ -1,28 +1,21 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { CalendarDay } from './CalendarDay';
+import { getCalendarDaysArray } from './CalendarDay';
 import { Row, Navbar, Nav, Container } from 'react-bootstrap';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { DateFormat } from './DateFormat.js';
-import { Dispatch, SetStateAction } from 'react';
 
-import { Offer, RequestResponse, Request, RequestedDays } from './types';
+import { getOffers, setOfferedDays } from './offers';
+import { getRequestedDaysForUser, setRequestedDays } from './requests';
+import { Offer, RequestedDays } from './types';
 import { AvailableDays } from './types';
+import { SetDaysFunction } from './types';
 
 // const users = { Matt: '63b06817440bc7f56bf2f574', Gooby: '63b06817440bc7f56bf2f576' };
 const users = { Matt: '63b8985155030c7a71481c51', Gooby: '63b8985155030c7a71481c53' };
 
-// TODO: NEXT - continue adding type info
-// TODO: NEXT - add functionality to cancel request
-// TODO: NEXT - add functionality to offer pickup
-
-//      - Write logic to request offered & requested data from db, populate variables
-//      - Write logic to change buttons/info based on this data (e.g modal options, whether buttons are greyed out etc)
-
-//      - Write React logic for offered date
-//      - Write logic to show requested & offered for both users
-
+// TODO: write logic to handle errors w/ api
 // TODO: incorporate css clamp(min, vw, max) function into calendar day.
+// TODO: make 4 week calendar for desktop, 1 week for mobile
 // TODO: animation for changing of days
 // TODO: make top of dates a little bit gray
 // TODO: make login
@@ -83,77 +76,6 @@ function getAvailableDaysArray(
     });
 }
 
-type SetDaysFunction = Dispatch<SetStateAction<DateFormat[]>>;
-type SetOfferedFunction = Dispatch<SetStateAction<boolean[]>>;
-type SetRequestedFunction = Dispatch<SetStateAction<RequestedDays>>;
-
-async function getOffers(days: DateFormat[]): Promise<Offer[]> {
-    const response = await axios.get('http://localhost:9000/offered', {
-        params: {
-            startDate: days[0].getDateStr(),
-            endDate: days[days.length - 1].getDateStr(),
-        },
-    });
-    return response.data;
-}
-
-/**
- * Sets the offeredDay state used in Calendar component.
- *     takes the offeredDays response from backend, sets an array
- *     of booleans for the days that are offered by the current user
- */
-function setOfferedDays(
-    daysState: DateFormat[],
-    user: string,
-    setOffered: SetOfferedFunction,
-    offers: Offer[]
-): void {
-    const offeredDates = offers
-        .filter((data) => data.user._id === user)
-        .map((data) => new DateFormat(data.date).getDateStr());
-    const isOfferedArray = daysState.map((day) => {
-        return offeredDates.includes(day.getDateStr());
-    });
-    setOffered(isOfferedArray);
-}
-
-function setRequestedDays(
-    daysState: DateFormat[],
-    setRequested: SetRequestedFunction,
-    requests: RequestResponse[]
-): void {
-    const requestedDates = requests.map((data) => new DateFormat(data.date).getDateStr());
-    const requestedDays: RequestedDays = daysState.map((day) => {
-        if (requestedDates.includes(day.getDateStr())) {
-            return {
-                state: true,
-                data: parseRequestResponse(
-                    requests.find((_, index) => {
-                        return day.getDateStr() === requestedDates[index];
-                    })
-                ),
-            };
-        } else {
-            return { state: false };
-        }
-    });
-    setRequested(requestedDays);
-}
-
-async function getRequestedDaysForUser(
-    daysState: DateFormat[],
-    user: string
-): Promise<RequestResponse[]> {
-    const response = await axios.get('http://localhost:9000/requested', {
-        params: {
-            user: user,
-            startDate: daysState[0].getDateStr(),
-            endDate: daysState[daysState.length - 1].getDateStr(),
-        },
-    });
-    return response.data;
-}
-
 /**
  * Function that sets days Array to previous/next set of days
  */
@@ -171,79 +93,6 @@ function setNewDays(daysState: DateFormat[], setDays: SetDaysFunction, operator:
         newDays.push(newDay);
     }
     setDays(newDays);
-}
-
-function updateOfferedDayState(
-    index: number,
-    offeredDays: boolean[],
-    setOffered: SetOfferedFunction
-) {
-    // Recommended to not mutate array for setState callback
-    console.log('updateOfferedDayState has been called.');
-    const updatedOfferedDays = offeredDays.map((d: boolean, i: number) => {
-        if (i === index) {
-            return !d;
-        }
-        return d;
-    });
-    setOffered(updatedOfferedDays);
-}
-
-function parseRequestResponse(requestResponse: RequestResponse): Request {
-    return {
-        _id: requestResponse._id,
-        date: new DateFormat(requestResponse.date).getDateStr(),
-        offeredDate: requestResponse.offeredDate,
-        user: requestResponse.user,
-    };
-}
-
-function updateRequestedDayState(
-    index: number,
-    requestResponse: RequestResponse,
-    requestedDays: RequestedDays,
-    setRequested: SetRequestedFunction
-): void {
-    // Recommended to not mutate array for setState callback
-    console.log('updateRequestedDayState has been called.');
-    const updatedRequestedDays = requestedDays.map((requestedDay, i) => {
-        if (i === index) {
-            if (requestedDay.state) {
-                return { state: false };
-            }
-            return { state: true, data: parseRequestResponse(requestResponse) };
-        }
-        return requestedDay;
-    });
-    setRequested(updatedRequestedDays);
-}
-
-function getCalendarDaysArray(
-    days: DateFormat[],
-    user: string,
-    availability: AvailableDays,
-    offeredDays: boolean[],
-    setOffered: SetOfferedFunction,
-    requestedDays: RequestedDays,
-    setRequested: SetRequestedFunction
-) {
-    return days.map((day, index) => {
-        // TODO:  wrap days.map in useMemo
-        return (
-            <CalendarDay
-                date={day}
-                user={user}
-                key={day.getDayMonthStr()}
-                availability={availability[index]}
-                toggleOffered={() => updateOfferedDayState(index, offeredDays, setOffered)}
-                toggleRequested={(request: RequestResponse) =>
-                    updateRequestedDayState(index, request, requestedDays, setRequested)
-                }
-                requested={requestedDays[index]}
-                offered={offeredDays[index]}
-            />
-        );
-    });
 }
 
 export function Calendar({ initialDays }) {
