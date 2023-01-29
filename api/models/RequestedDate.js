@@ -8,6 +8,11 @@ const requestedDateSchema = new Schema({
     offeredDate: { type: Schema.Types.ObjectId, ref: 'OfferedDate', required: true },
 });
 
+requestedDateSchema.statics.findDatesForOffer = async function (offer) {
+    const query = { offeredDate: offer };
+    return this.find(query).populate('user', 'aptNum');
+};
+
 requestedDateSchema.statics.findDates = findDates;
 
 const RequestedDate = mongoose.model('RequestedDate', requestedDateSchema);

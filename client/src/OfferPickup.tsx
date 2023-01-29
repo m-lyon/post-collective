@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { RequestedDay, ToggleOfferedFunction } from './types';
+import { ToggleOfferedFunction } from './types';
 
 async function sendPickupOffer(user: string, date: string, toggleOffered: ToggleOfferedFunction) {
     try {
@@ -7,7 +7,7 @@ async function sendPickupOffer(user: string, date: string, toggleOffered: Toggle
             user: user,
         });
         console.log(response);
-        toggleOffered();
+        toggleOffered(response.data);
     } catch (err) {
         console.log(err);
     }
@@ -19,28 +19,10 @@ async function sendOfferCancel(user: string, date: string, toggleOffered: Toggle
             data: { user: user },
         });
         console.log(response);
-        toggleOffered();
+        toggleOffered(response.data);
     } catch (err) {
         console.log(err);
     }
-}
-
-interface OfferButtonProps {
-    user: string;
-    date: string;
-    toggleOffered: ToggleOfferedFunction;
-    requested: RequestedDay;
-    offered: boolean;
-}
-export function OfferButton(props: OfferButtonProps) {
-    const { user, date, toggleOffered, requested, offered } = props;
-    if (requested.state) {
-        return <div className='select-box bg-white text-grey disabled'>Offer Pickup</div>;
-    }
-    if (offered) {
-        return <CancelOfferButton user={user} date={date} toggleOffered={toggleOffered} />;
-    }
-    return <OfferPickupButton user={user} date={date} toggleOffered={toggleOffered} />;
 }
 
 interface OfferPickupButtonProps {
@@ -48,7 +30,7 @@ interface OfferPickupButtonProps {
     date: string;
     toggleOffered: ToggleOfferedFunction;
 }
-function OfferPickupButton({ user, date, toggleOffered }: OfferPickupButtonProps) {
+export function OfferPickupButton({ user, date, toggleOffered }: OfferPickupButtonProps) {
     return (
         <div
             className='select-box bg-white text-grey hvr-grow2'
@@ -65,7 +47,7 @@ interface CancelOfferButtonProps {
     toggleOffered: ToggleOfferedFunction;
 }
 
-function CancelOfferButton({ user, date, toggleOffered }: CancelOfferButtonProps) {
+export function CancelOfferButton({ user, date, toggleOffered }: CancelOfferButtonProps) {
     return (
         <div
             className='select-box bg-white text-grey hvr-grow2'

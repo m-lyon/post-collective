@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { DateFormat } from './DateFormat.js';
-
 import { RequestResponse, Request, RequestedDays } from './types';
-
 import { SetRequestedFunction } from './types';
+import { SERVER_ADDR } from './config';
 
 export function setRequestedDays(
     daysState: DateFormat[],
@@ -13,16 +12,13 @@ export function setRequestedDays(
     const requestedDates = requests.map((data) => new DateFormat(data.date).getDateStr());
     const requestedDays: RequestedDays = daysState.map((day) => {
         if (requestedDates.includes(day.getDateStr())) {
-            return {
-                state: true,
-                data: parseRequestResponse(
-                    requests.find((_, index) => {
-                        return day.getDateStr() === requestedDates[index];
-                    })
-                ),
-            };
+            return parseRequestResponse(
+                requests.find((_, index) => {
+                    return day.getDateStr() === requestedDates[index];
+                })
+            );
         } else {
-            return { state: false };
+            return null;
         }
     });
     setRequested(requestedDays);
@@ -32,7 +28,7 @@ export async function getRequestedDaysForUser(
     daysState: DateFormat[],
     user: string
 ): Promise<RequestResponse[]> {
-    const response = await axios.get('http://localhost:9000/requested', {
+    const response = await axios.get(`${SERVER_ADDR}/requested`, {
         params: {
             user: user,
             startDate: daysState[0].getDateStr(),
@@ -42,7 +38,19 @@ export async function getRequestedDaysForUser(
     return response.data;
 }
 
-export function updateRequestedDays(
+export async function getRequestedDaysForOffer() {}
+
+/**
+ * Updates requestedDays array at index position,
+ * if day is null, then will set with Request data,
+ * conversely if day contains a request, then will set
+ * to null.
+ * @param index
+ * @param requestResponse
+ * @param requestedDays
+ * @param setRequested
+ */
+export function toggleRequestedDay(
     index: number,
     requestResponse: RequestResponse,
     requestedDays: RequestedDays,
@@ -52,10 +60,10 @@ export function updateRequestedDays(
     console.log('updateRequestedDayState has been called.');
     const updatedRequestedDays = requestedDays.map((requestedDay, i) => {
         if (i === index) {
-            if (requestedDay.state) {
-                return { state: false };
+            if (requestedDay !== null) {
+                return null;
             }
-            return { state: true, data: parseRequestResponse(requestResponse) };
+            return parseRequestResponse(requestResponse);
         }
         return requestedDay;
     });

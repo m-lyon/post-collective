@@ -4,16 +4,25 @@ const parseDate = require('../date_utils');
 const { User } = require('../models/User');
 const { RequestedDate } = require('../models/RequestedDate');
 const { OfferedDate } = require('../models/OfferedDate');
-const { request } = require('express');
 
 router.get('/', async function (req, res) {
-    const { user, startDate, endDate } = req.query;
+    const { user, startDate, endDate, offer } = req.query;
     const { status, msg } = await User.checkExists(user);
     if (!status && msg !== 'user-id-not-provided') {
         res.status(400).send({ status: 400, error: msg });
         return;
     }
-    const dates = await RequestedDate.findDates(user, parseDate(startDate), parseDate(endDate));
+    let dates;
+    if (offer !== undefined) {
+        dates = await RequestedDate.findDatesForOffer(offer);
+    } else {
+        dates = await RequestedDate.findDates(
+            user,
+            parseDate(startDate),
+            parseDate(endDate),
+            offer
+        );
+    }
     console.log(dates);
     res.send(dates);
 });

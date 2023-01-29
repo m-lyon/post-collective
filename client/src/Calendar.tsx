@@ -6,21 +6,12 @@ import { DateFormat } from './DateFormat.js';
 
 import { getOffers, setOfferedDays } from './offers';
 import { getRequestedDaysForUser, setRequestedDays } from './requests';
-import { Offer, RequestedDays } from './types';
+import { Offer, OfferedDays, RequestedDays } from './types';
 import { AvailableDays } from './types';
 import { SetDaysFunction } from './types';
 
 // const users = { Matt: '63b06817440bc7f56bf2f574', Gooby: '63b06817440bc7f56bf2f576' };
 const users = { Matt: '63b8985155030c7a71481c51', Gooby: '63b8985155030c7a71481c53' };
-
-// TODO: write logic to handle errors w/ api
-// TODO: incorporate css clamp(min, vw, max) function into calendar day.
-// TODO: make 4 week calendar for desktop, 1 week for mobile
-// TODO: animation for changing of days
-// TODO: make top of dates a little bit gray
-// TODO: make login
-// TODO: messages functionality where user offering gets message of new dropoff request.
-// TODO: write logic for booking
 
 function LoginNavDropdown({ currentUser, setUser }) {
     return (
@@ -44,8 +35,6 @@ function NavigationArrows({ days, setDays }) {
     );
 }
 
-// TODO: refactor to remove state from AvailableDay & RequestedDay
-
 /**
  * Requests offered days from other users from backend
  */
@@ -66,12 +55,9 @@ function getAvailableDaysArray(
     const otherOfferDates = otherOffers.map((offer) => offer.date);
     return daysState.map((day) => {
         if (otherOfferDates.includes(day.getDateStr())) {
-            return {
-                state: true,
-                data: otherOffers.filter((_, index) => day.getDateStr() === otherOfferDates[index]),
-            };
+            return otherOffers.filter((_, index) => day.getDateStr() === otherOfferDates[index]);
         } else {
-            return { state: false };
+            return [];
         }
     });
 }
@@ -98,26 +84,25 @@ function setNewDays(daysState: DateFormat[], setDays: SetDaysFunction, operator:
 export function Calendar({ initialDays }) {
     const [userName, setUser] = useState('Matt');
     const [days, setDays] = useState<DateFormat[]>(initialDays);
-    const [offeredDays, setOffered] = useState<boolean[]>(days.map(() => false));
-    const [availability, setAvailability] = useState<AvailableDays>(
-        days.map(() => ({ state: false }))
-    );
-    const [requestedDays, setRequested] = useState<RequestedDays>(
-        days.map(() => ({ state: false }))
-    );
+    const [offeredDays, setOffered] = useState<OfferedDays>(days.map(() => null));
+    const [availability, setAvailability] = useState<AvailableDays>(days.map(() => []));
+    const [requestedDays, setRequested] = useState<RequestedDays>(days.map(() => null));
 
     useEffect(() => {
         async function func() {
             // TODO: consider splitting this into two useEffects, one for offeredDays & available,
             // and one for requestedDays.
             const offers = await getOffers(days);
-            const requests = await getRequestedDaysForUser(days, users[userName]);
+            const userRequests = await getRequestedDaysForUser(days, users[userName]);
             setAvailability(getAvailableDaysArray(days, users[userName], offers));
             setOfferedDays(days, users[userName], setOffered, offers);
-            setRequestedDays(days, setRequested, requests);
+            setRequestedDays(days, setRequested, userRequests);
         }
         func();
     }, [days, userName]);
+
+    console.log('offeredDays', offeredDays);
+    console.log('requestedDays', requestedDays);
 
     const calendarDays = getCalendarDaysArray(
         days,

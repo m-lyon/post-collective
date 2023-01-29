@@ -32,26 +32,14 @@ export interface Request {
     offeredDate: string;
 }
 
-/**
- *
- */
-export type RequestedDay = {
-    state: boolean;
-    data?: Request;
-};
-export type RequestedDays = RequestedDay[];
 
-/**
- * 
- */
-export type AvailableDay = {
-    state: boolean;
-    data?: Offer[];
-}
+export type RequestedDays = Request[];
+export type OfferedDays = Offer[];
+export type AvailableDay = Offer[];
 export type AvailableDays = AvailableDay[];
 
-export type ToggleOfferedFunction = () => void;
+export type ToggleOfferedFunction = (offer: Offer) => void;
 export type ToggleRequestedFunction = (request: RequestResponse) => void;
 export type SetDaysFunction = Dispatch<SetStateAction<DateFormat[]>>;
-export type SetOfferedFunction = Dispatch<SetStateAction<boolean[]>>;
+export type SetOfferedFunction = Dispatch<SetStateAction<Offer[]>>;
 export type SetRequestedFunction = Dispatch<SetStateAction<RequestedDays>>;

@@ -48,8 +48,9 @@ router.put('/:date', async function (req, res) {
     // Add offer to database
     try {
         offer = new OfferedDate(data);
-        await offer.save(); // do rejects from a promise throw an exception?
-        res.send();
+        await offer.save();
+        offer = offer.populate('user');
+        res.send(offer);
     } catch {
         res.status(400).send({ status: 400, error: 'cannot-add-offer' });
         return;
@@ -76,7 +77,7 @@ router.delete('/:date', async function (req, res) {
     // Delete offer
     try {
         await offer.remove();
-        res.send();
+        res.send(offer);
     } catch {
         res.status(400).send({ status: 400, error: 'cannot-remove-offer' });
         return;

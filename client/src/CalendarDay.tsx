@@ -1,17 +1,41 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import Col from 'react-bootstrap/Col';
 import { CSSTransition } from 'react-transition-group';
+
 import { DateFormat } from './DateFormat';
-
-import { RequestButton } from './RequestDropoff';
-import { OfferButton } from './OfferPickup';
-
-import { updateOfferedDays } from './offers';
-import { updateRequestedDays } from './requests';
-import { AvailableDay, RequestedDay } from './types';
+import { TopButton } from './TopButton';
+import { SERVER_ADDR } from './config';
+import { BottomButton } from './BottomButton';
+import { toggleOfferedDay } from './offers';
+import { toggleRequestedDay } from './requests';
+import { AvailableDay, OfferedDays, Request } from './types';
 import { ToggleOfferedFunction, ToggleRequestedFunction } from './types';
 import { RequestResponse, RequestedDays, AvailableDays } from './types';
-import { SetOfferedFunction, SetRequestedFunction } from './types';
+import { SetOfferedFunction, SetRequestedFunction, Offer } from './types';
+
+function getClassName(requested: Request, offered: Offer, availability: AvailableDay) {
+    if (requested !== null) {
+        return 'requested';
+    }
+    if (offered) {
+        return 'offered';
+    }
+    if (availability.length !== 0) {
+        return 'available';
+    }
+}
+
+async function getRequestsForOfferedDay(offer: Offer) {
+    if (offer === null) {
+        return [];
+    }
+    console.log('request sent');
+    const response = await axios.get(`${SERVER_ADDR}/requested`, {
+        params: { offer: offer },
+    });
+    return response.data;
+}
 
 interface CalendarDayProps {
     date: DateFormat;
@@ -19,10 +43,9 @@ interface CalendarDayProps {
     availability: AvailableDay;
     toggleOffered: ToggleOfferedFunction;
     toggleRequested: ToggleRequestedFunction;
-    requested: RequestedDay;
-    offered: boolean;
+    requested: Request;
+    offered: Offer;
 }
-
 export function CalendarDay({
     date,
     user,
@@ -33,16 +56,16 @@ export function CalendarDay({
     offered,
 }: CalendarDayProps) {
     const [isSelected, setSelected] = useState(false);
-    let className = '';
-    if (requested.state) {
-        className = 'requested';
-    } else if (offered) {
-        className = 'offered';
-    } else if (availability.state) {
-        className = 'available';
-    }
-    // react-mount-animation for animation
-    // https://dev.to/mijim/easily-animate-react-components-when-mount-unmount-223e
+    const [userRequests, setuserRequests] = useState([]);
+    const className = getClassName(requested, offered, availability);
+
+    useEffect(() => {
+        async function func() {
+            const requests = await getRequestsForOfferedDay(offered);
+            setuserRequests(requests);
+        }
+        func();
+    }, [offered]);
 
     return (
         <Col
@@ -57,15 +80,16 @@ export function CalendarDay({
             </div>
             <CSSTransition in={isSelected} timeout={200} classNames='dropoff-btns' unmountOnExit>
                 <div className='select-box-parent'>
-                    <RequestButton
+                    <TopButton
                         user={user}
                         unselect={() => setSelected(false)}
                         toggleRequested={toggleRequested}
                         availability={availability}
                         requested={requested}
                         offered={offered}
+                        userRequests={userRequests}
                     />
-                    <OfferButton
+                    <BottomButton
                         user={user}
                         date={date.getDateStr()}
                         toggleOffered={toggleOffered}
@@ -82,7 +106,7 @@ export function getCalendarDaysArray(
     days: DateFormat[],
     user: string,
     availability: AvailableDays,
-    offeredDays: boolean[],
+    offeredDays: OfferedDays,
     setOffered: SetOfferedFunction,
     requestedDays: RequestedDays,
     setRequested: SetRequestedFunction
@@ -95,9 +119,11 @@ export function getCalendarDaysArray(
                 user={user}
                 key={day.getDayMonthStr()}
                 availability={availability[index]}
-                toggleOffered={() => updateOfferedDays(index, offeredDays, setOffered)}
+                toggleOffered={(offer: Offer) =>
+                    toggleOfferedDay(index, offer, offeredDays, setOffered)
+                }
                 toggleRequested={(request: RequestResponse) =>
-                    updateRequestedDays(index, request, requestedDays, setRequested)
+                    toggleRequestedDay(index, request, requestedDays, setRequested)
                 }
                 requested={requestedDays[index]}
                 offered={offeredDays[index]}

@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { useState, Dispatch, SetStateAction } from 'react';
-import { AvailableDay, Offer, Request, RequestedDay, ToggleRequestedFunction } from './types';
+import { Offer, Request, ToggleRequestedFunction } from './types';
 
 type SetModalShowFunction = Dispatch<SetStateAction<boolean>>;
 
@@ -41,52 +41,13 @@ async function sendDropoffCancel(request: Request, toggleRequested: ToggleReques
     }
 }
 
-interface RequestButtonProps {
-    user: string;
-    unselect: () => void;
-    toggleRequested: ToggleRequestedFunction;
-    availability: AvailableDay;
-    requested: RequestedDay;
-    offered: boolean;
-}
-export function RequestButton(props: RequestButtonProps) {
-    const { user, unselect, toggleRequested, availability, requested, offered } = props;
-    if (offered) {
-        if (availability.state) {
-            return <div className='select-box bg-white text-grey disabled'>Request Dropoff</div>;
-        } else {
-            return <div className='select-box bg-white text-grey disabled'>No Drop-offs</div>;
-        }
-    }
-    if (requested.state) {
-        return <CancelRequestButton request={requested.data} toggleRequested={toggleRequested} />;
-    }
-    if (availability.state) {
-        return (
-            <RequestDropoffButton
-                user={user}
-                unselect={unselect}
-                toggleRequested={toggleRequested}
-                offers={availability.data}
-            />
-        );
-    }
-    // TODO: need to change text of "No Drop-offs", to "No Drop-offs Available", need to change
-    // the css of text so its not ugly.
-    return (
-        <>
-            <div className='select-box bg-white text-grey disabled'>No Drop-offs</div>
-        </>
-    );
-}
-
 interface RequestDropoffButtonProps {
     user: string;
     unselect: () => void;
     toggleRequested: ToggleRequestedFunction;
     offers: Offer[];
 }
-function RequestDropoffButton(props: RequestDropoffButtonProps) {
+export function RequestDropoffButton(props: RequestDropoffButtonProps) {
     const [modalShow, setModalShow] = useState(false);
     const { user, unselect, toggleRequested, offers } = props;
     return (
@@ -152,7 +113,7 @@ interface CancelRequestButtonProps {
     request: Request;
 }
 
-function CancelRequestButton({ toggleRequested, request }: CancelRequestButtonProps) {
+export function CancelRequestButton({ toggleRequested, request }: CancelRequestButtonProps) {
     return (
         <div
             className='select-box bg-white text-grey hvr-grow2'
