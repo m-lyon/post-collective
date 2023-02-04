@@ -30,7 +30,6 @@ async function getRequestsForOfferedDay(offer: Offer) {
     if (offer === null) {
         return [];
     }
-    console.log('request sent');
     const response = await axios.get(`${SERVER_ADDR}/requested`, {
         params: { offer: offer },
     });
@@ -58,7 +57,7 @@ export function CalendarDay({
     const [isSelected, setSelected] = useState(false);
     const [userRequests, setuserRequests] = useState([]);
     const className = getClassName(requested, offered, availability);
-
+    // console.log(offered);
     useEffect(() => {
         async function func() {
             const requests = await getRequestsForOfferedDay(offered);
@@ -93,8 +92,8 @@ export function CalendarDay({
                         user={user}
                         date={date.getDateStr()}
                         toggleOffered={toggleOffered}
-                        requested={requested}
-                        offered={offered}
+                        request={requested}
+                        offer={offered}
                     />
                 </div>
             </CSSTransition>
@@ -111,6 +110,7 @@ export function getCalendarDaysArray(
     requestedDays: RequestedDays,
     setRequested: SetRequestedFunction
 ) {
+    // console.log('offeredDays array before: ', offeredDays);
     return days.map((day, index) => {
         // TODO:  wrap days.map in useMemo
         return (

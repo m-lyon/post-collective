@@ -49,7 +49,7 @@ router.put('/:date', async function (req, res) {
     try {
         offer = new OfferedDate(data);
         await offer.save();
-        offer = offer.populate('user');
+        offer = await offer.populate('user');
         res.send(offer);
     } catch {
         res.status(400).send({ status: 400, error: 'cannot-add-offer' });
@@ -60,15 +60,16 @@ router.put('/:date', async function (req, res) {
 /**
  * Removes offered date from database
  */
-router.delete('/:date', async function (req, res) {
-    const userExists = await User.checkExists(req, res);
-    if (!userExists) {
+router.delete('/:dateId', async function (req, res) {
+    // Verify offer exists on that day
+    let offer;
+    try {
+        offer = await OfferedDate.findById(req.params.dateId);
+    } catch {
+        res.status(400).send({ status: 400, error: 'error-in-find-offer' });
         return;
     }
-    const data = { date: parseDate(req.params.date), user: req.body.user };
 
-    // Verify offer exists on that day
-    let offer = await OfferedDate.findOne(data);
     if (offer === null) {
         res.status(400).send({ status: 400, error: 'offer-doesnt-exist' });
         return;

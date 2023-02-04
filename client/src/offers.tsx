@@ -24,12 +24,11 @@ export function setOfferedDays(
     setOffered: SetOfferedFunction,
     offers: Offer[]
 ): void {
-    const offeredDates = offers
-        .filter((data) => data.user._id === user)
-        .map((data) => new DateFormat(data.date).getDateStr());
+    const userOffers = offers.filter((data) => data.user._id === user);
+    const offeredDates = userOffers.map((data) => new DateFormat(data.date).getDateStr());
     const offeredDays = daysState.map((day) => {
         if (offeredDates.includes(day.getDateStr())) {
-            return offers.find((_, index) => {
+            return userOffers.find((_, index) => {
                 return day.getDateStr() === offeredDates[index];
             });
         } else {

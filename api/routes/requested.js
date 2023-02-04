@@ -93,19 +93,26 @@ router.put('/:date', async function (req, res) {
  * Removes requested date from database
  */
 router.delete('/:dateId', async function (req, res) {
-    // Verify offer exists on that day
-    const request = await RequestedDate.findById(req.params.dateId);
+    // Verify request exists on that day
+    let request;
+    try {
+        request = await RequestedDate.findById(req.params.dateId);
+    } catch {
+        res.status(400).send({ status: 400, error: 'error-in-find-request' });
+        return;
+    }
+
     if (request === null) {
         res.status(400).send({ status: 400, error: 'request-doesnt-exist' });
         return;
     }
 
-    // Delete offer
+    // Delete request
     try {
         await request.remove();
         res.send(request);
     } catch {
-        res.status(400).send({ status: 400, error: 'cannot-remove-offer' });
+        res.status(400).send({ status: 400, error: 'cannot-remove-request' });
         return;
     }
 });

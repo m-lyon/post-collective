@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ToggleOfferedFunction } from './types';
+import { Offer, ToggleOfferedFunction } from './types';
 
 async function sendPickupOffer(user: string, date: string, toggleOffered: ToggleOfferedFunction) {
     try {
@@ -13,11 +13,9 @@ async function sendPickupOffer(user: string, date: string, toggleOffered: Toggle
     }
 }
 
-async function sendOfferCancel(user: string, date: string, toggleOffered: ToggleOfferedFunction) {
+async function sendOfferCancel(offer: Offer, toggleOffered: ToggleOfferedFunction) {
     try {
-        const response = await axios.delete(`http://localhost:9000/offered/${date}`, {
-            data: { user: user },
-        });
+        const response = await axios.delete(`http://localhost:9000/offered/${offer._id}`);
         console.log(response);
         toggleOffered(response.data);
     } catch (err) {
@@ -42,16 +40,14 @@ export function OfferPickupButton({ user, date, toggleOffered }: OfferPickupButt
 }
 
 interface CancelOfferButtonProps {
-    user: string;
-    date: string;
+    offer: Offer;
     toggleOffered: ToggleOfferedFunction;
 }
-
-export function CancelOfferButton({ user, date, toggleOffered }: CancelOfferButtonProps) {
+export function CancelOfferButton({ offer, toggleOffered }: CancelOfferButtonProps) {
     return (
         <div
             className='select-box bg-white text-grey hvr-grow2'
-            onClick={() => sendOfferCancel(user, date, toggleOffered)}
+            onClick={() => sendOfferCancel(offer, toggleOffered)}
         >
             Cancel Offer
         </div>
