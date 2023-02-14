@@ -3,6 +3,7 @@ const router = express.Router();
 const parseDate = require('../date_utils');
 const { User } = require('../models/User');
 const { OfferedDate } = require('../models/OfferedDate');
+const { RequestedDate } = require('../models/RequestedDate');
 
 router.get('/', async function (req, res) {
     const { user, startDate, endDate } = req.query;
@@ -78,11 +79,23 @@ router.delete('/:dateId', async function (req, res) {
     // Delete offer
     try {
         await offer.remove();
-        res.send(offer);
     } catch {
         res.status(400).send({ status: 400, error: 'cannot-remove-offer' });
         return;
     }
+
+    // Delete requests associated with offer
+    try {
+        const dates = await RequestedDate.findDatesForOffer(offer);
+        if (dates.length > 0) {
+            const ids = dates.map((request) => request._id);
+            await RequestedDate.deleteMany({ _id: { $in: ids } });
+        }
+    } catch {
+        res.status(400).send({ status: 400, error: 'error-in-removing-requests' });
+        return;
+    }
+    res.send(offer);
 });
 
 module.exports = router;

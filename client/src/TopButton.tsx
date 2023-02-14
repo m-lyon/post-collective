@@ -15,7 +15,7 @@ export function TopButton(props: TopButtonProps) {
     const { user, unselect, toggleRequested, availability, requested, offered, userRequests } =
         props;
     if (offered !== null) {
-        return <RequestDisplay userRequests={userRequests} />;
+        return <RequestDisplay userRequests={userRequests} unselect={unselect} />;
     }
     if (requested !== null) {
         return <CancelRequestButton request={requested} toggleRequested={toggleRequested} />;

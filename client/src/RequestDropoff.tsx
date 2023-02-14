@@ -2,25 +2,22 @@ import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import { useState, Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
+import { SERVER_ADDR } from './config';
 import { Offer, Request, ToggleRequestedFunction } from './types';
-
-type SetModalShowFunction = Dispatch<SetStateAction<boolean>>;
 
 async function sendDropoffRequest(
     offer: Offer,
     user: string,
-    toggleRequested: ToggleRequestedFunction,
-    setModalShow: SetModalShowFunction
+    toggleRequested: ToggleRequestedFunction
 ) {
     try {
-        const response = await axios.put(`http://localhost:9000/requested/${offer.date}`, {
+        const response = await axios.put(`${SERVER_ADDR}/requested/${offer.date}`, {
             user: user,
             offeredDateId: offer._id,
         });
         console.log(response);
         toggleRequested(response.data);
-        setModalShow(false);
     } catch (err) {
         console.log(err);
         // TODO: this is here just to show the data structure
@@ -33,7 +30,7 @@ async function sendDropoffRequest(
 async function sendDropoffCancel(request: Request, toggleRequested: ToggleRequestedFunction) {
     console.log(request);
     try {
-        const response = await axios.delete(`http://localhost:9000/requested/${request._id}`);
+        const response = await axios.delete(`${SERVER_ADDR}/requested/${request._id}`);
         console.log(response);
         toggleRequested(response.data);
     } catch (err) {
@@ -69,7 +66,6 @@ export function RequestDropoffButton(props: RequestDropoffButtonProps) {
                     setModalShow(false);
                 }}
                 toggleRequested={toggleRequested}
-                setModalShow={setModalShow}
             />
         </>
     );
@@ -81,16 +77,17 @@ interface SelectDropoffModalProps {
     show: boolean;
     onHide: () => void;
     toggleRequested: ToggleRequestedFunction;
-    setModalShow: SetModalShowFunction;
 }
-
 function SelectDropoffModal(props: SelectDropoffModalProps) {
-    const { user, offers, show, onHide, toggleRequested, setModalShow } = props;
+    const { user, offers, show, onHide, toggleRequested } = props;
     const buttons = offers.map((offer: Offer) => {
         return (
             <Button
                 key={offer.user.aptNum}
-                onClick={() => sendDropoffRequest(offer, user, toggleRequested, setModalShow)}
+                onClick={() => {
+                    sendDropoffRequest(offer, user, toggleRequested);
+                    onHide();
+                }}
             >
                 Apartment {offer.user.aptNum}
             </Button>

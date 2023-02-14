@@ -37,7 +37,7 @@ export type RequestedDays = Request[];
 export type OfferedDays = Offer[];
 export type AvailableDay = Offer[];
 export type AvailableDays = AvailableDay[];
-
+export type SetModalShowFunction = Dispatch<SetStateAction<boolean>>;
 export type ToggleOfferedFunction = (offer: Offer) => void;
 export type ToggleRequestedFunction = (request: RequestResponse) => void;
 export type SetDaysFunction = Dispatch<SetStateAction<DateFormat[]>>;

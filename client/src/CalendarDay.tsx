@@ -90,6 +90,7 @@ export function CalendarDay({
                     />
                     <BottomButton
                         user={user}
+                        unselect={() => setSelected(false)}
                         date={date.getDateStr()}
                         toggleOffered={toggleOffered}
                         request={requested}
