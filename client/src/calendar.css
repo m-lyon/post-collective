@@ -178,3 +178,7 @@
     opacity: 0;
     transition: opacity 1000ms;
 }
+
+/* .dropdown-toggle::after {
+    display: none !important; 
+  } */

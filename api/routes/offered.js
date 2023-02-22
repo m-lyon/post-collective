@@ -4,6 +4,7 @@ const parseDate = require('../date_utils');
 const { User } = require('../models/User');
 const { OfferedDate } = require('../models/OfferedDate');
 const { RequestedDate } = require('../models/RequestedDate');
+const { Message } = require('../models/Message');
 
 router.get('/', async function (req, res) {
     const { user, startDate, endDate } = req.query;
@@ -58,6 +59,11 @@ router.put('/:date', async function (req, res) {
     }
 });
 
+function getDayMonthStr(date) {
+    const [month, day] = date.toISOString().slice(5, 10).split('-');
+    return `${day}/${month}`;
+}
+
 /**
  * Removes offered date from database
  */
@@ -65,7 +71,7 @@ router.delete('/:dateId', async function (req, res) {
     // Verify offer exists on that day
     let offer;
     try {
-        offer = await OfferedDate.findById(req.params.dateId);
+        offer = await OfferedDate.findById(req.params.dateId).populate('user');
     } catch {
         res.status(400).send({ status: 400, error: 'error-in-find-offer' });
         return;
@@ -89,12 +95,24 @@ router.delete('/:dateId', async function (req, res) {
         const dates = await RequestedDate.findDatesForOffer(offer);
         if (dates.length > 0) {
             const ids = dates.map((request) => request._id);
+            const dateStr = getDayMonthStr(offer.date);
+            const userMessages = dates.map((request) => {
+                return {
+                    to: request.user._id,
+                    from: offer.user._id,
+                    text: `Your request on ${dateStr} for Apartment ${offer.user.aptNum} has been cancelled`,
+                    seen: false,
+                };
+            });
             await RequestedDate.deleteMany({ _id: { $in: ids } });
+            await Message.insertMany(userMessages);
         }
-    } catch {
-        res.status(400).send({ status: 400, error: 'error-in-removing-requests' });
+    } catch (err) {
+        console.log(err.message);
+        res.status(400).send({ status: 400, error: 'error-in-removing-requests', err: err });
         return;
     }
+
     res.send(offer);
 });
 
