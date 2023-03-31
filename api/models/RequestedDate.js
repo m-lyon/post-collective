@@ -15,6 +15,4 @@ requestedDateSchema.statics.findDatesForOffer = async function (offer) {
 
 requestedDateSchema.statics.findDates = findDates;
 
-const RequestedDate = mongoose.model('RequestedDate', requestedDateSchema);
-
-exports.RequestedDate = RequestedDate;
+exports.RequestedDate = mongoose.model('RequestedDate', requestedDateSchema);

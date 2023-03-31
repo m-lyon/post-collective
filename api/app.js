@@ -4,6 +4,17 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
+const passport = require('passport');
+
+if (process.env.NODE_ENV !== 'production') {
+    // Load environment variables from .env file in non prod environments
+    require('dotenv').config();
+}
+
+require('./utils/connectdb');
+require('./strategies/JwtStrategy');
+require('./strategies/LocalStrategy');
+require('./authenticate');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -13,22 +24,30 @@ const messageRouter = require('./routes/notify');
 
 const app = express();
 
-const mongoose = require('mongoose');
-mongoose.set('strictQuery', false);
-mongoose
-    .connect('mongodb://127.0.0.1:27017/balmoralHouse')
-    .then(() => console.log('we connected!'))
-    .catch(() => console.log('we didnt connect :('));
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(cors());
+//Add the client URL to the CORS policy
+
+const whitelist = process.env.WHITELISTED_DOMAINS ? process.env.WHITELISTED_DOMAINS.split(',') : [];
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+};
+
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cors(corsOptions));
+app.use(passport.initialize());
 app.use(logger('dev'));
 app.use(express.json()); // parses JSON requests
 app.use(express.urlencoded({ extended: false })); // parses url-encoded form requests
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);

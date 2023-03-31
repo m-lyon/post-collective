@@ -21,7 +21,7 @@ async function sendDropoffRequest(
     } catch (err) {
         console.log(err);
         // TODO: this is here just to show the data structure
-        if (err.response.data.error === 'already-requested') {
+        if (err.response.data.message === 'already-requested') {
             console.log('day already requested');
         }
     }
@@ -55,7 +55,7 @@ export function RequestDropoffButton(props: RequestDropoffButtonProps) {
                     setModalShow(true);
                 }}
             >
-                Request Drop-off
+                Reserve Drop-off
             </div>
             <SelectDropoffModal
                 user={user}
@@ -96,9 +96,12 @@ function SelectDropoffModal(props: SelectDropoffModalProps) {
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Request Drop-off at Apartment</Modal.Title>
+                <Modal.Title>Reserve Drop-off</Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                <div style={{ marginBottom: '2em' }}>
+                    Select an apartment that you would like to collect your post
+                </div>
                 <ButtonGroup vertical>{buttons}</ButtonGroup>
             </Modal.Body>
         </Modal>

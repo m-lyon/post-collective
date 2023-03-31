@@ -32,6 +32,14 @@ export interface Request {
     offeredDate: string;
 }
 
+export interface Message {
+    _id: string;
+    text: string;
+    to: string;
+    from: string;
+    seen: boolean;
+}
+
 
 export type RequestedDays = Request[];
 export type OfferedDays = Offer[];

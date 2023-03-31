@@ -10,7 +10,7 @@ router.get('/', async function (req, res) {
     const { user, startDate, endDate } = req.query;
     const { status, msg } = await User.checkExists(user);
     if (!status && msg !== 'user-id-not-provided') {
-        res.status(400).send({ status: 400, error: msg });
+        res.status(400).send({ status: 400, message: msg });
         return;
     }
     const dates = await OfferedDate.findDates(user, parseDate(startDate), parseDate(endDate));
@@ -35,7 +35,7 @@ router.put('/:date', async function (req, res) {
     // TODO: this is giving 23:00:00 datetimes for some reason..
     const { status, msg } = await User.checkExists(req.body.user);
     if (!status) {
-        res.status(400).send({ status: 400, error: msg });
+        res.status(400).send({ message: msg });
         return;
     }
     const data = { date: parseDate(req.params.date), user: req.body.user };
@@ -43,7 +43,7 @@ router.put('/:date', async function (req, res) {
     // Verify user does not already have offer on that day
     let offer = await OfferedDate.findOne(data);
     if (offer !== null) {
-        res.status(400).send({ status: 400, error: 'already-offered' });
+        res.status(400).send({ message: 'already-offered' });
         return;
     }
 
@@ -54,7 +54,7 @@ router.put('/:date', async function (req, res) {
         offer = await offer.populate('user');
         res.send(offer);
     } catch {
-        res.status(400).send({ status: 400, error: 'cannot-add-offer' });
+        res.status(400).send({ message: 'cannot-add-offer' });
         return;
     }
 });
@@ -73,12 +73,12 @@ router.delete('/:dateId', async function (req, res) {
     try {
         offer = await OfferedDate.findById(req.params.dateId).populate('user');
     } catch {
-        res.status(400).send({ status: 400, error: 'error-in-find-offer' });
+        res.status(400).send({ message: 'error-in-find-offer' });
         return;
     }
 
     if (offer === null) {
-        res.status(400).send({ status: 400, error: 'offer-doesnt-exist' });
+        res.status(400).send({ message: 'offer-doesnt-exist' });
         return;
     }
 
@@ -86,7 +86,7 @@ router.delete('/:dateId', async function (req, res) {
     try {
         await offer.remove();
     } catch {
-        res.status(400).send({ status: 400, error: 'cannot-remove-offer' });
+        res.status(400).send({ message: 'cannot-remove-offer' });
         return;
     }
 
@@ -109,7 +109,7 @@ router.delete('/:dateId', async function (req, res) {
         }
     } catch (err) {
         console.log(err.message);
-        res.status(400).send({ status: 400, error: 'error-in-removing-requests', err: err });
+        res.status(400).send({ message: 'error-in-removing-requests', err: err });
         return;
     }
 

@@ -25,6 +25,4 @@ offeredDateSchema.statics.checkExists = async function (offeredDate) {
     }
 };
 
-const OfferedDate = mongoose.model('OfferedDate', offeredDateSchema);
-
-exports.OfferedDate = OfferedDate;
+exports.OfferedDate = mongoose.model('OfferedDate', offeredDateSchema);

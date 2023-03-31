@@ -4,12 +4,15 @@ const parseDate = require('../date_utils');
 const { User } = require('../models/User');
 const { RequestedDate } = require('../models/RequestedDate');
 const { OfferedDate } = require('../models/OfferedDate');
+const { verifyUser } = require('../authenticate');
+
+// TODO: need to think about which users should have access to which info
 
 router.get('/', async function (req, res) {
     const { user, startDate, endDate, offer } = req.query;
     const { status, msg } = await User.checkExists(user);
     if (!status && msg !== 'user-id-not-provided') {
-        res.status(400).send({ status: 400, error: msg });
+        res.status(400).send({ message: msg });
         return;
     }
     let dates;
@@ -47,7 +50,7 @@ router.put('/:date', async function (req, res) {
     // Check user exists
     let { status, msg } = await User.checkExists(user);
     if (!status) {
-        res.status(400).send({ status: 400, error: msg });
+        res.status(400).send({ message: msg });
         return;
     }
 
@@ -55,13 +58,13 @@ router.put('/:date', async function (req, res) {
     let offeredDate;
     ({ status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId));
     if (!status) {
-        res.status(400).send({ status: 400, error: msg });
+        res.status(400).send({ message: msg });
         return;
     }
 
     // Validate that offeredDate and requestedDate have same date
     if (offeredDate.toDateString() !== parseDate(date).toDateString()) {
-        res.status(400).send({ status: 400, error: 'dates-mismatch' });
+        res.status(400).send({ message: 'dates-mismatch' });
         return;
     }
 
@@ -72,7 +75,7 @@ router.put('/:date', async function (req, res) {
     // Verify user does not already have offer on that day
     let offer = await RequestedDate.findOne(data);
     if (offer !== null) {
-        res.status(400).send({ status: 400, error: 'already-requested' });
+        res.status(400).send({ message: 'already-requested' });
         return;
     }
 
@@ -84,7 +87,7 @@ router.put('/:date', async function (req, res) {
         res.send(request);
     } catch (err) {
         console.log(err.message);
-        res.status(400).send({ status: 400, error: 'cannot-add-request' });
+        res.status(400).send({ message: 'cannot-add-request' });
         return;
     }
 });
@@ -98,12 +101,12 @@ router.delete('/:dateId', async function (req, res) {
     try {
         request = await RequestedDate.findById(req.params.dateId);
     } catch {
-        res.status(400).send({ status: 400, error: 'error-in-find-request' });
+        res.status(400).send({ message: 'error-in-find-request' });
         return;
     }
 
     if (request === null) {
-        res.status(400).send({ status: 400, error: 'request-doesnt-exist' });
+        res.status(400).send({ message: 'request-doesnt-exist' });
         return;
     }
 
@@ -112,7 +115,7 @@ router.delete('/:dateId', async function (req, res) {
         await request.remove();
         res.send(request);
     } catch {
-        res.status(400).send({ status: 400, error: 'cannot-remove-request' });
+        res.status(400).send({ message: 'cannot-remove-request' });
         return;
     }
 });

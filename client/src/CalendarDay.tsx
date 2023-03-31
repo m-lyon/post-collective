@@ -111,7 +111,7 @@ export function getCalendarDaysArray(
     requestedDays: RequestedDays,
     setRequested: SetRequestedFunction
 ) {
-    // console.log('offeredDays array before: ', offeredDays);
+    console.log('getCalendarDaysArray called');
     return days.map((day, index) => {
         // TODO:  wrap days.map in useMemo
         return (

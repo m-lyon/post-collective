@@ -1,26 +1,31 @@
 const mongoose = require('mongoose');
+const passportLocalMongoose = require('passport-local-mongoose');
 const { Schema } = mongoose;
+const { checkExists } = require('./utils');
+
+const sessionSchema = new Schema({
+    refreshToken: {
+        type: String,
+        default: '',
+    },
+});
 
 const userSchema = new Schema({
     name: { type: String, required: true },
+    refreshToken: { type: [sessionSchema] },
     aptNum: { type: Number, required: true, unique: true },
 });
 
 userSchema.statics.checkExists = async function (user) {
-    if (user === undefined) {
-        return { status: false, msg: 'user-id-not-provided' };
-    }
-    try {
-        const userResponse = await User.findById(user);
-        if (userResponse === null) {
-            return { status: false, msg: 'user-not-found' };
-        }
-    } catch (err) {
-        console.log(err.message);
-        return { status: false, msg: 'invalid-user-id' };
-    }
-    return { status: true };
+    return checkExists.call(this, user, 'user');
 };
+
+// userSchema.pre('save', async function (next) {
+//     if (this.isModified('password')) {
+//         this.password = await bcrypt.hash(this.password, 12);
+//     }
+//     next();
+// });
 
 userSchema.post('remove', async function () {
     console.log(`Just removed user: ${this.name}, apartment: ${this.aptNum}`);
@@ -30,6 +35,13 @@ userSchema.post('remove', async function () {
     console.log(`Removed ${res.deletedCount} entries from OfferedDate`);
 });
 
-const User = mongoose.model('User', userSchema);
+//Remove refreshToken from the response
+userSchema.set('toJSON', {
+    transform: function (doc, ret, options) {
+        delete ret.refreshToken;
+        return ret;
+    },
+});
+userSchema.plugin(passportLocalMongoose);
 
-exports.User = User;
+exports.User = mongoose.model('User', userSchema);

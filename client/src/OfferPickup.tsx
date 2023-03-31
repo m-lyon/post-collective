@@ -13,7 +13,7 @@ async function sendPickupOffer(user: string, date: string, toggleOffered: Toggle
         console.log(response);
         toggleOffered(response.data);
     } catch (err) {
-        console.log(err);
+        console.log('error', err);
     }
 }
 

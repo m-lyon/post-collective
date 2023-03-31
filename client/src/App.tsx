@@ -1,8 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { Calendar } from './Calendar.tsx';
-import './calendar.css';
 import { DateFormat } from './DateFormat.js';
+import { useState, useContext } from 'react';
+import { Calendar } from './Calendar';
+import { UserContext } from './context/UserContext';
+import LoginPage from './LoginPage';
 
 function getInitialDates(numDays = 7) {
     const days = [];
@@ -18,5 +18,11 @@ function getInitialDates(numDays = 7) {
 
 const initialDates = getInitialDates();
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<Calendar initialDays={initialDates} />);
+export function App() {
+    const [userContext, setUserContext] = useContext(UserContext);
+
+    if (userContext.token) {
+        return <Calendar initialDays={initialDates} />;
+    }
+    return <LoginPage />;
+}
