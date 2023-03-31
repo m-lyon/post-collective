@@ -6,30 +6,35 @@ const { RequestedDate } = require('../models/RequestedDate');
 const { OfferedDate } = require('../models/OfferedDate');
 const { verifyUser } = require('../authenticate');
 
-// TODO: need to think about which users should have access to which info
+router.get('/', verifyUser, async function (req, res) {
+    const { startDate, endDate, offeredDateId } = req.query;
 
-router.get('/', async function (req, res) {
-    const { user, startDate, endDate, offer } = req.query;
-    const { status, msg } = await User.checkExists(user);
-    if (!status && msg !== 'user-id-not-provided') {
-        res.status(400).send({ message: msg });
-        return;
-    }
     let dates;
-    if (offer !== undefined) {
-        dates = await RequestedDate.findDatesForOffer(offer);
+    if (offeredDateId !== undefined) {
+        const { status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId);
+        // Check offer exists
+        if (!status) {
+            res.status(400).send({ message: msg });
+            return;
+        }
+        // Check that offer belongs to user
+        if (req.user._id !== offeredDate.user._id) {
+            res.status(401).send({ message: 'unauthorized' });
+            return;
+        }
+        dates = await RequestedDate.findDatesForOffer(offeredDateId);
     } else {
         dates = await RequestedDate.findDates(
-            user,
+            req.user._id,
             parseDate(startDate),
-            parseDate(endDate),
-            offer
+            parseDate(endDate)
         );
     }
     console.log(dates);
     res.send(dates);
 });
 
+// TODO: upto here
 /**
  * Returns offers from users for a given date.
  */

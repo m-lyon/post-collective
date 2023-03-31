@@ -2,10 +2,8 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Col from 'react-bootstrap/Col';
 import { CSSTransition } from 'react-transition-group';
-
 import { DateFormat } from './DateFormat';
 import { TopButton } from './TopButton';
-import { SERVER_ADDR } from './config';
 import { BottomButton } from './BottomButton';
 import { toggleOfferedDay } from './offers';
 import { toggleRequestedDay } from './requests';
@@ -30,8 +28,8 @@ async function getRequestsForOfferedDay(offer: Offer) {
     if (offer === null) {
         return [];
     }
-    const response = await axios.get(`${SERVER_ADDR}/requested`, {
-        params: { offer: offer },
+    const response = await axios.get(`${process.env.SERVER_ADDR}/requested`, {
+        params: { offeredDateId: offer },
     });
     return response.data;
 }

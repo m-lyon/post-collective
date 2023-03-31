@@ -2,7 +2,6 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { NavDropdown } from 'react-bootstrap';
 import { Dispatch, SetStateAction } from 'react';
-import { SERVER_ADDR } from './config';
 import { Message } from './types';
 
 function UnreadMailIcon() {
@@ -54,7 +53,9 @@ function NotificationCircle(props) {
 
 async function setMessageAsSeen(msg: Message) {
     try {
-        const res = await axios.patch(`${SERVER_ADDR}/notify/${msg._id}`, { seen: true });
+        const res = await axios.patch(`${process.env.SERVER_ADDR}/notify/${msg._id}`, {
+            seen: true,
+        });
         console.log(res);
     } catch (err) {
         console.log('error', err);
@@ -97,7 +98,7 @@ async function fetchMessages(
     setAvail: Dispatch<SetStateAction<boolean>>
 ) {
     console.log(`fetching ${maxNum} messages.`);
-    const messageResponse = await axios.get(`${SERVER_ADDR}/notify/to/${userId}`, {
+    const messageResponse = await axios.get(`${process.env.SERVER_ADDR}/notify/to/${userId}`, {
         params: { length: maxNum },
     });
     setMessages(messageResponse.data.messages);

@@ -18,15 +18,16 @@ async function checkExists(id, name) {
         return { status: false, msg: `${name}-id-not-provided` };
     }
     try {
-        const userResponse = await this.findById(id);
-        if (userResponse === null) {
+        const response = await this.findById(id);
+        if (response === null) {
             return { status: false, msg: `${name}-not-found` };
+        } else {
+            return { status: true, res: response };
         }
     } catch (err) {
         console.log(err.message);
         return { status: false, msg: `invalid-${name}-id` };
     }
-    return { status: true };
 }
 
 exports.findDates = findDates;

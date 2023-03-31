@@ -2,12 +2,11 @@ import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
-import { SERVER_ADDR } from './config';
 import { Offer, ToggleOfferedFunction, SetModalShowFunction } from './types';
 
 async function sendPickupOffer(user: string, date: string, toggleOffered: ToggleOfferedFunction) {
     try {
-        const response = await axios.put(`${SERVER_ADDR}/offered/${date}`, {
+        const response = await axios.put(`${process.env.SERVER_ADDR}/offered/${date}`, {
             user: user,
         });
         console.log(response);
@@ -19,7 +18,7 @@ async function sendPickupOffer(user: string, date: string, toggleOffered: Toggle
 
 async function sendOfferCancel(offer: Offer, toggleOffered: ToggleOfferedFunction) {
     try {
-        const response = await axios.delete(`${SERVER_ADDR}/offered/${offer._id}`);
+        const response = await axios.delete(`${process.env.SERVER_ADDR}/offered/${offer._id}`);
         console.log(response);
         toggleOffered(response.data);
     } catch (err) {
@@ -126,8 +125,8 @@ interface HandleCancelOfferProps {
     setModalShow: SetModalShowFunction;
 }
 async function handleCancelOffer({ offer, toggleOffered, setModalShow }: HandleCancelOfferProps) {
-    const response = await axios.get(`${SERVER_ADDR}/requested`, {
-        params: { offer: offer },
+    const response = await axios.get(`${process.env.SERVER_ADDR}/requested`, {
+        params: { offeredDateId: offer },
     });
     if (response.data.length !== 0) {
         setModalShow(true);

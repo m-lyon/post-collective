@@ -20,13 +20,6 @@ userSchema.statics.checkExists = async function (user) {
     return checkExists.call(this, user, 'user');
 };
 
-// userSchema.pre('save', async function (next) {
-//     if (this.isModified('password')) {
-//         this.password = await bcrypt.hash(this.password, 12);
-//     }
-//     next();
-// });
-
 userSchema.post('remove', async function () {
     console.log(`Just removed user: ${this.name}, apartment: ${this.aptNum}`);
     let res = await RequestedDate.deleteMany({ user: this._id });
@@ -35,7 +28,7 @@ userSchema.post('remove', async function () {
     console.log(`Removed ${res.deletedCount} entries from OfferedDate`);
 });
 
-//Remove refreshToken from the response
+// Remove refreshToken from the response
 userSchema.set('toJSON', {
     transform: function (doc, ret, options) {
         delete ret.refreshToken;

@@ -1,10 +1,9 @@
 import axios from 'axios';
 import { DateFormat } from './DateFormat.js';
 import { Offer, SetOfferedFunction, OfferedDays } from './types';
-import { SERVER_ADDR } from './config';
 
 export async function getOffers(days: DateFormat[]): Promise<Offer[]> {
-    const response = await axios.get(`${SERVER_ADDR}/offered`, {
+    const response = await axios.get(`${process.env.SERVER_ADDR}/offered`, {
         params: {
             startDate: days[0].getDateStr(),
             endDate: days[days.length - 1].getDateStr(),
