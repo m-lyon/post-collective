@@ -1,7 +1,6 @@
 import { useState, useContext } from 'react';
 import axios from 'axios';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
-import BHNavbar from './BHNavbar';
 import SignupModal from './SignupModal';
 import { UserContext } from './context/UserContext';
 import { ErrorModal } from './ErrorModal';
@@ -15,6 +14,7 @@ function LoginBox(props) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [userContext, setUserContext] = useContext(UserContext);
 
+    // TODO: see what happens if we amortize this via useCallback?
     function formSubmitHandler(e) {
         e.preventDefault();
         setIsSubmitting(true);
@@ -120,6 +120,5 @@ function LoginBox(props) {
 }
 
 export default function LoginPage(props) {
-    const { user, setUser } = props;
     return <LoginBox />;
 }

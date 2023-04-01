@@ -5,14 +5,14 @@ const { User } = require('../models/User');
 const { OfferedDate } = require('../models/OfferedDate');
 const { RequestedDate } = require('../models/RequestedDate');
 const { Message } = require('../models/Message');
+const { verifyUser } = require('../authenticate');
 
-router.get('/', async function (req, res) {
+/**
+ * Gets the offers for a query of user, start date, and end date
+ */
+router.get('/', verifyUser, async function (req, res) {
     const { user, startDate, endDate } = req.query;
-    const { status, msg } = await User.checkExists(user);
-    if (!status && msg !== 'user-id-not-provided') {
-        res.status(400).send({ status: 400, message: msg });
-        return;
-    }
+
     const dates = await OfferedDate.findDates(user, parseDate(startDate), parseDate(endDate));
     console.log(dates);
     res.send(dates);
@@ -21,7 +21,7 @@ router.get('/', async function (req, res) {
 /**
  * Returns offers from users for a given date.
  */
-router.get('/:date', async function (req, res) {
+router.get('/:date', verifyUser, async function (req, res) {
     const date = parseDate(req.params.date);
     const offer = await OfferedDate.find({ date: date }).populate('user');
     res.send(offer);
@@ -30,15 +30,11 @@ router.get('/:date', async function (req, res) {
 /**
  * Adds an offer to a date given a user
  */
-router.put('/:date', async function (req, res) {
+router.put('/:date', verifyUser, async function (req, res) {
     // Check user exists
     // TODO: this is giving 23:00:00 datetimes for some reason..
-    const { status, msg } = await User.checkExists(req.body.user);
-    if (!status) {
-        res.status(400).send({ message: msg });
-        return;
-    }
-    const data = { date: parseDate(req.params.date), user: req.body.user };
+
+    const data = { date: parseDate(req.params.date), user: req.user._id };
 
     // Verify user does not already have offer on that day
     let offer = await OfferedDate.findOne(data);
@@ -67,7 +63,7 @@ function getDayMonthStr(date) {
 /**
  * Removes offered date from database
  */
-router.delete('/:dateId', async function (req, res) {
+router.delete('/:dateId', verifyUser, async function (req, res) {
     // Verify offer exists on that day
     let offer;
     try {
@@ -79,6 +75,11 @@ router.delete('/:dateId', async function (req, res) {
 
     if (offer === null) {
         res.status(400).send({ message: 'offer-doesnt-exist' });
+        return;
+    }
+
+    if (offer.user._id !== req.user._id) {
+        res.status(401).send({ message: 'unauthorized' });
         return;
     }
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 import Col from 'react-bootstrap/Col';
+import { useEffect, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { DateFormat } from './DateFormat';
 import { TopButton } from './TopButton';
@@ -24,12 +24,17 @@ function getClassName(requested: Request, offered: Offer, availability: Availabl
     }
 }
 
-async function getRequestsForOfferedDay(offer: Offer) {
+async function getRequestsForOfferedDay(token: string, offer: Offer) {
     if (offer === null) {
         return [];
     }
-    const response = await axios.get(`${process.env.SERVER_ADDR}/requested`, {
+    const response = await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/requested`, {
         params: { offeredDateId: offer },
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
     });
     return response.data;
 }

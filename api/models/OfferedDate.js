@@ -14,7 +14,7 @@ offeredDateSchema.statics.checkExists = async function (offeredDate) {
         return { status: false, msg: 'offered-date-id-not-provided' };
     }
     try {
-        const offeredDateResponse = await OfferedDate.findById(offeredDate);
+        const offeredDateResponse = await this.findById(offeredDate);
         if (offeredDateResponse === null) {
             return { status: false, msg: 'offered-date-not-found' };
         }
