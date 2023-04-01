@@ -98,7 +98,7 @@ async function fetchMessages(
     setAvail: Dispatch<SetStateAction<boolean>>
 ) {
     console.log(`fetching ${maxNum} messages.`);
-    const messageResponse = await axios.get(`${process.env.SERVER_ADDR}/notify/to/${userId}`, {
+    const messageResponse = await axios.get(`${process.env.SERVER_ADDR}/notify`, {
         params: { length: maxNum },
     });
     setMessages(messageResponse.data.messages);

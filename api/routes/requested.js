@@ -34,34 +34,16 @@ router.get('/', verifyUser, async function (req, res) {
     res.send(dates);
 });
 
-// TODO: upto here
 /**
- * Returns offers from users for a given date.
+ * Adds a request for an offered date
  */
-router.get('/:date', async function (req, res) {
-    const date = parseDate(req.params.date);
-    const offer = await RequestedDate.find({ date: date }).populate('user date');
-    res.send(offer);
-});
-
-/**
- * Adds an offer to a date given a user
- */
-router.put('/:date', async function (req, res) {
+router.put('/:date', verifyUser, async function (req, res) {
     const date = req.params.date;
-    let { user, offeredDateId } = req.body;
-    console.log(date, user, offeredDateId);
-
-    // Check user exists
-    let { status, msg } = await User.checkExists(user);
-    if (!status) {
-        res.status(400).send({ message: msg });
-        return;
-    }
+    let { offeredDateId } = req.body;
+    console.log(date, offeredDateId);
 
     // Check date offered exists
-    let offeredDate;
-    ({ status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId));
+    const { status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId);
     if (!status) {
         res.status(400).send({ message: msg });
         return;
@@ -73,26 +55,29 @@ router.put('/:date', async function (req, res) {
         return;
     }
 
-    // TODO: Validate that offeredDate and requestedDate are from different users.
+    // Validate that offeredDate and requestedDate are from different users.
+    if (offeredDate.user._id === req.user._id) {
+        res.status(400).send({ message: 'same-user-for-offer-and-request' });
+    }
 
-    const data = { date: parseDate(date), user: user, offeredDate: offeredDateId };
+    const data = { date: parseDate(date), user: req.user._id, offeredDate: offeredDateId };
 
     // Verify user does not already have offer on that day
-    let offer = await RequestedDate.findOne(data);
-    if (offer !== null) {
+    let request = await RequestedDate.findOne(data);
+    if (request !== null) {
         res.status(400).send({ message: 'already-requested' });
         return;
     }
 
     // Add request to database
     try {
-        let request = new RequestedDate(data);
+        request = new RequestedDate(data);
         await request.save();
         request = await request.populate('user');
         res.send(request);
     } catch (err) {
         console.log(err.message);
-        res.status(400).send({ message: 'cannot-add-request' });
+        res.status(500).send({ message: 'cannot-add-request' });
         return;
     }
 });
@@ -100,13 +85,13 @@ router.put('/:date', async function (req, res) {
 /**
  * Removes requested date from database
  */
-router.delete('/:dateId', async function (req, res) {
+router.delete('/:dateId', verifyUser, async function (req, res) {
     // Verify request exists on that day
     let request;
     try {
         request = await RequestedDate.findById(req.params.dateId);
     } catch {
-        res.status(400).send({ message: 'error-in-find-request' });
+        res.status(500).send({ message: 'error-in-find-request' });
         return;
     }
 
@@ -115,13 +100,18 @@ router.delete('/:dateId', async function (req, res) {
         return;
     }
 
+    // Ensure request belongs to user
+    if (req.user._id !== request.user._id) {
+        res.status(401).send({ message: 'unauthorized' });
+        return;
+    }
+
     // Delete request
     try {
         await request.remove();
         res.send(request);
     } catch {
-        res.status(400).send({ message: 'cannot-remove-request' });
-        return;
+        res.status(500).send({ message: 'error-in-remove-request' });
     }
 });
 
