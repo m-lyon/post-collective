@@ -2,6 +2,7 @@ import { useState, createContext, Dispatch, SetStateAction } from 'react';
 
 interface IUserContext {
     token?: string;
+    details?: {};
 }
 
 const UserContext = createContext<[IUserContext, Dispatch<SetStateAction<IUserContext>>]>([
@@ -9,10 +10,8 @@ const UserContext = createContext<[IUserContext, Dispatch<SetStateAction<IUserCo
     () => {},
 ]);
 
-let initialState = {};
-
 const UserProvider = (props) => {
-    const [state, setState] = useState(initialState);
+    const [state, setState] = useState({});
     return <UserContext.Provider value={[state, setState]}>{props.children}</UserContext.Provider>;
 };
 

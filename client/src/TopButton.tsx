@@ -1,9 +1,10 @@
 import { AvailableDay, Offer, Request, RequestResponse, ToggleRequestedFunction } from './types';
 import { CancelRequestButton, RequestDropoffButton } from './RequestDropoff';
 import { RequestDisplay } from './RequestDisplay';
+import { UserContext } from './context/UserContext';
+import { useContext } from 'react';
 
 interface TopButtonProps {
-    user: string;
     unselect: () => void;
     toggleRequested: ToggleRequestedFunction;
     availability: AvailableDay;
@@ -12,18 +13,25 @@ interface TopButtonProps {
     userRequests: RequestResponse[];
 }
 export function TopButton(props: TopButtonProps) {
-    const { user, unselect, toggleRequested, availability, requested, offered, userRequests } =
-        props;
+    const { unselect, toggleRequested, availability, requested, offered, userRequests } = props;
+    const [userContext] = useContext(UserContext);
+
     if (offered !== null) {
         return <RequestDisplay userRequests={userRequests} unselect={unselect} />;
     }
     if (requested !== null) {
-        return <CancelRequestButton request={requested} toggleRequested={toggleRequested} />;
+        return (
+            <CancelRequestButton
+                token={userContext.token}
+                request={requested}
+                toggleRequested={toggleRequested}
+            />
+        );
     }
     if (availability.length !== 0) {
         return (
             <RequestDropoffButton
-                user={user}
+                token={userContext.token}
                 unselect={unselect}
                 toggleRequested={toggleRequested}
                 offers={availability}

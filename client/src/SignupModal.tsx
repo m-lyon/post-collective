@@ -12,7 +12,7 @@ export default function SignupModal(props) {
     const [aptNum, setAptNum] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [userContext, setUserContext] = useContext(UserContext);
+    const setUserContext = useContext(UserContext)[1];
     const [showErrorModal, setShowErrorModal] = useState(false);
 
     function formSubmitHandler(e) {

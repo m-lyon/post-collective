@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import { getCalendarDaysArray } from './CalendarDay';
 import { Row, Container } from 'react-bootstrap';
 import { DateFormat } from './DateFormat.js';
-
 import { getOffers, setOfferedDays } from './offers';
 import { getRequestedDaysForUser, setRequestedDays } from './requests';
 import { Offer, OfferedDays, RequestedDays } from './types';
 import { AvailableDays } from './types';
 import { SetDaysFunction } from './types';
-import BHNavbar from './BHNavbar';
+import { BHNavbar } from './BHNavbar';
+import { UserContext } from './context/UserContext';
+import { getConfig } from './utils';
 
 function NavigationArrows({ days, setDays }) {
     return (
@@ -53,8 +55,8 @@ function NavigationArrows({ days, setDays }) {
  * Requests offered days from other users from backend
  */
 function getAvailableDaysArray(
+    token: string,
     daysState: DateFormat[],
-    user: string,
     offers: Offer[]
 ): AvailableDays {
     const otherOffers = offers
@@ -95,28 +97,60 @@ function setNewDays(daysState: DateFormat[], setDays: SetDaysFunction, operator:
     setDays(newDays);
 }
 
-export function Calendar({ initialDays }) {
+export function MainPage({ initialDays }) {
     const [days, setDays] = useState<DateFormat[]>(initialDays);
     const [offeredDays, setOffered] = useState<OfferedDays>(days.map(() => null));
     const [availability, setAvailability] = useState<AvailableDays>(days.map(() => []));
     const [requestedDays, setRequested] = useState<RequestedDays>(days.map(() => null));
+    const [userContext, setUserContext] = useContext(UserContext);
+
+    const fetchUserDetails = useCallback(async () => {
+        axios
+            .get(`${process.env.SERVER_ADDR}/users/me`, getConfig(userContext.token))
+            .then(async (res) => {
+                const data = await res.data;
+                setUserContext((oldValues) => {
+                    return { ...oldValues, details: data };
+                });
+            });
+    }, [userContext.token, setUserContext]);
 
     useEffect(() => {
-        async function func() {
-            // TODO: consider splitting this into two useEffects, one for offeredDays & available,
-            // and one for requestedDays.
-            const offers = await getOffers(days);
-            const userRequests = await getRequestedDaysForUser(days, users[userName]);
+        if (!userContext.details) {
+            fetchUserDetails();
+        }
+    }, [userContext.details, fetchUserDetails]);
+
+    // TODO: look at names of userContext.detail attributes and see what to use in place of users[userName]
+    // in function calls
+    const setCalendarState = useCallback(async () => {
+        if (userContext.token) {
+            const offers = await getOffers(userContext.token, days);
+            const userRequests = await getRequestedDaysForUser(userContext.token, days);
             setAvailability(getAvailableDaysArray(days, users[userName], offers));
             setOfferedDays(days, users[userName], setOffered, offers);
             setRequestedDays(days, setRequested, userRequests);
         }
-        func();
-    }, [days, userName]);
+    }, [userContext.token, days]);
+
+    useEffect(() => {
+        // async function func() {
+        // TODO: consider splitting this into two useEffects, one for offeredDays & available,
+        // and one for requestedDays.
+        // if (userContext.token) {
+        //     const offers = await getOffers(userContext.token, days);
+        //     const userRequests = await getRequestedDaysForUser(userContext.token, days);
+        //     setAvailability(getAvailableDaysArray(days, users[userName], offers));
+        //     setOfferedDays(days, users[userName], setOffered, offers);
+        //     setRequestedDays(days, setRequested, userRequests);
+        // }
+        // }
+        // func();
+        setCalendarState();
+    }, [setCalendarState]);
 
     console.log('offeredDays', offeredDays);
     console.log('requestedDays', requestedDays);
-    const user = users[userName];
 
     const calendarDays = getCalendarDaysArray(
         days,

@@ -1,6 +1,6 @@
 import { DateFormat } from './DateFormat.js';
 import { useContext } from 'react';
-import { Calendar } from './Calendar';
+import { MainPage } from './MainPage';
 import { UserContext } from './context/UserContext';
 import LoginPage from './LoginPage';
 
@@ -19,10 +19,10 @@ function getInitialDates(numDays = 7) {
 const initialDates = getInitialDates();
 
 export function App() {
-    const [userContext, setUserContext] = useContext(UserContext);
+    const [userContext] = useContext(UserContext);
 
     if (userContext.token) {
-        return <Calendar initialDays={initialDates} />;
+        return <MainPage initialDays={initialDates} />;
     }
     return <LoginPage />;
 }

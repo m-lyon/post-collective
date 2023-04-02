@@ -1,14 +1,16 @@
 import axios from 'axios';
 import { DateFormat } from './DateFormat.js';
 import { Offer, SetOfferedFunction, OfferedDays } from './types';
+import { getConfig } from './utils.js';
 
-export async function getOffers(days: DateFormat[]): Promise<Offer[]> {
-    const response = await axios.get(`${process.env.SERVER_ADDR}/offered`, {
-        params: {
+export async function getOffers(token: string, days: DateFormat[]): Promise<Offer[]> {
+    const response = await axios.get(
+        `${process.env.SERVER_ADDR}/offered`,
+        getConfig(token, {
             startDate: days[0].getDateStr(),
             endDate: days[days.length - 1].getDateStr(),
-        },
-    });
+        })
+    );
     return response.data;
 }
 

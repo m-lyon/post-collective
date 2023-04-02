@@ -2,13 +2,16 @@ import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
+import { getConfig } from './utils';
 import { Offer, ToggleOfferedFunction, SetModalShowFunction } from './types';
 
-async function sendPickupOffer(user: string, date: string, toggleOffered: ToggleOfferedFunction) {
+async function sendPickupOffer(token: string, date: string, toggleOffered: ToggleOfferedFunction) {
     try {
-        const response = await axios.put(`${process.env.SERVER_ADDR}/offered/${date}`, {
-            user: user,
-        });
+        const response = await axios.put(
+            `${process.env.SERVER_ADDR}/offered`,
+            { date: date },
+            getConfig(token)
+        );
         console.log(response);
         toggleOffered(response.data);
     } catch (err) {
@@ -16,9 +19,12 @@ async function sendPickupOffer(user: string, date: string, toggleOffered: Toggle
     }
 }
 
-async function sendOfferCancel(offer: Offer, toggleOffered: ToggleOfferedFunction) {
+async function sendOfferCancel(token: string, offer: Offer, toggleOffered: ToggleOfferedFunction) {
     try {
-        const response = await axios.delete(`${process.env.SERVER_ADDR}/offered/${offer._id}`);
+        const response = await axios.delete(
+            `${process.env.SERVER_ADDR}/offered/${offer._id}`,
+            getConfig(token)
+        );
         console.log(response);
         toggleOffered(response.data);
     } catch (err) {
@@ -27,15 +33,15 @@ async function sendOfferCancel(offer: Offer, toggleOffered: ToggleOfferedFunctio
 }
 
 interface OfferPickupButtonProps {
-    user: string;
+    token: string;
     date: string;
     toggleOffered: ToggleOfferedFunction;
 }
-export function OfferPickupButton({ user, date, toggleOffered }: OfferPickupButtonProps) {
+export function OfferPickupButton({ token, date, toggleOffered }: OfferPickupButtonProps) {
     return (
         <div
             className='select-box bg-white text-grey hvr-grow2'
-            onClick={() => sendPickupOffer(user, date, toggleOffered)}
+            onClick={() => sendPickupOffer(token, date, toggleOffered)}
         >
             Offer Pickup
         </div>
@@ -43,11 +49,13 @@ export function OfferPickupButton({ user, date, toggleOffered }: OfferPickupButt
 }
 
 interface CancelOfferButtonProps {
+    token: string;
     offer: Offer;
     toggleOffered: ToggleOfferedFunction;
     unselect: () => void;
 }
-export function CancelOfferButton({ offer, toggleOffered, unselect }: CancelOfferButtonProps) {
+export function CancelOfferButton(props: CancelOfferButtonProps) {
+    const { token, offer, toggleOffered, unselect } = props;
     const [modalShow, setModalShow] = useState(false);
 
     return (
@@ -56,18 +64,14 @@ export function CancelOfferButton({ offer, toggleOffered, unselect }: CancelOffe
                 className='select-box bg-white text-grey hvr-grow2'
                 onClick={() => {
                     console.log('CancelOfferButton has been clicked.');
-                    handleCancelOffer({
-                        offer,
-                        toggleOffered,
-                        setModalShow,
-                    });
+                    cancelOfferHandler(token, offer, toggleOffered, setModalShow);
                 }}
             >
                 Cancel Offer
             </div>
             <ConfirmCancelModal
                 show={modalShow}
-                sendCancel={() => sendOfferCancel(offer, toggleOffered)}
+                sendCancel={() => sendOfferCancel(token, offer, toggleOffered)}
                 setModalShow={setModalShow}
                 unselect={unselect}
             />
@@ -113,24 +117,19 @@ function ConfirmCancelModal(props: ConfirmCancelModalProps) {
     );
 }
 
-/**
- * This function queries the API to see if there are any outstanding requests for the offer,
- * if so, then asks user to confirm choice.
- * @param offer
- * @param toggleOffered
- */
-interface HandleCancelOfferProps {
-    offer: Offer;
-    toggleOffered: ToggleOfferedFunction;
-    setModalShow: SetModalShowFunction;
-}
-async function handleCancelOffer({ offer, toggleOffered, setModalShow }: HandleCancelOfferProps) {
-    const response = await axios.get(`${process.env.SERVER_ADDR}/requested`, {
-        params: { offeredDateId: offer },
-    });
+async function cancelOfferHandler(
+    token: string,
+    offer: Offer,
+    toggleOffered: ToggleOfferedFunction,
+    setModalShow: SetModalShowFunction
+) {
+    const response = await axios.get(
+        `${process.env.SERVER_ADDR}/requested`,
+        getConfig(token, { offeredDateId: offer })
+    );
     if (response.data.length !== 0) {
         setModalShow(true);
     } else {
-        sendOfferCancel(offer, toggleOffered);
+        sendOfferCancel(token, offer, toggleOffered);
     }
 }

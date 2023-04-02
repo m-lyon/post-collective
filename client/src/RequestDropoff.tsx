@@ -3,19 +3,20 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { useState } from 'react';
-import { SERVER_ADDR } from './config';
 import { Offer, Request, ToggleRequestedFunction } from './types';
+import { getConfig } from './utils';
 
-async function sendDropoffRequest(
+async function dropoffRequestHandler(
+    token: string,
     offer: Offer,
-    user: string,
     toggleRequested: ToggleRequestedFunction
 ) {
     try {
-        const response = await axios.put(`${SERVER_ADDR}/requested/${offer.date}`, {
-            user: user,
-            offeredDateId: offer._id,
-        });
+        const response = await axios.put(
+            `${process.env.SERVER_ADDR}/requested/${offer.date}`,
+            { offeredDateId: offer._id },
+            getConfig(token)
+        );
         console.log(response);
         toggleRequested(response.data);
     } catch (err) {
@@ -27,10 +28,17 @@ async function sendDropoffRequest(
     }
 }
 
-async function sendDropoffCancel(request: Request, toggleRequested: ToggleRequestedFunction) {
+async function cancelDropoffHandler(
+    token: string,
+    request: Request,
+    toggleRequested: ToggleRequestedFunction
+) {
     console.log(request);
     try {
-        const response = await axios.delete(`${SERVER_ADDR}/requested/${request._id}`);
+        const response = await axios.delete(
+            `${process.env.SERVER_ADDR}/requested/${request._id}`,
+            getConfig(token)
+        );
         console.log(response);
         toggleRequested(response.data);
     } catch (err) {
@@ -39,14 +47,14 @@ async function sendDropoffCancel(request: Request, toggleRequested: ToggleReques
 }
 
 interface RequestDropoffButtonProps {
-    user: string;
+    token: string;
     unselect: () => void;
     toggleRequested: ToggleRequestedFunction;
     offers: Offer[];
 }
 export function RequestDropoffButton(props: RequestDropoffButtonProps) {
     const [modalShow, setModalShow] = useState(false);
-    const { user, unselect, toggleRequested, offers } = props;
+    const { token, unselect, toggleRequested, offers } = props;
     return (
         <>
             <div
@@ -58,7 +66,7 @@ export function RequestDropoffButton(props: RequestDropoffButtonProps) {
                 Reserve Drop-off
             </div>
             <SelectDropoffModal
-                user={user}
+                token={token}
                 offers={offers}
                 show={modalShow}
                 onHide={() => {
@@ -72,20 +80,20 @@ export function RequestDropoffButton(props: RequestDropoffButtonProps) {
 }
 
 interface SelectDropoffModalProps {
-    user: string;
+    token: string;
     offers: Offer[];
     show: boolean;
     onHide: () => void;
     toggleRequested: ToggleRequestedFunction;
 }
 function SelectDropoffModal(props: SelectDropoffModalProps) {
-    const { user, offers, show, onHide, toggleRequested } = props;
+    const { token, offers, show, onHide, toggleRequested } = props;
     const buttons = offers.map((offer: Offer) => {
         return (
             <Button
                 key={offer.user.aptNum}
                 onClick={() => {
-                    sendDropoffRequest(offer, user, toggleRequested);
+                    dropoffRequestHandler(token, offer, toggleRequested);
                     onHide();
                 }}
             >
@@ -109,15 +117,17 @@ function SelectDropoffModal(props: SelectDropoffModalProps) {
 }
 
 interface CancelRequestButtonProps {
+    token: string;
     toggleRequested: ToggleRequestedFunction;
     request: Request;
 }
 
-export function CancelRequestButton({ toggleRequested, request }: CancelRequestButtonProps) {
+export function CancelRequestButton(props: CancelRequestButtonProps) {
+    const { token, toggleRequested, request } = props;
     return (
         <div
             className='select-box bg-white text-grey hvr-grow2'
-            onClick={() => sendDropoffCancel(request, toggleRequested)}
+            onClick={() => cancelDropoffHandler(token, request, toggleRequested)}
         >
             Cancel Request
         </div>

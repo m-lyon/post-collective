@@ -3,7 +3,7 @@ import { MailDropdown } from './MailDropdown';
 import UserNavDropdown from './UserNavDropdown';
 import InfoButton from './InfoButton';
 
-export default function BHNavbar(props) {
+export function BHNavbar(props) {
     const { user, setUser, isLoggedIn } = props;
     let navbarRows;
     if (isLoggedIn) {

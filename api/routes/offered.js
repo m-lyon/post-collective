@@ -30,11 +30,11 @@ router.get('/:date', verifyUser, async function (req, res) {
 /**
  * Adds an offer to a date given a user
  */
-router.put('/:date', verifyUser, async function (req, res) {
+router.put('/', verifyUser, async function (req, res) {
     // Check user exists
     // TODO: this is giving 23:00:00 datetimes for some reason..
 
-    const data = { date: parseDate(req.params.date), user: req.user._id };
+    const data = { date: parseDate(req.body.date), user: req.user._id };
 
     // Verify user does not already have offer on that day
     let offer = await OfferedDate.findOne(data);
@@ -73,11 +73,13 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
         return;
     }
 
+    // Check offer exists
     if (offer === null) {
         res.status(400).send({ message: 'offer-doesnt-exist' });
         return;
     }
 
+    // Ensure offer is owned by user
     if (offer.user._id !== req.user._id) {
         res.status(401).send({ message: 'unauthorized' });
         return;

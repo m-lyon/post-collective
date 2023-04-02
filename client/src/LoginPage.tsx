@@ -12,7 +12,7 @@ function LoginBox(props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const [userContext, setUserContext] = useContext(UserContext);
+    const setUserContext = useContext(UserContext)[1];
 
     // TODO: see what happens if we amortize this via useCallback?
     function formSubmitHandler(e) {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Col from 'react-bootstrap/Col';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { DateFormat } from './DateFormat';
 import { TopButton } from './TopButton';
@@ -11,6 +11,8 @@ import { AvailableDay, OfferedDays, Request } from './types';
 import { ToggleOfferedFunction, ToggleRequestedFunction } from './types';
 import { RequestResponse, RequestedDays, AvailableDays } from './types';
 import { SetOfferedFunction, SetRequestedFunction, Offer } from './types';
+import { UserContext } from './context/UserContext';
+import { getConfig } from './utils';
 
 function getClassName(requested: Request, offered: Offer, availability: AvailableDay) {
     if (requested !== null) {
@@ -28,20 +30,15 @@ async function getRequestsForOfferedDay(token: string, offer: Offer) {
     if (offer === null) {
         return [];
     }
-    const response = await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/requested`, {
-        params: { offeredDateId: offer },
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    const response = await axios.get(
+        `${process.env.REACT_APP_API_ENDPOINT}/requested`,
+        getConfig(token, { offeredDateId: offer })
+    );
     return response.data;
 }
 
 interface CalendarDayProps {
     date: DateFormat;
-    user: string;
     availability: AvailableDay;
     toggleOffered: ToggleOfferedFunction;
     toggleRequested: ToggleRequestedFunction;
@@ -50,7 +47,6 @@ interface CalendarDayProps {
 }
 export function CalendarDay({
     date,
-    user,
     availability,
     toggleOffered,
     toggleRequested,
@@ -59,15 +55,19 @@ export function CalendarDay({
 }: CalendarDayProps) {
     const [isSelected, setSelected] = useState(false);
     const [userRequests, setuserRequests] = useState([]);
+    const [userContext] = useContext(UserContext);
+
     const className = getClassName(requested, offered, availability);
-    // console.log(offered);
+
     useEffect(() => {
         async function func() {
-            const requests = await getRequestsForOfferedDay(offered);
-            setuserRequests(requests);
+            if (userContext.token) {
+                const requests = await getRequestsForOfferedDay(userContext.token, offered);
+                setuserRequests(requests);
+            }
         }
         func();
-    }, [offered]);
+    }, [userContext, offered]);
 
     return (
         <Col
@@ -92,7 +92,6 @@ export function CalendarDay({
                         userRequests={userRequests}
                     />
                     <BottomButton
-                        user={user}
                         unselect={() => setSelected(false)}
                         date={date.getDateStr()}
                         toggleOffered={toggleOffered}

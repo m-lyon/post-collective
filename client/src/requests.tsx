@@ -2,6 +2,7 @@ import axios from 'axios';
 import { DateFormat } from './DateFormat.js';
 import { RequestResponse, Request, RequestedDays } from './types';
 import { SetRequestedFunction } from './types';
+import { getConfig } from './utils.js';
 
 export function setRequestedDays(
     daysState: DateFormat[],
@@ -24,20 +25,18 @@ export function setRequestedDays(
 }
 
 export async function getRequestedDaysForUser(
-    daysState: DateFormat[],
-    user: string
+    token: string,
+    daysState: DateFormat[]
 ): Promise<RequestResponse[]> {
-    const response = await axios.get(`${process.env.SERVER_ADDR}/requested`, {
-        params: {
-            user: user,
+    const response = await axios.get(
+        `${process.env.SERVER_ADDR}/requested`,
+        getConfig(token, {
             startDate: daysState[0].getDateStr(),
             endDate: daysState[daysState.length - 1].getDateStr(),
-        },
-    });
+        })
+    );
     return response.data;
 }
-
-export async function getRequestedDaysForOffer() {}
 
 /**
  * Updates requestedDays array at index position,

@@ -1,8 +1,10 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { NavDropdown } from 'react-bootstrap';
 import { Dispatch, SetStateAction } from 'react';
 import { Message } from './types';
+import { getConfig } from './utils';
+import { UserContext } from './context/UserContext';
 
 function UnreadMailIcon() {
     return (
@@ -51,19 +53,21 @@ function NotificationCircle(props) {
     );
 }
 
-async function setMessageAsSeen(msg: Message) {
+async function setMessageAsSeen(token: string, msg: Message) {
     try {
-        const res = await axios.patch(`${process.env.SERVER_ADDR}/notify/${msg._id}`, {
-            seen: true,
-        });
+        const res = await axios.patch(
+            `${process.env.SERVER_ADDR}/notify/${msg._id}`,
+            { seen: true },
+            getConfig(token)
+        );
         console.log(res);
     } catch (err) {
         console.log('error', err);
     }
 }
 
-function MessageItem(props: { msg: Message; updateMessages }) {
-    const { msg, updateMessages } = props;
+function MessageItem(props: { token: string; msg: Message; updateMessages }) {
+    const { token, msg, updateMessages } = props;
 
     if (msg.seen) {
         return (
@@ -79,7 +83,7 @@ function MessageItem(props: { msg: Message; updateMessages }) {
         <NavDropdown.Item
             className='info-box message-item unread-message'
             onMouseEnter={async () => {
-                await setMessageAsSeen(msg);
+                await setMessageAsSeen(token, msg);
                 await updateMessages();
             }}
         >
@@ -92,15 +96,16 @@ function MessageItem(props: { msg: Message; updateMessages }) {
 }
 
 async function fetchMessages(
-    userId: string,
+    token: string,
     setMessages: Dispatch<SetStateAction<Message[]>>,
     maxNum: number,
     setAvail: Dispatch<SetStateAction<boolean>>
 ) {
     console.log(`fetching ${maxNum} messages.`);
-    const messageResponse = await axios.get(`${process.env.SERVER_ADDR}/notify`, {
-        params: { length: maxNum },
-    });
+    const messageResponse = await axios.get(
+        `${process.env.SERVER_ADDR}/notify`,
+        getConfig(token, { length: maxNum })
+    );
     setMessages(messageResponse.data.messages);
     setAvail(messageResponse.data.hasMore);
 }
@@ -130,18 +135,20 @@ interface MailDropdownProps {
     userId: string;
 }
 export function MailDropdown(props: MailDropdownProps) {
-    const { userId } = props;
     const [messages, setMessages] = useState([]);
     const [numUnread, setNumUnread] = useState(0);
     const [displayedNum, setDisplayedNum] = useState(3);
     const [navbarItems, setNavbarItems] = useState([]);
     const [moreAvail, setAvail] = useState(true);
+    const [userContext] = useContext(UserContext);
 
-    useEffect(() => {
-        // reset for different user
-        setDisplayedNum(3);
-        setAvail(true);
-    }, [userId]);
+    // TODO: check that this logic is not required when logging in and out of different
+    // user accounts
+    // useEffect(() => {
+    //     // reset for different user
+    //     setDisplayedNum(3);
+    //     setAvail(true);
+    // }, [userId]);
 
     useEffect(() => {
         // Set number of unread
@@ -149,16 +156,21 @@ export function MailDropdown(props: MailDropdownProps) {
     }, [messages]);
 
     useEffect(() => {
-        fetchMessages(userId, setMessages, displayedNum, setAvail);
-    }, [userId, displayedNum]);
+        if (userContext.token) {
+            fetchMessages(userContext.token, setMessages, displayedNum, setAvail);
+        }
+    }, [userContext.token, displayedNum]);
 
     useEffect(() => {
         console.log('getMessageNavbarItems has been called.');
         const messageNavbarItems = messages.map((msg) => (
             <MessageItem
+                token={userContext.token}
                 msg={msg}
                 key={msg._id}
-                updateMessages={() => fetchMessages(userId, setMessages, displayedNum, setAvail)}
+                updateMessages={() =>
+                    fetchMessages(userContext.token, setMessages, displayedNum, setAvail)
+                }
             />
         ));
         if (moreAvail) {
@@ -171,7 +183,7 @@ export function MailDropdown(props: MailDropdownProps) {
             );
         }
         setNavbarItems(messageNavbarItems);
-    }, [messages, userId, displayedNum, moreAvail]);
+    }, [userContext.token, messages, displayedNum, moreAvail]);
 
     return (
         <NavDropdown
