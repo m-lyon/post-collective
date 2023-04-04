@@ -55,12 +55,12 @@ function NavigationArrows({ days, setDays }) {
  * Requests offered days from other users from backend
  */
 function getAvailableDaysArray(
-    token: string,
+    userId: string,
     daysState: DateFormat[],
     offers: Offer[]
 ): AvailableDays {
     const otherOffers = offers
-        .filter((data) => data.user._id !== user)
+        .filter((data) => data.user._id !== userId)
         .map((data) => {
             return {
                 date: new DateFormat(data.date).getDateStr(),
@@ -121,31 +121,17 @@ export function MainPage({ initialDays }) {
         }
     }, [userContext.details, fetchUserDetails]);
 
-    // TODO: look at names of userContext.detail attributes and see what to use in place of users[userName]
-    // in function calls
     const setCalendarState = useCallback(async () => {
-        if (userContext.token) {
+        if (userContext.token && userContext.details) {
             const offers = await getOffers(userContext.token, days);
             const userRequests = await getRequestedDaysForUser(userContext.token, days);
-            setAvailability(getAvailableDaysArray(days, users[userName], offers));
-            setOfferedDays(days, users[userName], setOffered, offers);
+            setAvailability(getAvailableDaysArray(userContext.details._id, days, offers));
+            setOfferedDays(days, userContext.details._id, setOffered, offers);
             setRequestedDays(days, setRequested, userRequests);
         }
-    }, [userContext.token, days]);
+    }, [userContext.token, userContext.details, days]);
 
     useEffect(() => {
-        // async function func() {
-        // TODO: consider splitting this into two useEffects, one for offeredDays & available,
-        // and one for requestedDays.
-        // if (userContext.token) {
-        //     const offers = await getOffers(userContext.token, days);
-        //     const userRequests = await getRequestedDaysForUser(userContext.token, days);
-        //     setAvailability(getAvailableDaysArray(days, users[userName], offers));
-        //     setOfferedDays(days, users[userName], setOffered, offers);
-        //     setRequestedDays(days, setRequested, userRequests);
-        // }
-        // }
-        // func();
         setCalendarState();
     }, [setCalendarState]);
 
@@ -154,7 +140,6 @@ export function MainPage({ initialDays }) {
 
     const calendarDays = getCalendarDaysArray(
         days,
-        user,
         availability,
         offeredDays,
         setOffered,

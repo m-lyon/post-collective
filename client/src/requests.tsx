@@ -51,28 +51,28 @@ export async function getRequestedDaysForUser(
 export function toggleRequestedDay(
     index: number,
     requestResponse: RequestResponse,
-    requestedDays: RequestedDays,
     setRequested: SetRequestedFunction
 ): void {
     // Recommended to not mutate array for setState callback
     console.log('updateRequestedDayState has been called.');
-    const updatedRequestedDays = requestedDays.map((requestedDay, i) => {
-        if (i === index) {
-            if (requestedDay !== null) {
-                return null;
+    setRequested((requestedDays) => {
+        return requestedDays.map((requestedDay, i) => {
+            if (i === index) {
+                if (requestedDay !== null) {
+                    return null;
+                }
+                return parseRequestResponse(requestResponse);
             }
-            return parseRequestResponse(requestResponse);
-        }
-        return requestedDay;
+            return requestedDay;
+        });
     });
-    setRequested(updatedRequestedDays);
 }
 
-function parseRequestResponse(requestResponse: RequestResponse): Request {
+function parseRequestResponse(res: RequestResponse): Request {
     return {
-        _id: requestResponse._id,
-        date: new DateFormat(requestResponse.date).getDateStr(),
-        offeredDate: requestResponse.offeredDate,
-        user: requestResponse.user,
+        _id: res._id,
+        date: new DateFormat(res.date).getDateStr(),
+        offeredDate: res.offeredDate,
+        user: res.user,
     };
 }

@@ -2,7 +2,9 @@ import { useState, createContext, Dispatch, SetStateAction } from 'react';
 
 interface IUserContext {
     token?: string;
-    details?: {};
+    details?: {
+        _id: string;
+    };
 }
 
 const UserContext = createContext<[IUserContext, Dispatch<SetStateAction<IUserContext>>]>([

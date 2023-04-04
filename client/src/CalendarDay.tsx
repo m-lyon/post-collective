@@ -14,18 +14,6 @@ import { SetOfferedFunction, SetRequestedFunction, Offer } from './types';
 import { UserContext } from './context/UserContext';
 import { getConfig } from './utils';
 
-function getClassName(requested: Request, offered: Offer, availability: AvailableDay) {
-    if (requested !== null) {
-        return 'requested';
-    }
-    if (offered) {
-        return 'offered';
-    }
-    if (availability.length !== 0) {
-        return 'available';
-    }
-}
-
 async function getRequestsForOfferedDay(token: string, offer: Offer) {
     if (offer === null) {
         return [];
@@ -56,8 +44,17 @@ export function CalendarDay({
     const [isSelected, setSelected] = useState(false);
     const [userRequests, setuserRequests] = useState([]);
     const [userContext] = useContext(UserContext);
+    const [className, setClassName] = useState('');
 
-    const className = getClassName(requested, offered, availability);
+    useEffect(() => {
+        if (requested !== null) {
+            setClassName('requested');
+        } else if (offered) {
+            setClassName('offered');
+        } else if (availability.length !== 0) {
+            setClassName('available');
+        }
+    }, [requested, offered, availability]);
 
     useEffect(() => {
         async function func() {
@@ -67,7 +64,7 @@ export function CalendarDay({
             }
         }
         func();
-    }, [userContext, offered]);
+    }, [userContext.token, offered]);
 
     return (
         <Col
@@ -83,7 +80,6 @@ export function CalendarDay({
             <CSSTransition in={isSelected} timeout={200} classNames='dropoff-btns' unmountOnExit>
                 <div className='select-box-parent'>
                     <TopButton
-                        user={user}
                         unselect={() => setSelected(false)}
                         toggleRequested={toggleRequested}
                         availability={availability}
@@ -106,7 +102,6 @@ export function CalendarDay({
 
 export function getCalendarDaysArray(
     days: DateFormat[],
-    user: string,
     availability: AvailableDays,
     offeredDays: OfferedDays,
     setOffered: SetOfferedFunction,
@@ -119,14 +114,11 @@ export function getCalendarDaysArray(
         return (
             <CalendarDay
                 date={day}
-                user={user}
                 key={day.getDayMonthStr()}
                 availability={availability[index]}
-                toggleOffered={(offer: Offer) =>
-                    toggleOfferedDay(index, offer, offeredDays, setOffered)
-                }
+                toggleOffered={(offer: Offer) => toggleOfferedDay(index, offer, setOffered)}
                 toggleRequested={(request: RequestResponse) =>
-                    toggleRequestedDay(index, request, requestedDays, setRequested)
+                    toggleRequestedDay(index, request, setRequested)
                 }
                 requested={requestedDays[index]}
                 offered={offeredDays[index]}

@@ -39,22 +39,18 @@ export function setOfferedDays(
     setOffered(offeredDays);
 }
 
-export function toggleOfferedDay(
-    index: number,
-    offer: Offer,
-    offeredDays: OfferedDays,
-    setOffered: SetOfferedFunction
-) {
+export function toggleOfferedDay(index: number, offer: Offer, setOffered: SetOfferedFunction) {
     // Recommended to not mutate array for setState callback
-    console.log('updateOfferedDayState has been called.');
-    const updatedOfferedDays = offeredDays.map((offeredDay: Offer, i: number) => {
-        if (i === index) {
-            if (offeredDay !== null) {
-                return null;
+    console.log('toggleOfferedDay has been called.');
+    setOffered((offeredDays) => {
+        return offeredDays.map((offeredDay: Offer, i: number) => {
+            if (i === index) {
+                if (offeredDay !== null) {
+                    return null;
+                }
+                return offer;
             }
-            return offer;
-        }
-        return offeredDay;
+            return offeredDay;
+        });
     });
-    setOffered(updatedOfferedDays);
 }
