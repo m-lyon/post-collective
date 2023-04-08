@@ -59,6 +59,7 @@ router.post('/refreshToken', (req, res, next) => {
 
     if (!refreshToken) {
         res.status(401).send('Unauthorized.');
+        return;
     }
     try {
         const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);

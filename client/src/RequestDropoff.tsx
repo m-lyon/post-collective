@@ -13,7 +13,7 @@ async function dropoffRequestHandler(
 ) {
     try {
         const response = await axios.put(
-            `${process.env.SERVER_ADDR}/requested/${offer.date}`,
+            `${process.env.REACT_APP_API_ENDPOINT}/requested/${offer.date}`,
             { offeredDateId: offer._id },
             getConfig(token)
         );
@@ -36,7 +36,7 @@ async function cancelDropoffHandler(
     console.log(request);
     try {
         const response = await axios.delete(
-            `${process.env.SERVER_ADDR}/requested/${request._id}`,
+            `${process.env.REACT_APP_API_ENDPOINT}/requested/${request._id}`,
             getConfig(token)
         );
         console.log(response);

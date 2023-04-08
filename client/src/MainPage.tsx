@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { getCalendarDaysArray } from './CalendarDay';
 import { Row, Container } from 'react-bootstrap';
-import { DateFormat } from './DateFormat.js';
+import { DateFormat } from './DateFormat';
 import { getOffers, setOfferedDays } from './offers';
 import { getRequestedDaysForUser, setRequestedDays } from './requests';
 import { Offer, OfferedDays, RequestedDays } from './types';
@@ -106,7 +106,7 @@ export function MainPage({ initialDays }) {
 
     const fetchUserDetails = useCallback(async () => {
         axios
-            .get(`${process.env.SERVER_ADDR}/users/me`, getConfig(userContext.token))
+            .get(`${process.env.REACT_APP_API_ENDPOINT}/users/me`, getConfig(userContext.token))
             .then(async (res) => {
                 const data = await res.data;
                 setUserContext((oldValues) => {
@@ -149,7 +149,7 @@ export function MainPage({ initialDays }) {
 
     return (
         <>
-            <BHNavbar user={user} setUser={setUser} isLoggedIn={true} />
+            <BHNavbar />
             <Container className='justify-content-center'>
                 <Row className='text-center'>{calendarDays}</Row>
                 <NavigationArrows days={days} setDays={setDays} />

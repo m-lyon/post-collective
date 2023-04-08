@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { DateFormat } from './DateFormat.js';
-import { Offer, SetOfferedFunction, OfferedDays } from './types';
-import { getConfig } from './utils.js';
+import { DateFormat } from './DateFormat';
+import { Offer, SetOfferedFunction } from './types';
+import { getConfig } from './utils';
 
 export async function getOffers(token: string, days: DateFormat[]): Promise<Offer[]> {
     const response = await axios.get(
-        `${process.env.SERVER_ADDR}/offered`,
+        `${process.env.REACT_APP_API_ENDPOINT}/offered`,
         getConfig(token, {
             startDate: days[0].getDateStr(),
             endDate: days[days.length - 1].getDateStr(),
@@ -21,11 +21,11 @@ export async function getOffers(token: string, days: DateFormat[]): Promise<Offe
  */
 export function setOfferedDays(
     daysState: DateFormat[],
-    user: string,
+    userId: string,
     setOffered: SetOfferedFunction,
     offers: Offer[]
 ): void {
-    const userOffers = offers.filter((data) => data.user._id === user);
+    const userOffers = offers.filter((data) => data.user._id === userId);
     const offeredDates = userOffers.map((data) => new DateFormat(data.date).getDateStr());
     const offeredDays = daysState.map((day) => {
         if (offeredDates.includes(day.getDateStr())) {

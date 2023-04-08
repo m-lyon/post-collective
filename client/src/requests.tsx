@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { DateFormat } from './DateFormat.js';
+import { DateFormat } from './DateFormat';
 import { RequestResponse, Request, RequestedDays } from './types';
 import { SetRequestedFunction } from './types';
-import { getConfig } from './utils.js';
+import { getConfig } from './utils';
 
 export function setRequestedDays(
     daysState: DateFormat[],
@@ -29,7 +29,7 @@ export async function getRequestedDaysForUser(
     daysState: DateFormat[]
 ): Promise<RequestResponse[]> {
     const response = await axios.get(
-        `${process.env.SERVER_ADDR}/requested`,
+        `${process.env.REACT_APP_API_ENDPOINT}/requested`,
         getConfig(token, {
             startDate: daysState[0].getDateStr(),
             endDate: daysState[daysState.length - 1].getDateStr(),

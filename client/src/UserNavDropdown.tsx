@@ -1,6 +1,10 @@
+import axios from 'axios';
+import { useCallback, useContext } from 'react';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import { UserContext } from './context/UserContext';
+import { getConfig } from './utils';
 
-export function UserIcon() {
+function UserIcon() {
     return (
         <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -15,14 +19,24 @@ export function UserIcon() {
     );
 }
 
-export default function UserNavDropdown({ setUser }) {
+export function UserNavDropdown(props) {
+    const [userContext, setUserContext] = useContext(UserContext);
+
+    const logoutHandler = useCallback(() => {
+        axios
+            .get(`${process.env.REACT_APP_API_ENDPOINT}/users/logout`, getConfig(userContext.token))
+            .then(async (res) => {
+                setUserContext((oldValues) => {
+                    return { ...oldValues, details: undefined, token: null };
+                });
+                window.localStorage.setItem('logout', `${Date.now()}`);
+            });
+    }, [userContext.token, setUserContext]);
+
     return (
         <NavDropdown align='end' title={UserIcon()} id='user-toggle'>
-            <NavDropdown.Item className='info-box' onClick={() => setUser('Matt')}>
-                Toggle to Matt
-            </NavDropdown.Item>
-            <NavDropdown.Item className='info-box' onClick={() => setUser('Gooby')}>
-                Toggle to Gooby
+            <NavDropdown.Item className='info-box' onClick={logoutHandler}>
+                Logout
             </NavDropdown.Item>
         </NavDropdown>
     );

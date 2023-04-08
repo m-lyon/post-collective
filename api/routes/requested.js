@@ -1,37 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const parseDate = require('../date_utils');
-const { User } = require('../models/User');
 const { RequestedDate } = require('../models/RequestedDate');
 const { OfferedDate } = require('../models/OfferedDate');
 const { verifyUser } = require('../authenticate');
 
-router.get('/', verifyUser, async function (req, res) {
+router.get('/', verifyUser, async function (req, res, next) {
     const { startDate, endDate, offeredDateId } = req.query;
-
     let dates;
-    if (offeredDateId !== undefined) {
-        const { status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId);
-        // Check offer exists
-        if (!status) {
-            res.status(400).send({ message: msg });
-            return;
+
+    try {
+        if (offeredDateId !== undefined) {
+            const { status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId);
+            // Check offer exists
+            if (!status) {
+                res.status(400).send({ message: msg });
+                return;
+            }
+            // Check that offer belongs to user
+            if (!req.user._id.equals(offeredDate.user._id)) {
+                res.status(401).send({ message: 'unauthorized' });
+                return;
+            }
+            dates = await RequestedDate.findDatesForOffer(offeredDateId);
+        } else {
+            dates = await RequestedDate.findDates(
+                req.user._id,
+                parseDate(startDate),
+                parseDate(endDate)
+            );
         }
-        // Check that offer belongs to user
-        if (req.user._id !== offeredDate.user._id) {
-            res.status(401).send({ message: 'unauthorized' });
-            return;
-        }
-        dates = await RequestedDate.findDatesForOffer(offeredDateId);
-    } else {
-        dates = await RequestedDate.findDates(
-            req.user._id,
-            parseDate(startDate),
-            parseDate(endDate)
-        );
+        res.send(dates);
+    } catch (error) {
+        console.log(error);
+        next(error);
     }
-    console.log(dates);
-    res.send(dates);
 });
 
 /**
@@ -40,7 +43,6 @@ router.get('/', verifyUser, async function (req, res) {
 router.put('/:date', verifyUser, async function (req, res) {
     const date = req.params.date;
     let { offeredDateId } = req.body;
-    console.log(date, offeredDateId);
 
     // Check date offered exists
     const { status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId);
@@ -50,7 +52,7 @@ router.put('/:date', verifyUser, async function (req, res) {
     }
 
     // Validate that offeredDate and requestedDate have same date
-    if (offeredDate.toDateString() !== parseDate(date).toDateString()) {
+    if (offeredDate.date.toDateString() !== parseDate(date).toDateString()) {
         res.status(400).send({ message: 'dates-mismatch' });
         return;
     }
@@ -101,7 +103,7 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
     }
 
     // Ensure request belongs to user
-    if (req.user._id !== request.user._id) {
+    if (!req.user._id.equals(request.user._id)) {
         res.status(401).send({ message: 'unauthorized' });
         return;
     }

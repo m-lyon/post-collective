@@ -1,11 +1,18 @@
 
-export function getConfig(token: string, params?){
+interface IParams {
+    [key: string]: any;
+  }
+
+export function getConfig(token?: string, params?: IParams){
+    const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
     const config = {
         withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
+        headers,
         ...(params && { params }),
     }
     return config

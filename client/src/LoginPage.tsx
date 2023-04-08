@@ -1,9 +1,10 @@
-import { useState, useContext } from 'react';
 import axios from 'axios';
+import { useState, useContext } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
-import SignupModal from './SignupModal';
+import { SignupModal } from './SignupModal';
 import { UserContext } from './context/UserContext';
 import { ErrorModal } from './ErrorModal';
+import { getConfig } from './utils';
 
 function LoginBox(props) {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -14,7 +15,6 @@ function LoginBox(props) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const setUserContext = useContext(UserContext)[1];
 
-    // TODO: see what happens if we amortize this via useCallback?
     function formSubmitHandler(e) {
         e.preventDefault();
         setIsSubmitting(true);
@@ -24,18 +24,14 @@ function LoginBox(props) {
             .post(
                 `${process.env.REACT_APP_API_ENDPOINT}/users/login`,
                 { username: email, password: password },
-                {
-                    withCredentials: true,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
+                getConfig()
             )
             .then((response) => {
                 setIsSubmitting(false);
                 if (response.status === 200) {
                     const data = response.data;
                     setUserContext((oldValues) => {
+                        console.log(document.cookie);
                         return { ...oldValues, token: data.token };
                     });
                 } else {
@@ -119,6 +115,6 @@ function LoginBox(props) {
     );
 }
 
-export default function LoginPage(props) {
+export function LoginPage(props) {
     return <LoginBox />;
 }

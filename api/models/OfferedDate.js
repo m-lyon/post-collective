@@ -14,11 +14,11 @@ offeredDateSchema.statics.checkExists = async function (offeredDate) {
         return { status: false, msg: 'offered-date-id-not-provided' };
     }
     try {
-        const offeredDateResponse = await this.findById(offeredDate);
+        const offeredDateResponse = await this.findById(offeredDate).populate('user', '_id');
         if (offeredDateResponse === null) {
             return { status: false, msg: 'offered-date-not-found' };
         }
-        return { status: true, offeredDate: offeredDateResponse.date };
+        return { status: true, offeredDate: offeredDateResponse };
     } catch (err) {
         console.log(err.message);
         return { status: false, msg: 'invalid-offered-date-id' };

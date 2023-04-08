@@ -65,6 +65,7 @@ function getDayMonthStr(date) {
  */
 router.delete('/:dateId', verifyUser, async function (req, res) {
     // Verify offer exists on that day
+    console.log('do we make it?');
     let offer;
     try {
         offer = await OfferedDate.findById(req.params.dateId).populate('user');
@@ -80,7 +81,10 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
     }
 
     // Ensure offer is owned by user
-    if (offer.user._id !== req.user._id) {
+    if (!offer.user._id.equals(req.user._id)) {
+        console.log('offer cancel unauthorized:');
+        console.log('offer.user._id', offer.user._id);
+        console.log('req.user._id', req.user._id);
         res.status(401).send({ message: 'unauthorized' });
         return;
     }
@@ -98,6 +102,8 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
         const dates = await RequestedDate.findDatesForOffer(offer);
         if (dates.length > 0) {
             const ids = dates.map((request) => request._id);
+            await RequestedDate.deleteMany({ _id: { $in: ids } });
+            // Send messages to users that had requests for this offer
             const dateStr = getDayMonthStr(offer.date);
             const userMessages = dates.map((request) => {
                 return {
@@ -107,7 +113,6 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
                     seen: false,
                 };
             });
-            await RequestedDate.deleteMany({ _id: { $in: ids } });
             await Message.insertMany(userMessages);
         }
     } catch (err) {

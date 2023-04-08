@@ -1,6 +1,6 @@
 import { Nav } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 function InfoIcon(props) {
     const { onClick } = props;
@@ -56,17 +56,23 @@ function LoggedInInfoModal(props) {
     );
 }
 
-export default function InfoButton(props) {
-    const { isLoggedIn } = props;
+export function InfoButton(props) {
     const [modalShow, setModalShow] = useState(false);
-    let infoModal;
-    if (isLoggedIn) {
-        infoModal = <LoggedInInfoModal show={modalShow} onHide={() => setModalShow(false)} />;
-    }
+    const navLinkRef = useRef(null);
+
+    const handleClick = () => {
+        setModalShow(true);
+    };
+
+    const handleCloseModal = () => {
+        setModalShow(false);
+        setTimeout(() => navLinkRef.current.blur(), 200);
+    };
+
     return (
-        <Nav.Link>
-            <InfoIcon onClick={() => setModalShow(true)} />
-            {infoModal}
+        <Nav.Link ref={navLinkRef}>
+            <InfoIcon onClick={handleClick} />
+            <LoggedInInfoModal show={modalShow} onHide={handleCloseModal} />
         </Nav.Link>
     );
 }

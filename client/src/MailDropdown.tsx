@@ -56,7 +56,7 @@ function NotificationCircle(props) {
 async function setMessageAsSeen(token: string, msg: Message) {
     try {
         const res = await axios.patch(
-            `${process.env.SERVER_ADDR}/notify/${msg._id}`,
+            `${process.env.REACT_APP_API_ENDPOINT}/notify/${msg._id}`,
             { seen: true },
             getConfig(token)
         );
@@ -103,7 +103,7 @@ async function fetchMessages(
 ) {
     console.log(`fetching ${maxNum} messages.`);
     const messageResponse = await axios.get(
-        `${process.env.SERVER_ADDR}/notify`,
+        `${process.env.REACT_APP_API_ENDPOINT}/notify`,
         getConfig(token, { length: maxNum })
     );
     setMessages(messageResponse.data.messages);
@@ -132,7 +132,7 @@ function Ellipsis(props) {
 }
 
 interface MailDropdownProps {
-    userId: string;
+    // userId: string;
 }
 export function MailDropdown(props: MailDropdownProps) {
     const [messages, setMessages] = useState([]);

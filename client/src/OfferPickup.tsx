@@ -8,7 +8,7 @@ import { Offer, ToggleOfferedFunction, SetModalShowFunction } from './types';
 async function sendPickupOffer(token: string, date: string, toggleOffered: ToggleOfferedFunction) {
     try {
         const response = await axios.put(
-            `${process.env.SERVER_ADDR}/offered`,
+            `${process.env.REACT_APP_API_ENDPOINT}/offered`,
             { date: date },
             getConfig(token)
         );
@@ -22,7 +22,7 @@ async function sendPickupOffer(token: string, date: string, toggleOffered: Toggl
 async function sendOfferCancel(token: string, offer: Offer, toggleOffered: ToggleOfferedFunction) {
     try {
         const response = await axios.delete(
-            `${process.env.SERVER_ADDR}/offered/${offer._id}`,
+            `${process.env.REACT_APP_API_ENDPOINT}/offered/${offer._id}`,
             getConfig(token)
         );
         console.log(response);
@@ -109,7 +109,7 @@ function ConfirmCancelModal(props: ConfirmCancelModalProps) {
                 >
                     Yes
                 </Button>
-                <Button onClick={() => hide()} variant='secondary'>
+                <Button onClick={hide} variant='secondary'>
                     No
                 </Button>
             </Modal.Footer>
@@ -117,6 +117,14 @@ function ConfirmCancelModal(props: ConfirmCancelModalProps) {
     );
 }
 
+/**
+ * Checks to see if there is outstanding requests on a given offer, and prompts user
+ * with modal if there are outstanding requests.
+ * @param token
+ * @param offer
+ * @param toggleOffered
+ * @param setModalShow
+ */
 async function cancelOfferHandler(
     token: string,
     offer: Offer,
@@ -124,7 +132,7 @@ async function cancelOfferHandler(
     setModalShow: SetModalShowFunction
 ) {
     const response = await axios.get(
-        `${process.env.SERVER_ADDR}/requested`,
+        `${process.env.REACT_APP_API_ENDPOINT}/requested`,
         getConfig(token, { offeredDateId: offer })
     );
     if (response.data.length !== 0) {

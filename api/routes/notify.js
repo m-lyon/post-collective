@@ -31,7 +31,7 @@ router.patch('/:msgId', verifyUser, async function (req, res) {
     }
 
     // Ensure user is recipient
-    if (req.user._id !== dbResponse.res.to._id) {
+    if (!req.user._id.equals(dbResponse.res.to._id)) {
         res.status(401).send({ message: 'not-owner-of-message' });
         return;
     }

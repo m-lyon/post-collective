@@ -53,6 +53,8 @@ export function CalendarDay({
             setClassName('offered');
         } else if (availability.length !== 0) {
             setClassName('available');
+        } else {
+            setClassName('');
         }
     }, [requested, offered, availability]);
 

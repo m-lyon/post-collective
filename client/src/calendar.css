@@ -279,16 +279,3 @@
 .register-form > .row > .col {
     margin-bottom: 0.5rem;
 }
-
-
-/* .unread-message:hover,
-.unread-message:focus,
-.unread-message:active {
-    --bs-dropdown-link-hover-bg: #F4F6F7;
-}
-
-.unread-notification:hover,
-.unread-notification:focus,
-.unread-notification:active {
-    color: #F4F6F7;
-} */

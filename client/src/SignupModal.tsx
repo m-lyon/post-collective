@@ -3,8 +3,9 @@ import { Container, Form, Modal, Row, Col, Button } from 'react-bootstrap';
 import { UserContext } from './context/UserContext';
 import axios from 'axios';
 import { ErrorModal } from './ErrorModal';
+import { getConfig } from './utils';
 
-export default function SignupModal(props) {
+export function SignupModal(props) {
     const { show, onHide } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -24,12 +25,7 @@ export default function SignupModal(props) {
             .post(
                 `${process.env.REACT_APP_API_ENDPOINT}/users/signup`,
                 { username: email, password, aptNum, name },
-                {
-                    withCredentials: true,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
+                getConfig()
             )
             .then((response) => {
                 setIsSubmitting(false);
