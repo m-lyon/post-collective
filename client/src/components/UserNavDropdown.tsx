@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useCallback, useContext } from 'react';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import { UserContext } from './context/UserContext';
-import { getConfig } from './utils';
+import { NavDropdown } from 'react-bootstrap';
+import { UserContext } from '../context/UserContext';
+import { getConfig } from '../utils/auth';
 
 function UserIcon() {
     return (

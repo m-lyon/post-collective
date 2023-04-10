@@ -1,4 +1,7 @@
+// TODO: test this with the new string dates
 async function findDates(userId, startDate, endDate) {
+    console.log('startDate -> ', startDate);
+    console.log('endDate -> ', endDate);
     const query = userId !== undefined ? { user: userId } : {};
     if (startDate !== undefined || endDate !== undefined) {
         query.date = {};

@@ -9,7 +9,6 @@ mongoose
     .catch(() => console.log('we didnt connect :('));
 
 async function createUsers() {
-    console.log('here1');
     if (await User.exists()) {
         await User.collection.drop();
     }

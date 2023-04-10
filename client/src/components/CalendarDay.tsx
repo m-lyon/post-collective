@@ -1,18 +1,18 @@
 import axios from 'axios';
-import Col from 'react-bootstrap/Col';
+import { Col } from 'react-bootstrap';
 import { useEffect, useState, useContext } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import { DateFormat } from './DateFormat';
 import { TopButton } from './TopButton';
 import { BottomButton } from './BottomButton';
-import { toggleOfferedDay } from './offers';
-import { toggleRequestedDay } from './requests';
-import { AvailableDay, OfferedDays, Request } from './types';
-import { ToggleOfferedFunction, ToggleRequestedFunction } from './types';
-import { RequestResponse, RequestedDays, AvailableDays } from './types';
-import { SetOfferedFunction, SetRequestedFunction, Offer } from './types';
-import { UserContext } from './context/UserContext';
-import { getConfig } from './utils';
+import { toggleOfferedDay } from '../utils/offers';
+import { toggleRequestedDay } from '../utils/requests';
+import { AvailableDay, OfferedDays, Request } from '../utils/types';
+import { ToggleOfferedFunction, ToggleRequestedFunction } from '../utils/types';
+import { RequestedDays, AvailableDays } from '../utils/types';
+import { SetOfferedFunction, SetRequestedFunction, Offer } from '../utils/types';
+import { UserContext } from '../context/UserContext';
+import { getConfig } from '../utils/auth';
+import { DateFormat } from '../utils/dates';
 
 async function getRequestsForOfferedDay(token: string, offer: Offer) {
     if (offer === null) {
@@ -116,10 +116,10 @@ export function getCalendarDaysArray(
         return (
             <CalendarDay
                 date={day}
-                key={day.getDayMonthStr()}
+                key={day.getDateStr()}
                 availability={availability[index]}
                 toggleOffered={(offer: Offer) => toggleOfferedDay(index, offer, setOffered)}
-                toggleRequested={(request: RequestResponse) =>
+                toggleRequested={(request: Request) =>
                     toggleRequestedDay(index, request, setRequested)
                 }
                 requested={requestedDays[index]}

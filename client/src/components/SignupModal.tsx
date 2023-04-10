@@ -1,9 +1,9 @@
+import axios from 'axios';
 import { useState, useContext } from 'react';
 import { Container, Form, Modal, Row, Col, Button } from 'react-bootstrap';
-import { UserContext } from './context/UserContext';
-import axios from 'axios';
+import { UserContext } from '../context/UserContext';
 import { ErrorModal } from './ErrorModal';
-import { getConfig } from './utils';
+import { getConfig } from '../utils/auth';
 
 export function SignupModal(props) {
     const { show, onHide } = props;
@@ -45,7 +45,15 @@ export function SignupModal(props) {
                     setError('Please fill all the fields correctly!');
                     setShowErrorModal(true);
                 } else if (error.response.status === 401) {
-                    setError('Invalid email and password combination.');
+                    setShowErrorModal(true);
+                } else if (error.response.status === 409) {
+                    if (error.response.data.message === 'apt-num-already-in-use') {
+                        setError('Apartment already in use.');
+                    } else if (error.response.data.message === 'user-already-exists') {
+                        setError('Email already in use.');
+                    } else {
+                        setError(genericErrorMessage);
+                    }
                     setShowErrorModal(true);
                 } else {
                     setError(genericErrorMessage);

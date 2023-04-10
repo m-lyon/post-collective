@@ -1,55 +1,17 @@
 import axios from 'axios';
+
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { getCalendarDaysArray } from './CalendarDay';
 import { Row, Container } from 'react-bootstrap';
-import { DateFormat } from './DateFormat';
-import { getOffers, setOfferedDays } from './offers';
-import { getRequestedDaysForUser, setRequestedDays } from './requests';
-import { Offer, OfferedDays, RequestedDays } from './types';
-import { AvailableDays } from './types';
-import { SetDaysFunction } from './types';
+import { getOffers, setOfferedDays } from '../utils/offers';
+import { getRequestedDaysForUser, setRequestedDays } from '../utils/requests';
+import { Offer, OfferedDays, RequestedDays } from '../utils/types';
+import { AvailableDays } from '../utils/types';
 import { BHNavbar } from './BHNavbar';
-import { UserContext } from './context/UserContext';
-import { getConfig } from './utils';
-
-function NavigationArrows({ days, setDays }) {
-    return (
-        <Row className='justify-content-end'>
-            <div className='svg-arrow'>
-                <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='2em'
-                    height='2em'
-                    fill='currentColor'
-                    className='hvr-grow'
-                    viewBox='0 0 16 16'
-                    onClick={() => setNewDays(days, setDays, '-')}
-                >
-                    <path
-                        fillRule='evenodd'
-                        d='M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z'
-                    />
-                </svg>
-            </div>
-            <div className='svg-arrow'>
-                <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='2em'
-                    height='2em'
-                    fill='currentColor'
-                    className='hvr-grow'
-                    viewBox='0 0 16 16'
-                    onClick={() => setNewDays(days, setDays, '+')}
-                >
-                    <path
-                        fillRule='evenodd'
-                        d='M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z'
-                    />
-                </svg>
-            </div>
-        </Row>
-    );
-}
+import { UserContext } from '../context/UserContext';
+import { getConfig } from '../utils/auth';
+import { DateFormat, getInitialDates } from '../utils/dates';
+import { NavigationArrows } from './NavigationArrows';
 
 /**
  * Requests offered days from other users from backend
@@ -63,7 +25,7 @@ function getAvailableDaysArray(
         .filter((data) => data.user._id !== userId)
         .map((data) => {
             return {
-                date: new DateFormat(data.date).getDateStr(),
+                date: data.date,
                 _id: data._id,
                 user: data.user,
             };
@@ -78,27 +40,8 @@ function getAvailableDaysArray(
     });
 }
 
-/**
- * Function that sets days Array to previous/next set of days
- */
-function setNewDays(daysState: DateFormat[], setDays: SetDaysFunction, operator: string) {
-    const newDays = [];
-    for (let day of daysState) {
-        const newDay = new DateFormat(day);
-        if (operator === '+') {
-            newDay.setDate(day.getDate() + daysState.length);
-        } else if (operator === '-') {
-            newDay.setDate(day.getDate() - daysState.length);
-        } else {
-            throw new Error('Invalid operator given to setNewDays');
-        }
-        newDays.push(newDay);
-    }
-    setDays(newDays);
-}
-
-export function MainPage({ initialDays }) {
-    const [days, setDays] = useState<DateFormat[]>(initialDays);
+export function MainPage(props) {
+    const [days, setDays] = useState<DateFormat[]>(getInitialDates());
     const [offeredDays, setOffered] = useState<OfferedDays>(days.map(() => null));
     const [availability, setAvailability] = useState<AvailableDays>(days.map(() => []));
     const [requestedDays, setRequested] = useState<RequestedDays>(days.map(() => null));
@@ -152,7 +95,7 @@ export function MainPage({ initialDays }) {
             <BHNavbar />
             <Container className='justify-content-center'>
                 <Row className='text-center'>{calendarDays}</Row>
-                <NavigationArrows days={days} setDays={setDays} />
+                <NavigationArrows setDays={setDays} />
             </Container>
         </>
     );

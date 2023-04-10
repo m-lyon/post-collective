@@ -1,14 +1,13 @@
-import { RequestResponse } from './types';
-import Modal from 'react-bootstrap/Modal';
-import Container from 'react-bootstrap/Container';
-import { Row } from 'react-bootstrap';
+import { Request } from '../utils/types';
+import { Modal, Container, Row } from 'react-bootstrap';
 import { useState } from 'react';
 
 interface RequestDisplayProps {
-    userRequests: RequestResponse[];
+    userRequests: Request[];
     unselect: () => void;
 }
-export function RequestDisplay({ userRequests, unselect }: RequestDisplayProps) {
+export function RequestDisplay(props: RequestDisplayProps) {
+    const { userRequests, unselect } = props;
     const [modalShow, setModalShow] = useState(false);
 
     if (userRequests.length === 0) {
@@ -33,14 +32,14 @@ export function RequestDisplay({ userRequests, unselect }: RequestDisplayProps) 
 }
 
 interface ViewRequestsModalProps {
-    userRequests: RequestResponse[];
+    userRequests: Request[];
     show: boolean;
     onHide: () => void;
 }
 function ViewRequestsModal(props: ViewRequestsModalProps) {
     const { userRequests, show, onHide } = props;
     const aptList = userRequests.map((request) => {
-        return <Row key={request.user.aptNum}>{request.user.aptNum}</Row>;
+        return <Row key={request.user.aptNum}>Apartment {request.user.aptNum}</Row>;
     });
     return (
         <Modal show={show} onHide={onHide} centered>

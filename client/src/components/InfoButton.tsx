@@ -1,5 +1,4 @@
-import { Nav } from 'react-bootstrap';
-import Modal from 'react-bootstrap/Modal';
+import { Nav, Modal } from 'react-bootstrap';
 import { useState, useRef } from 'react';
 
 function InfoIcon(props) {

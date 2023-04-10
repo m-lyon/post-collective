@@ -1,10 +1,11 @@
 import axios from 'axios';
+
 import { useState, useContext } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { SignupModal } from './SignupModal';
-import { UserContext } from './context/UserContext';
+import { UserContext } from '../context/UserContext';
 import { ErrorModal } from './ErrorModal';
-import { getConfig } from './utils';
+import { getConfig } from '../utils/auth';
 
 function LoginBox(props) {
     const [showRegisterModal, setShowRegisterModal] = useState(false);

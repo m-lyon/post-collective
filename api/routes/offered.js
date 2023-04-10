@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const parseDate = require('../date_utils');
-const { User } = require('../models/User');
 const { OfferedDate } = require('../models/OfferedDate');
 const { RequestedDate } = require('../models/RequestedDate');
 const { Message } = require('../models/Message');
 const { verifyUser } = require('../authenticate');
+const { getFormattedDateStr } = require('../utils/dates');
 
 /**
  * Gets the offers for a query of user, start date, and end date
@@ -13,8 +12,8 @@ const { verifyUser } = require('../authenticate');
 router.get('/', verifyUser, async function (req, res) {
     const { user, startDate, endDate } = req.query;
 
-    const dates = await OfferedDate.findDates(user, parseDate(startDate), parseDate(endDate));
-    console.log(dates);
+    const dates = await OfferedDate.findDates(user, startDate, endDate);
+    console.log('offeredDates -> ', dates);
     res.send(dates);
 });
 
@@ -22,8 +21,7 @@ router.get('/', verifyUser, async function (req, res) {
  * Returns offers from users for a given date.
  */
 router.get('/:date', verifyUser, async function (req, res) {
-    const date = parseDate(req.params.date);
-    const offer = await OfferedDate.find({ date: date }).populate('user');
+    const offer = await OfferedDate.find({ date: req.params.date }).populate('user');
     res.send(offer);
 });
 
@@ -31,10 +29,7 @@ router.get('/:date', verifyUser, async function (req, res) {
  * Adds an offer to a date given a user
  */
 router.put('/', verifyUser, async function (req, res) {
-    // Check user exists
-    // TODO: this is giving 23:00:00 datetimes for some reason..
-
-    const data = { date: parseDate(req.body.date), user: req.user._id };
+    const data = { date: req.body.date, user: req.user._id };
 
     // Verify user does not already have offer on that day
     let offer = await OfferedDate.findOne(data);
@@ -54,11 +49,6 @@ router.put('/', verifyUser, async function (req, res) {
         return;
     }
 });
-
-function getDayMonthStr(date) {
-    const [month, day] = date.toISOString().slice(5, 10).split('-');
-    return `${day}/${month}`;
-}
 
 /**
  * Removes offered date from database
@@ -82,9 +72,6 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
 
     // Ensure offer is owned by user
     if (!offer.user._id.equals(req.user._id)) {
-        console.log('offer cancel unauthorized:');
-        console.log('offer.user._id', offer.user._id);
-        console.log('req.user._id', req.user._id);
         res.status(401).send({ message: 'unauthorized' });
         return;
     }
@@ -104,7 +91,7 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
             const ids = dates.map((request) => request._id);
             await RequestedDate.deleteMany({ _id: { $in: ids } });
             // Send messages to users that had requests for this offer
-            const dateStr = getDayMonthStr(offer.date);
+            const dateStr = getFormattedDateStr(offer.date);
             const userMessages = dates.map((request) => {
                 return {
                     to: request.user._id,
@@ -117,7 +104,7 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
         }
     } catch (err) {
         console.log(err.message);
-        res.status(400).send({ message: 'error-in-removing-requests', err: err });
+        res.status(500).send({ message: 'error-in-removing-requests' });
         return;
     }
 

@@ -2,9 +2,9 @@ import axios from 'axios';
 import { useEffect, useState, useContext } from 'react';
 import { NavDropdown } from 'react-bootstrap';
 import { Dispatch, SetStateAction } from 'react';
-import { Message } from './types';
-import { getConfig } from './utils';
-import { UserContext } from './context/UserContext';
+import { Message } from '../utils/types';
+import { getConfig } from '../utils/auth';
+import { UserContext } from '../context/UserContext';
 
 function UnreadMailIcon() {
     return (

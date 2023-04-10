@@ -6,6 +6,7 @@ const { verifyUser } = require('../authenticate');
 router.get('/', verifyUser, async function (req, res) {
     const start = parseInt(req.query.start);
     const length = parseInt(req.query.length);
+
     let messages;
     try {
         messages = await Message.find({ to: req.user._id })

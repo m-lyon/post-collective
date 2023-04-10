@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import { UserProvider } from './context/UserContext';
-import { App } from './App';
+import { App } from './components/App';
 import './calendar.css';
 
 const domNode = document.getElementById('root');

@@ -17,7 +17,20 @@ router.post('/signup', (req, res) => {
     const userDetails = { username, name, aptNum };
     User.register(new User(userDetails), password, (err, user) => {
         if (err) {
-            res.status(400).send(err);
+            console.log(err);
+            try {
+                if (err.code === 11000 && Object.hasOwn(err.keyValue, 'aptNum')) {
+                    res.status(409).send({ message: 'apt-num-already-in-use' });
+                    return;
+                } else if (err.name === 'UserExistsError') {
+                    res.status(409).send({ message: 'user-already-exists' });
+                    return;
+                } else {
+                    res.status(400).send(err);
+                }
+            } catch {
+                res.status(400).send(err);
+            }
             return;
         }
         const token = getToken({ _id: user._id });

@@ -1,10 +1,8 @@
 import axios from 'axios';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import { Modal, Button, ButtonGroup } from 'react-bootstrap';
 import { useState } from 'react';
-import { Offer, Request, ToggleRequestedFunction } from './types';
-import { getConfig } from './utils';
+import { Offer, Request, ToggleRequestedFunction } from '../utils/types';
+import { getConfig } from '../utils/auth';
 
 async function dropoffRequestHandler(
     token: string,

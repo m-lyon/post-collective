@@ -1,9 +1,8 @@
 import axios from 'axios';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
+import { Modal, Button } from 'react-bootstrap';
 import { useState } from 'react';
-import { getConfig } from './utils';
-import { Offer, ToggleOfferedFunction, SetModalShowFunction } from './types';
+import { getConfig } from '../utils/auth';
+import { Offer, ToggleOfferedFunction, SetModalShowFunction } from '../utils/types';
 
 async function sendPickupOffer(token: string, date: string, toggleOffered: ToggleOfferedFunction) {
     try {

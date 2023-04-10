@@ -1,7 +1,7 @@
-import { Offer, Request, ToggleOfferedFunction } from './types';
+import { Offer, Request, ToggleOfferedFunction } from '../utils/types';
 import { OfferPickupButton, CancelOfferButton } from './OfferPickup';
 import { useContext } from 'react';
-import { UserContext } from './context/UserContext';
+import { UserContext } from '../context/UserContext';
 
 interface BottomButtonProps {
     date: string;

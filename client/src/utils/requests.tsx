@@ -1,22 +1,20 @@
 import axios from 'axios';
-import { DateFormat } from './DateFormat';
-import { RequestResponse, Request, RequestedDays } from './types';
+import { DateFormat } from './dates';
+import { Request, RequestedDays } from './types';
 import { SetRequestedFunction } from './types';
-import { getConfig } from './utils';
+import { getConfig } from './auth';
 
 export function setRequestedDays(
     daysState: DateFormat[],
     setRequested: SetRequestedFunction,
-    requests: RequestResponse[]
+    requests: Request[]
 ): void {
-    const requestedDates = requests.map((data) => new DateFormat(data.date).getDateStr());
+    const requestedDates = requests.map((request) => request.date);
     const requestedDays: RequestedDays = daysState.map((day) => {
         if (requestedDates.includes(day.getDateStr())) {
-            return parseRequestResponse(
-                requests.find((_, index) => {
-                    return day.getDateStr() === requestedDates[index];
-                })
-            );
+            return requests.find((request) => {
+                return day.getDateStr() === request.date;
+            });
         } else {
             return null;
         }
@@ -27,7 +25,7 @@ export function setRequestedDays(
 export async function getRequestedDaysForUser(
     token: string,
     daysState: DateFormat[]
-): Promise<RequestResponse[]> {
+): Promise<Request[]> {
     const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/requested`,
         getConfig(token, {
@@ -44,13 +42,13 @@ export async function getRequestedDaysForUser(
  * conversely if day contains a request, then will set
  * to null.
  * @param index
- * @param requestResponse
+ * @param request
  * @param requestedDays
  * @param setRequested
  */
 export function toggleRequestedDay(
     index: number,
-    requestResponse: RequestResponse,
+    request: Request,
     setRequested: SetRequestedFunction
 ): void {
     // Recommended to not mutate array for setState callback
@@ -61,18 +59,9 @@ export function toggleRequestedDay(
                 if (requestedDay !== null) {
                     return null;
                 }
-                return parseRequestResponse(requestResponse);
+                return request;
             }
             return requestedDay;
         });
     });
-}
-
-function parseRequestResponse(res: RequestResponse): Request {
-    return {
-        _id: res._id,
-        date: new DateFormat(res.date).getDateStr(),
-        offeredDate: res.offeredDate,
-        user: res.user,
-    };
 }
