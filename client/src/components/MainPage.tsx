@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { getCalendarDaysArray } from './CalendarDay';
 import { Row, Container } from 'react-bootstrap';
@@ -9,7 +7,6 @@ import { Offer, OfferedDays, RequestedDays } from '../utils/types';
 import { AvailableDays } from '../utils/types';
 import { BHNavbar } from './BHNavbar';
 import { UserContext } from '../context/UserContext';
-import { getConfig } from '../utils/auth';
 import { DateFormat, getInitialDates } from '../utils/dates';
 import { NavigationArrows } from './NavigationArrows';
 
@@ -45,24 +42,7 @@ export function MainPage(props) {
     const [offeredDays, setOffered] = useState<OfferedDays>(days.map(() => null));
     const [availability, setAvailability] = useState<AvailableDays>(days.map(() => []));
     const [requestedDays, setRequested] = useState<RequestedDays>(days.map(() => null));
-    const [userContext, setUserContext] = useContext(UserContext);
-
-    const fetchUserDetails = useCallback(async () => {
-        axios
-            .get(`${process.env.REACT_APP_API_ENDPOINT}/users/me`, getConfig(userContext.token))
-            .then(async (res) => {
-                const data = await res.data;
-                setUserContext((oldValues) => {
-                    return { ...oldValues, details: data };
-                });
-            });
-    }, [userContext.token, setUserContext]);
-
-    useEffect(() => {
-        if (!userContext.details) {
-            fetchUserDetails();
-        }
-    }, [userContext.details, fetchUserDetails]);
+    const [userContext] = useContext(UserContext);
 
     const setCalendarState = useCallback(async () => {
         if (userContext.token && userContext.details) {

@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { RequestedDate } = require('../models/RequestedDate');
 const { OfferedDate } = require('../models/OfferedDate');
-const { verifyUser } = require('../authenticate');
+const { authenticateUser, isVerified } = require('../authenticate');
 const { Message } = require('../models/Message');
 const { getFormattedDateStr } = require('../utils/dates');
 
-router.get('/', verifyUser, async function (req, res, next) {
+router.get('/', [authenticateUser, isVerified], async function (req, res, next) {
     const { startDate, endDate, offeredDateId } = req.query;
     let dates;
 
@@ -15,13 +15,11 @@ router.get('/', verifyUser, async function (req, res, next) {
             const { status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId);
             // Check offer exists
             if (!status) {
-                res.status(400).send({ message: msg });
-                return;
+                return res.status(400).send({ message: msg });
             }
             // Check that offer belongs to user
             if (!req.user._id.equals(offeredDate.user._id)) {
-                res.status(401).send({ message: 'unauthorized' });
-                return;
+                return res.status(401).send('Unauthorized.');
             }
             dates = await RequestedDate.findDatesForOffer(offeredDateId);
         } else {
@@ -37,26 +35,24 @@ router.get('/', verifyUser, async function (req, res, next) {
 /**
  * Adds a request for an offered date
  */
-router.put('/:date', verifyUser, async function (req, res) {
+router.put('/:date', [authenticateUser, isVerified], async function (req, res) {
     const date = req.params.date;
     let { offeredDateId } = req.body;
 
     // Check date offered exists
     const { status, msg, offeredDate } = await OfferedDate.checkExists(offeredDateId);
     if (!status) {
-        res.status(400).send({ message: msg });
-        return;
+        return res.status(400).send({ message: msg });
     }
 
     // Validate that offeredDate and requestedDate have same date
     if (offeredDate.date !== date) {
-        res.status(400).send({ message: 'dates-mismatch' });
-        return;
+        return res.status(400).send({ message: 'dates-mismatch' });
     }
 
     // Validate that offeredDate and requestedDate are from different users.
     if (offeredDate.user._id === req.user._id) {
-        res.status(400).send({ message: 'same-user-for-offer-and-request' });
+        return res.status(400).send({ message: 'same-user-for-offer-and-request' });
     }
 
     const data = { date, user: req.user._id, offeredDate: offeredDateId };
@@ -64,8 +60,7 @@ router.put('/:date', verifyUser, async function (req, res) {
     // Verify user does not already have offer on that day
     let request = await RequestedDate.findOne(data);
     if (request !== null) {
-        res.status(400).send({ message: 'already-requested' });
-        return;
+        return res.status(400).send({ message: 'already-requested' });
     }
 
     // Add request to database
@@ -75,8 +70,7 @@ router.put('/:date', verifyUser, async function (req, res) {
         request = await request.populate('user', '_id aptNum');
     } catch (err) {
         console.log(err.message);
-        res.status(500).send({ message: 'cannot-add-request' });
-        return;
+        return res.status(500).send({ message: 'cannot-add-request' });
     }
 
     // Send message to offer holder
@@ -92,7 +86,7 @@ router.put('/:date', verifyUser, async function (req, res) {
         await msg.save();
     } catch (err) {
         console.log(err.message);
-        res.status(500).send({ message: 'error-in-sending-notification' });
+        return res.status(500).send({ message: 'error-in-sending-notification' });
     }
 
     res.send(request);
@@ -101,33 +95,31 @@ router.put('/:date', verifyUser, async function (req, res) {
 /**
  * Removes requested date from database
  */
-router.delete('/:dateId', verifyUser, async function (req, res) {
+router.delete('/:dateId', [authenticateUser, isVerified], async function (req, res) {
     // Verify request exists on that day
     let request;
     try {
-        request = await RequestedDate.findById(req.params.dateId).populate('offeredDate');
+        request = await RequestedDate.findById(req.params.dateId)
+            .populate('offeredDate', 'user')
+            .populate('user', 'aptNum');
     } catch {
-        res.status(500).send({ message: 'error-in-find-request' });
-        return;
+        return res.status(500).send({ message: 'error-in-find-request' });
     }
 
     if (request === null) {
-        res.status(400).send({ message: 'request-doesnt-exist' });
-        return;
+        return res.status(400).send({ message: 'request-doesnt-exist' });
     }
 
     // Ensure request belongs to user
     if (!req.user._id.equals(request.user._id)) {
-        res.status(401).send({ message: 'unauthorized' });
-        return;
+        return res.status(401).send('Unauthorized.');
     }
 
     // Delete request
     try {
         await request.remove();
     } catch {
-        res.status(500).send({ message: 'error-in-remove-request' });
-        return;
+        return res.status(500).send({ message: 'error-in-remove-request' });
     }
 
     // Add delete notification to offer holder,
@@ -155,8 +147,7 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
             }
         }
     } catch (err) {
-        res.status(500).send({ message: 'error-in-sending-notification' });
-        return;
+        return res.status(500).send({ message: 'error-in-sending-notification' });
     }
     res.send(request);
 });

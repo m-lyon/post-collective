@@ -32,7 +32,7 @@ export function SignupModal(props) {
                 if (response.status === 200) {
                     const data = response.data;
                     setUserContext((oldValues) => {
-                        return { ...oldValues, token: data.token };
+                        return { ...oldValues, token: data.token, details: data.user };
                     });
                 } else {
                     setError(genericErrorMessage);
@@ -43,9 +43,8 @@ export function SignupModal(props) {
                 setIsSubmitting(false);
                 if (error.response.status === 400) {
                     setError('Please fill all the fields correctly!');
-                    setShowErrorModal(true);
                 } else if (error.response.status === 401) {
-                    setShowErrorModal(true);
+                    setError(genericErrorMessage);
                 } else if (error.response.status === 409) {
                     if (error.response.data.message === 'apt-num-already-in-use') {
                         setError('Apartment already in use.');
@@ -54,11 +53,10 @@ export function SignupModal(props) {
                     } else {
                         setError(genericErrorMessage);
                     }
-                    setShowErrorModal(true);
                 } else {
                     setError(genericErrorMessage);
-                    setShowErrorModal(true);
                 }
+                setShowErrorModal(true);
             });
     }
 

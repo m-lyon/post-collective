@@ -4,6 +4,7 @@ import { useContext, useCallback, useEffect } from 'react';
 import { MainPage } from './MainPage';
 import { UserContext } from '../context/UserContext';
 import { LoginPage } from './LoginPage';
+import { VerifyPage } from './VerifyPage';
 
 export function App() {
     const [userContext, setUserContext] = useContext(UserContext);
@@ -22,11 +23,11 @@ export function App() {
                 if (response.status === 200) {
                     const data = response.data;
                     setUserContext((oldValues) => {
-                        return { ...oldValues, token: data.token };
+                        return { ...oldValues, token: data.token, details: data.user };
                     });
                 } else {
                     setUserContext((oldValues) => {
-                        return { ...oldValues, token: null };
+                        return { ...oldValues, token: null, details: null };
                     });
                     console.log('Something went wrong');
                 }
@@ -36,7 +37,7 @@ export function App() {
             .catch((error) => {
                 if (error.response.status === 401) {
                     setUserContext((oldValues) => {
-                        return { ...oldValues, token: null };
+                        return { ...oldValues, token: null, details: null };
                     });
                 }
             });
@@ -60,8 +61,11 @@ export function App() {
     }, [syncLogout]);
 
     if (userContext.token) {
-        console.log('loading MainPage');
-        return <MainPage />;
+        if (userContext.details.isVerified) {
+            return <MainPage />;
+        } else {
+            return <VerifyPage />;
+        }
     }
     return <LoginPage />;
 }

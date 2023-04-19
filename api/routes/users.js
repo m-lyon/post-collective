@@ -1,30 +1,45 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const Joi = require('joi');
 const router = express.Router();
 const { User } = require('../models/User');
-const { getToken, COOKIE_OPTIONS, getRefreshToken, verifyUser } = require('../authenticate');
+const { getToken, COOKIE_OPTIONS } = require('../authenticate');
+const { getRefreshToken, authenticateUser } = require('../authenticate');
+const { generateRandomString } = require('../utils/rng');
+
+function validateUser(user) {
+    const schema = Joi.object({
+        name: Joi.string().required(),
+        username: Joi.string().email().required(),
+        password: Joi.string().required(),
+        aptNum: Joi.number().integer().required(),
+    });
+    return schema.validate(user);
+}
 
 router.post('/signup', (req, res) => {
     // Ensure fields are present
-    for (let attr of ['name', 'username', 'password', 'aptNum']) {
-        if (req.body[attr] === undefined) {
-            res.status(400).send({ message: `${attr}-not-provided` });
-            return;
-        }
+    const { error } = validateUser(req.body);
+    if (error) {
+        return res.status(400).send(error.details[0].message);
     }
     const { username, name, aptNum, password } = req.body;
-    const userDetails = { username, name, aptNum };
+    const userDetails = {
+        username,
+        name,
+        aptNum,
+        isVerified: false,
+        verificationCode: generateRandomString(),
+    };
     User.register(new User(userDetails), password, (err, user) => {
         if (err) {
             console.log(err);
             try {
                 if (err.code === 11000 && Object.hasOwn(err.keyValue, 'aptNum')) {
-                    res.status(409).send({ message: 'apt-num-already-in-use' });
-                    return;
+                    return res.status(409).send({ message: 'apt-num-already-in-use' });
                 } else if (err.name === 'UserExistsError') {
-                    res.status(409).send({ message: 'user-already-exists' });
-                    return;
+                    return res.status(409).send({ message: 'user-already-exists' });
                 } else {
                     res.status(400).send(err);
                 }
@@ -33,22 +48,21 @@ router.post('/signup', (req, res) => {
             }
             return;
         }
-        const token = getToken({ _id: user._id });
+        const token = getToken({ _id: user._id, isVerified: user.isVerified });
         const refreshToken = getRefreshToken({ _id: user._id });
         user.refreshToken.push({ refreshToken });
         user.save((err, user) => {
             if (err) {
-                res.status(500).send(err);
-                return;
+                return res.status(500).send(err);
             }
             res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
-            res.send({ success: true, token });
+            res.send({ success: true, token, user });
         });
     });
 });
 
 router.post('/login', passport.authenticate('local'), (req, res, next) => {
-    const token = getToken({ _id: req.user._id });
+    const token = getToken({ _id: req.user._id, isVerified: req.user.isVerified });
     const refreshToken = getRefreshToken({ _id: req.user._id });
     User.findById(req.user._id).then(
         (user) => {
@@ -58,7 +72,7 @@ router.post('/login', passport.authenticate('local'), (req, res, next) => {
                     res.status(500).send(err);
                 } else {
                     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
-                    res.send({ success: true, token });
+                    res.send({ success: true, token, user });
                 }
             });
         },
@@ -71,8 +85,8 @@ router.post('/refreshToken', (req, res, next) => {
     const { refreshToken } = signedCookies;
 
     if (!refreshToken) {
-        res.status(401).send('Unauthorized.');
-        return;
+        console.log('no refresh token found');
+        return res.status(401).send('Unauthorized.');
     }
     try {
         const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
@@ -80,8 +94,7 @@ router.post('/refreshToken', (req, res, next) => {
         User.findOne({ _id: userId }).then(
             (user) => {
                 if (!user) {
-                    res.status(401).send('Unauthorized.');
-                    return;
+                    return res.status(401).send('Unauthorized.');
                 }
                 // Find the refresh token against the user record in database
                 const tokenIndex = user.refreshToken.findIndex(
@@ -89,34 +102,63 @@ router.post('/refreshToken', (req, res, next) => {
                 );
 
                 if (tokenIndex === -1) {
-                    res.status(401).send('Unauthorized.');
-                    return;
+                    return res.status(401).send('Unauthorized.');
                 }
-                const token = getToken({ _id: userId });
+                const token = getToken({ _id: userId, isVerified: user.isVerified });
                 // If the refresh token exists, then create new one and replace it.
                 const newRefreshToken = getRefreshToken({ _id: userId });
                 user.refreshToken[tokenIndex] = { refreshToken: newRefreshToken };
                 user.save((err, user) => {
                     if (err) {
-                        res.status(500).send(err);
+                        return res.status(500).send(err);
                     } else {
                         res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS);
-                        res.send({ success: true, token });
+                        return res.send({ success: true, token, user });
                     }
                 });
             },
             (err) => next(err)
         );
     } catch (err) {
-        res.status(401).send('Unauthorized.');
+        return res.status(401).send('Unauthorized.');
     }
 });
 
-router.get('/me', verifyUser, (req, res) => {
+router.post('/verify', authenticateUser, async function (req, res, user) {
+    const { code } = req.body;
+    if (!code) {
+        return res.status(400).send({ message: 'no-code-provided' });
+    }
+
+    if (req.user.isVerified) {
+        return res.status(400).send({ message: 'user-already-verified' });
+    }
+
+    if (!req.user.verificationCode) {
+        return res.status(400).send({ message: 'no-code-available' });
+    }
+
+    if (code === req.user.verificationCode) {
+        req.user.isVerified = true;
+        req.user.verificationCode = undefined;
+        try {
+            await req.user.save();
+            return res.status(200).send({ message: 'Success', user: req.user });
+        } catch (err) {
+            next(err);
+        }
+    } else {
+        console.log('code -> ', code);
+        console.log('req.user.verificationCode -> ', req.user.verificationCode);
+        return res.status(401).send('Unauthorized.');
+    }
+});
+
+router.get('/me', authenticateUser, (req, res) => {
     res.send(req.user);
 });
 
-router.get('/logout', verifyUser, (req, res, next) => {
+router.get('/logout', authenticateUser, (req, res, next) => {
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
     User.findById(req.user._id).then(
@@ -129,7 +171,7 @@ router.get('/logout', verifyUser, (req, res, next) => {
                 user.refreshToken.id(user.refreshToken[tokenIndex]._id).remove();
             }
 
-            user.save((err, user) => {
+            user.save((err) => {
                 if (err) {
                     res.status(500).send(err);
                 } else {

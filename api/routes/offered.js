@@ -3,13 +3,13 @@ const router = express.Router();
 const { OfferedDate } = require('../models/OfferedDate');
 const { RequestedDate } = require('../models/RequestedDate');
 const { Message } = require('../models/Message');
-const { verifyUser } = require('../authenticate');
+const { authenticateUser, isVerified } = require('../authenticate');
 const { getFormattedDateStr } = require('../utils/dates');
 
 /**
  * Gets the offers for a query of user, start date, and end date
  */
-router.get('/', verifyUser, async function (req, res) {
+router.get('/', [authenticateUser, isVerified], async function (req, res) {
     const { user, startDate, endDate } = req.query;
 
     const dates = await OfferedDate.findDates(user, startDate, endDate);
@@ -20,7 +20,7 @@ router.get('/', verifyUser, async function (req, res) {
 /**
  * Returns offers from users for a given date.
  */
-router.get('/:date', verifyUser, async function (req, res) {
+router.get('/:date', [authenticateUser, isVerified], async function (req, res) {
     const offer = await OfferedDate.find({ date: req.params.date }).populate('user');
     res.send(offer);
 });
@@ -28,14 +28,13 @@ router.get('/:date', verifyUser, async function (req, res) {
 /**
  * Adds an offer to a date given a user
  */
-router.put('/', verifyUser, async function (req, res) {
+router.put('/', [authenticateUser, isVerified], async function (req, res) {
     const data = { date: req.body.date, user: req.user._id };
 
     // Verify user does not already have offer on that day
     let offer = await OfferedDate.findOne(data);
     if (offer !== null) {
-        res.status(400).send({ message: 'already-offered' });
-        return;
+        return res.status(400).send({ message: 'already-offered' });
     }
 
     // Add offer to database
@@ -45,43 +44,38 @@ router.put('/', verifyUser, async function (req, res) {
         offer = await offer.populate('user');
         res.send(offer);
     } catch {
-        res.status(400).send({ message: 'cannot-add-offer' });
-        return;
+        return res.status(400).send({ message: 'cannot-add-offer' });
     }
 });
 
 /**
  * Removes offered date from database
  */
-router.delete('/:dateId', verifyUser, async function (req, res) {
+router.delete('/:dateId', [authenticateUser, isVerified], async function (req, res) {
     // Verify offer exists on that day
-    console.log('do we make it?');
+
     let offer;
     try {
         offer = await OfferedDate.findById(req.params.dateId).populate('user');
     } catch {
-        res.status(400).send({ message: 'error-in-find-offer' });
-        return;
+        return res.status(400).send({ message: 'error-in-find-offer' });
     }
 
     // Check offer exists
     if (offer === null) {
-        res.status(400).send({ message: 'offer-doesnt-exist' });
-        return;
+        return res.status(400).send({ message: 'offer-doesnt-exist' });
     }
 
     // Ensure offer is owned by user
     if (!offer.user._id.equals(req.user._id)) {
-        res.status(401).send({ message: 'unauthorized' });
-        return;
+        return res.status(401).send({ message: 'unauthorized' });
     }
 
     // Delete offer
     try {
         await offer.remove();
     } catch {
-        res.status(400).send({ message: 'cannot-remove-offer' });
-        return;
+        return res.status(400).send({ message: 'cannot-remove-offer' });
     }
 
     // Delete requests associated with offer
@@ -104,8 +98,7 @@ router.delete('/:dateId', verifyUser, async function (req, res) {
         }
     } catch (err) {
         console.log(err.message);
-        res.status(500).send({ message: 'error-in-removing-requests' });
-        return;
+        return res.status(500).send({ message: 'error-in-removing-requests' });
     }
 
     res.send(offer);

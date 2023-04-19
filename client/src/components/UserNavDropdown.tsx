@@ -27,7 +27,7 @@ export function UserNavDropdown(props) {
             .get(`${process.env.REACT_APP_API_ENDPOINT}/users/logout`, getConfig(userContext.token))
             .then(async (res) => {
                 setUserContext((oldValues) => {
-                    return { ...oldValues, details: undefined, token: null };
+                    return { ...oldValues, details: null, token: null };
                 });
                 window.localStorage.setItem('logout', `${Date.now()}`);
             });

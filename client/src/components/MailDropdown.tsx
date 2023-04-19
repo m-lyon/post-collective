@@ -127,10 +127,10 @@ export function MailDropdown(props: MailDropdownProps) {
     }, [messages]);
 
     useEffect(() => {
-        if (userContext.token) {
+        if (userContext.token && userContext.details.isVerified) {
             fetchMessages(userContext.token, setMessages, displayedNum, setAvail);
         }
-    }, [userContext.token, displayedNum]);
+    }, [userContext.token, userContext.details, displayedNum]);
 
     useEffect(() => {
         console.log('getMessageNavbarItems has been called.');

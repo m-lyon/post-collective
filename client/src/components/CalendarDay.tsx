@@ -50,13 +50,17 @@ export function CalendarDay({
         if (requested !== null) {
             setClassName('requested');
         } else if (offered) {
-            setClassName('offered');
+            if (userRequests.length === 0) {
+                setClassName('offered');
+            } else {
+                setClassName('taken');
+            }
         } else if (availability.length !== 0) {
             setClassName('available');
         } else {
             setClassName('');
         }
-    }, [requested, offered, availability]);
+    }, [requested, offered, availability, userRequests]);
 
     useEffect(() => {
         async function func() {

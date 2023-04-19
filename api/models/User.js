@@ -14,6 +14,8 @@ const userSchema = new Schema({
     name: { type: String, required: true },
     refreshToken: { type: [sessionSchema] },
     aptNum: { type: Number, required: true, unique: true },
+    isVerified: { type: Boolean, required: true },
+    verificationCode: { type: String },
 });
 
 userSchema.statics.checkExists = async function (user) {
@@ -32,6 +34,7 @@ userSchema.post('remove', async function () {
 userSchema.set('toJSON', {
     transform: function (doc, ret, options) {
         delete ret.refreshToken;
+        delete ret.verificationCode;
         return ret;
     },
 });

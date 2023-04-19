@@ -5,6 +5,7 @@ import { getConfig } from '../utils/auth';
 import { Offer, ToggleOfferedFunction, SetModalShowFunction } from '../utils/types';
 
 async function sendPickupOffer(token: string, date: string, toggleOffered: ToggleOfferedFunction) {
+    console.log('sendPickupOffer called');
     try {
         const response = await axios.put(
             `${process.env.REACT_APP_API_ENDPOINT}/offered`,

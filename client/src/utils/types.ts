@@ -4,6 +4,7 @@ import { DateFormat } from './dates';
 export interface User {
     _id: string;
     aptNum?: number;
+    name: string;
 }
 
 export interface Offer {

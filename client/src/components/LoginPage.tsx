@@ -7,7 +7,7 @@ import { UserContext } from '../context/UserContext';
 import { ErrorModal } from './ErrorModal';
 import { getConfig } from '../utils/auth';
 
-function LoginBox(props) {
+export function LoginPage(props) {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -32,8 +32,7 @@ function LoginBox(props) {
                 if (response.status === 200) {
                     const data = response.data;
                     setUserContext((oldValues) => {
-                        console.log(document.cookie);
-                        return { ...oldValues, token: data.token };
+                        return { ...oldValues, token: data.token, details: data.user };
                     });
                 } else {
                     setError(genericErrorMessage);
@@ -114,8 +113,4 @@ function LoginBox(props) {
             />
         </Container>
     );
-}
-
-export function LoginPage(props) {
-    return <LoginBox />;
 }

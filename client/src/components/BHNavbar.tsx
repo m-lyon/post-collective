@@ -7,7 +7,7 @@ export function BHNavbar(props) {
     return (
         <Navbar bg='light'>
             <Container>
-                <Navbar.Brand href='#home'>Balmoral House Post Collective</Navbar.Brand>
+                <Navbar.Brand href='#home'>Balmoral House Postal Collective</Navbar.Brand>
                 <Nav style={{ maxHeight: '100px' }} navbarScroll>
                     <Row>
                         <InfoButton />

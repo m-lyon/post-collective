@@ -39,7 +39,11 @@ interface ViewRequestsModalProps {
 function ViewRequestsModal(props: ViewRequestsModalProps) {
     const { userRequests, show, onHide } = props;
     const aptList = userRequests.map((request) => {
-        return <Row key={request.user.aptNum}>Apartment {request.user.aptNum}</Row>;
+        return (
+            <Row key={request.user.aptNum}>
+                {request.user.name} in Apartment {request.user.aptNum}
+            </Row>
+        );
     });
     return (
         <Modal show={show} onHide={onHide} centered>

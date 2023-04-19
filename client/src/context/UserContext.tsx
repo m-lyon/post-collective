@@ -2,8 +2,10 @@ import { useState, createContext, Dispatch, SetStateAction } from 'react';
 
 interface IUserContext {
     token?: string;
+    isVerified?: boolean;
     details?: {
         _id: string;
+        isVerified: boolean;
     };
 }
 

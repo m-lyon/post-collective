@@ -20,7 +20,7 @@ const requestedDateSchema = new Schema({
 
 requestedDateSchema.statics.findDatesForOffer = async function (offer) {
     const query = { offeredDate: offer };
-    return this.find(query).populate('user', 'aptNum');
+    return this.find(query).populate('user', 'aptNum name');
 };
 
 requestedDateSchema.statics.findDates = findDates;
