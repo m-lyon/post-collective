@@ -285,3 +285,12 @@
 .register-form > .row > .col {
     margin-bottom: 0.5rem;
 }
+
+.forgot-link {
+    color: var(--bs-link-color);
+    cursor: pointer;
+}
+
+.forgot-link:hover {
+    color: var(--bs-link-hover-color);
+}

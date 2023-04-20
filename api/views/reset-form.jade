@@ -1,0 +1,20 @@
+doctype html
+html
+  head
+    title=title 
+    link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+    link(rel='stylesheet', href='/stylesheets/main.css')
+  body 
+    .container.reset-container 
+      .row.reset-box 
+        .col.reset-form
+          h1
+            | Balmoral House
+            br
+            | Postal Collective 
+          form(action="/resetPassword/#{userId}/#{token}" method="post") 
+            div 
+              label(for="password")
+              input(type="password" id="password" required placeholder="New password")
+            div 
+              button(type="submit").btn.btn-success Reset password

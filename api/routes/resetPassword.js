@@ -7,7 +7,22 @@ const sendEmail = require('../utils/email');
 const router = express.Router();
 
 router.get('/:userId/:token', async (req, res) => {
-    // TODO
+    try {
+        // Validate user and token
+        const user = await User.findById(req.params.userId);
+        if (!user) return res.status(401).send('Invalid link or expired.');
+
+        const token = await ResetToken.findOne({
+            userId: user._id,
+            token: req.params.token,
+        });
+        if (!token) return res.status(401).send('Invalid link or expired.');
+
+        res.render('reset-form', { userId: user._id, token });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('An error occured.');
+    }
 });
 
 router.post('/', async (req, res) => {
@@ -41,6 +56,7 @@ router.post('/:userId/:token', async (req, res) => {
         const { error } = schema.validate(req.body);
         if (error) return res.status(500).send(error.details[0].message);
 
+        // Validate user and token
         const user = await User.findById(req.params.userId);
         if (!user) return res.status(401).send('Invalid link or expired.');
 
@@ -53,7 +69,7 @@ router.post('/:userId/:token', async (req, res) => {
         await user.setPassword(req.body.password);
         await user.save();
         await token.delete();
-        res.send('Password reset sucessfully.');
+        res.send('Password reset sucessfully, you can close this window.');
     } catch (error) {
         res.status(500).send('An error occured.');
         console.log(error);

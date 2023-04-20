@@ -6,6 +6,7 @@ import { SignupModal } from './SignupModal';
 import { UserContext } from '../context/UserContext';
 import { ErrorModal } from './ErrorModal';
 import { getConfig } from '../utils/auth';
+import { ForgotPasswordModal } from './ForgotPasswordModal';
 
 export function LoginPage(props) {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -14,6 +15,7 @@ export function LoginPage(props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [showForgotModal, setShowForgotModal] = useState(false);
     const setUserContext = useContext(UserContext)[1];
 
     function formSubmitHandler(e) {
@@ -88,9 +90,9 @@ export function LoginPage(props) {
                             </Button>
                         </div>
                         <div style={{ paddingTop: '1rem', textAlign: 'center' }}>
-                            <a style={{ textDecoration: 'none' }} href='#'>
+                            <span className='forgot-link' onClick={() => setShowForgotModal(true)}>
                                 Forgotten password?
-                            </a>
+                            </span>
                         </div>
                         <div className='divider'></div>
                         <div className='register'>
@@ -105,6 +107,11 @@ export function LoginPage(props) {
                     </Form>
                 </Col>
             </Row>
+            <ForgotPasswordModal
+                show={showForgotModal}
+                onHide={() => setShowForgotModal(false)}
+                email={email}
+            />
             <SignupModal show={showRegisterModal} onHide={() => setShowRegisterModal(false)} />
             <ErrorModal
                 show={showErrorModal}
