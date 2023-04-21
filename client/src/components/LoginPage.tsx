@@ -117,6 +117,7 @@ export function LoginPage(props) {
                 show={showErrorModal}
                 onHide={() => setShowErrorModal(false)}
                 error={error}
+                hideModal={() => setShowForgotModal(false)}
             />
         </Container>
     );
