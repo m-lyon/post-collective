@@ -40,9 +40,9 @@ export function VerifyPage(props) {
                 setIsSubmitting(false);
                 if (error.response.status === 400) {
                     if (error.response.data.message === 'no-code-provided') {
-                        setError('No verification code provided!');
+                        setError('No verification code provided.');
                     } else if (error.response.data.message === 'user-already-verified') {
-                        setError('Already verified!');
+                        setError('Already verified.');
                     } else {
                         setError(genericErrorMessage);
                     }
@@ -66,6 +66,10 @@ export function VerifyPage(props) {
                             <br />
                             Postal Collective
                         </h1>
+                        <p>
+                            Succesfully registered! A verification code will be sent to your postbox
+                            within the next few days.
+                        </p>
                         <Form onSubmit={formSubmitHandler}>
                             <Form.Group style={{ marginBottom: '0.5rem' }}>
                                 <Form.Control

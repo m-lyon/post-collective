@@ -7,6 +7,7 @@ const { User } = require('../models/User');
 const { getToken, COOKIE_OPTIONS } = require('../authenticate');
 const { getRefreshToken, authenticateUser } = require('../authenticate');
 const { generateRandomString } = require('../utils/rng');
+const { sendRegistrationEmail } = require('../utils/email');
 
 function validateUser(user) {
     const schema = Joi.object({
@@ -34,19 +35,19 @@ router.post('/signup', (req, res) => {
     };
     User.register(new User(userDetails), password, (err, user) => {
         if (err) {
-            console.log(err);
             try {
                 if (err.code === 11000 && Object.hasOwn(err.keyValue, 'aptNum')) {
                     return res.status(409).send({ message: 'apt-num-already-in-use' });
                 } else if (err.name === 'UserExistsError') {
                     return res.status(409).send({ message: 'user-already-exists' });
                 } else {
-                    res.status(400).send(err);
+                    console.log('Unexpected error in register user: ', err);
+                    return res.status(400).send('Unknown error');
                 }
             } catch {
-                res.status(400).send(err);
+                console.log('This error shouldnt happen: ', err);
+                return res.status(500).send('Unknown error');
             }
-            return;
         }
         const token = getToken({ _id: user._id, isVerified: user.isVerified });
         const refreshToken = getRefreshToken({ _id: user._id });
@@ -57,6 +58,12 @@ router.post('/signup', (req, res) => {
             }
             res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
             res.send({ success: true, token, user });
+            // Send notification email to admin
+            try {
+                sendRegistrationEmail(user);
+            } catch (err) {
+                console.log('Error in sending email: ', err);
+            }
         });
     });
 });

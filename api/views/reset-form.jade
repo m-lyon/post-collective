@@ -8,13 +8,13 @@ html
     .container.reset-container 
       .row.reset-box 
         .col.reset-form
-          h1
+          h1.reset-h1
             | Balmoral House
             br
             | Postal Collective 
           form(action="/resetPassword/#{userId}/#{token}" method="post") 
-            div 
-              label(for="password")
-              input(type="password" id="password" required placeholder="New password")
-            div 
+            div.reset-item.form-group 
+              label(for="pass")
+              input(type="password" id="pass" name="password" required placeholder="New password").form-control
+            div.form-group.d-grid.gap-2
               button(type="submit").btn.btn-success Reset password

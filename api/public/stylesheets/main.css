@@ -6,7 +6,6 @@
 }
 
 .reset-box {
-    /* aspect-ratio: 1 / 1; */
     width: 25rem;
     border-radius: 0.5em;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -14,4 +13,12 @@
 
 .reset-form {
     padding: 2em;
+}
+
+.reset-h1 {
+    margin-bottom: 1rem;
+}
+
+.reset-item {
+    margin-bottom: 1rem;
 }

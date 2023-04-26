@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const Joi = require('joi');
 const { User } = require('../models/User');
 const { ResetToken } = require('../models/ResetToken');
-const sendEmail = require('../utils/email');
+const { sendResetEmail } = require('../utils/email');
 const router = express.Router();
 
 router.get('/:userId/:token', async (req, res) => {
@@ -18,7 +18,7 @@ router.get('/:userId/:token', async (req, res) => {
         });
         if (!token) return res.status(401).send('Invalid link or expired.');
 
-        res.render('reset-form', { userId: user._id, token });
+        res.render('reset-form', { userId: user._id, token: token.token });
     } catch (err) {
         console.log(err);
         res.status(500).send('An error occured.');
@@ -41,8 +41,8 @@ router.post('/', async (req, res) => {
                 token: crypto.randomBytes(32).toString('hex'),
             }).save();
         }
-
-        await sendEmail(user, token.token);
+        console.log(user);
+        await sendResetEmail(user, token.token);
         res.send('Success');
     } catch (err) {
         console.log(err);

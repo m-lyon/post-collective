@@ -110,14 +110,14 @@ export function LoginPage(props) {
             <ForgotPasswordModal
                 show={showForgotModal}
                 onHide={() => setShowForgotModal(false)}
-                email={email}
+                initEmail={email}
+                hideModal={() => setShowForgotModal(false)}
             />
             <SignupModal show={showRegisterModal} onHide={() => setShowRegisterModal(false)} />
             <ErrorModal
                 show={showErrorModal}
                 onHide={() => setShowErrorModal(false)}
                 error={error}
-                hideModal={() => setShowForgotModal(false)}
             />
         </Container>
     );

@@ -38,11 +38,32 @@ function getAvailableDaysArray(
 }
 
 export function MainPage(props) {
-    const [days, setDays] = useState<DateFormat[]>(getInitialDates());
+    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
+    const [days, setDays] = useState<DateFormat[]>([]);
     const [offeredDays, setOffered] = useState<OfferedDays>(days.map(() => null));
     const [availability, setAvailability] = useState<AvailableDays>(days.map(() => []));
     const [requestedDays, setRequested] = useState<RequestedDays>(days.map(() => null));
     const [userContext] = useContext(UserContext);
+
+    function handleWindowSizeChange() {
+        setIsMobile(window.innerWidth <= 768);
+    }
+    useEffect(() => {
+        window.addEventListener('resize', handleWindowSizeChange);
+        return () => {
+            window.removeEventListener('resize', handleWindowSizeChange);
+        };
+    }, []);
+
+    useEffect(() => {
+        setDays((days) => {
+            console.log('useEffect getInitialDates called');
+            if (days.length > 0) {
+                return getInitialDates(isMobile, days[0]);
+            }
+            return getInitialDates(isMobile);
+        });
+    }, [isMobile]);
 
     const setCalendarState = useCallback(async () => {
         if (userContext.token && userContext.details) {
@@ -53,7 +74,6 @@ export function MainPage(props) {
             setRequestedDays(days, setRequested, userRequests);
         }
     }, [userContext.token, userContext.details, days]);
-
     useEffect(() => {
         setCalendarState();
     }, [setCalendarState]);

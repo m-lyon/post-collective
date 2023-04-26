@@ -24,13 +24,16 @@ export function setRequestedDays(
 
 export async function getRequestedDaysForUser(
     token: string,
-    daysState: DateFormat[]
+    days: DateFormat[]
 ): Promise<Request[]> {
+    if (days.length === 0) {
+        return [];
+    }
     const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/requested`,
         getConfig(token, {
-            startDate: daysState[0].getDateStr(),
-            endDate: daysState[daysState.length - 1].getDateStr(),
+            startDate: days[0].getDateStr(),
+            endDate: days[days.length - 1].getDateStr(),
         })
     );
     return response.data;

@@ -3,12 +3,15 @@ import { DateFormat } from './dates';
 import { Offer, SetOfferedFunction } from './types';
 import { getConfig } from './auth';
 
-export async function getOffers(token: string, daysState: DateFormat[]): Promise<Offer[]> {
+export async function getOffers(token: string, days: DateFormat[]): Promise<Offer[]> {
+    if (days.length === 0) {
+        return [];
+    }
     const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/offered`,
         getConfig(token, {
-            startDate: daysState[0].getDateStr(),
-            endDate: daysState[daysState.length - 1].getDateStr(),
+            startDate: days[0].getDateStr(),
+            endDate: days[days.length - 1].getDateStr(),
         })
     );
     return response.data;

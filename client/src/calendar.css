@@ -294,3 +294,9 @@
 .forgot-link:hover {
     color: var(--bs-link-hover-color);
 }
+
+.signup-error {
+    margin-top: 0.25rem;
+    color: #f65157;
+    font-size: small;
+  }

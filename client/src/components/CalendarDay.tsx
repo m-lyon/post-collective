@@ -15,9 +15,10 @@ import { getConfig } from '../utils/auth';
 import { DateFormat } from '../utils/dates';
 
 async function getRequestsForOfferedDay(token: string, offer: Offer) {
-    if (offer === null) {
+    if (!offer) {
         return [];
     }
+    console.log('getRequestsForOfferedDay called', offer);
     const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/requested`,
         getConfig(token, { offeredDateId: offer })

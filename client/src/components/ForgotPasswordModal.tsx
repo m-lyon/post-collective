@@ -23,7 +23,9 @@ export function ForgotPasswordModal(props) {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => setEmail(initEmail), [initEmail]);
+    useEffect(() => {
+        setEmail(initEmail);
+    }, [initEmail]);
 
     function formSubmitHandler(e) {
         setIsSubmitting(true);
@@ -34,8 +36,6 @@ export function ForgotPasswordModal(props) {
                 username: email,
             })
             .then(() => {
-                setIsSubmitting(false);
-                hideModal();
                 setShowSuccessModal(true);
             })
             .catch((err) => {
@@ -89,12 +89,20 @@ export function ForgotPasswordModal(props) {
             </Modal>
             <SuccessModal
                 show={showSuccessModal}
-                onHide={() => setShowSuccessModal(false)}
+                onHide={() => {
+                    setShowSuccessModal(false);
+                    setIsSubmitting(false);
+                    hideModal();
+                }}
                 email={email}
             />
             <ErrorModal
                 show={showErrorModal}
-                onHide={() => setShowErrorModal(false)}
+                onHide={() => {
+                    setShowErrorModal(false);
+                    setIsSubmitting(false);
+                    hideModal();
+                }}
                 error={error}
             />
         </>

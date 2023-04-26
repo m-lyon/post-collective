@@ -1,31 +1,64 @@
 import axios from 'axios';
 
-import { useState, useContext } from 'react';
+import { useState, useContext, useReducer } from 'react';
 import { Container, Form, Modal, Row, Col, Button } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
 import { ErrorModal } from './ErrorModal';
 import { getConfig } from '../utils/auth';
+import { UPDATE_FORM, onInputChange, onFocusOut, runFormStateValidation } from '../utils/forms';
+
+const initialState = {
+    name: { value: '', touched: false, hasError: true, error: '' },
+    email: { value: '', touched: false, hasError: true, error: '' },
+    aptNum: { value: '', touched: false, hasError: true, error: '' },
+    password: { value: '', touched: false, hasError: true, error: '' },
+    isFormValid: false,
+};
+
+const formsReducer = (state, action) => {
+    switch (action.type) {
+        case UPDATE_FORM:
+            const { name, value, hasError, error, touched, isFormValid } = action.data;
+            return {
+                ...state,
+                [name]: { ...state[name], value, hasError, error, touched },
+                isFormValid,
+            };
+        default:
+            return state;
+    }
+};
 
 export function SignupModal(props) {
     const { show, onHide } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
-    const [name, setName] = useState('');
-    const [aptNum, setAptNum] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const setUserContext = useContext(UserContext)[1];
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [formState, dispatch] = useReducer(formsReducer, initialState);
 
-    function formSubmitHandler(e) {
-        e.preventDefault();
+    function formSubmitHandler(event) {
+        event.preventDefault();
+
+        // Client-side validation
+        runFormStateValidation(formState, dispatch);
+        if (!formState.isFormValid) {
+            return;
+        }
+
+        // Server side submission & error handling
         setIsSubmitting(true);
         setError('');
         const genericErrorMessage = 'Something went wrong! Please try again later.';
         axios
             .post(
                 `${process.env.REACT_APP_API_ENDPOINT}/users/signup`,
-                { username: email, password, aptNum, name },
+                {
+                    username: formState.email.value,
+                    password: formState.password.value,
+                    aptNum: formState.aptNum.value,
+                    name: formState.name.value,
+                },
                 getConfig()
             )
             .then((response) => {
@@ -67,7 +100,7 @@ export function SignupModal(props) {
                 <Modal.Title>Sign Up</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form onSubmit={formSubmitHandler}>
+                <Form noValidate onSubmit={formSubmitHandler}>
                     <Container className='register-form'>
                         <Row>
                             <Col>
@@ -75,10 +108,28 @@ export function SignupModal(props) {
                                     <Form.Control
                                         id='name'
                                         type='text'
+                                        required
                                         placeholder='Name'
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        value={formState.name.value}
+                                        onChange={(e) => {
+                                            onInputChange(
+                                                'name',
+                                                e.target.value,
+                                                dispatch,
+                                                formState
+                                            );
+                                        }}
+                                        onBlur={(e) => {
+                                            onFocusOut('name', e.target.value, dispatch, formState);
+                                        }}
+                                        isValid={formState.name.touched && !formState.name.hasError}
+                                        isInvalid={
+                                            formState.name.touched && formState.name.hasError
+                                        }
                                     />
+                                    <Form.Control.Feedback type='invalid'>
+                                        {formState.name.error}
+                                    </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
                             <Col>
@@ -87,9 +138,33 @@ export function SignupModal(props) {
                                         id='aptNum'
                                         type='text'
                                         placeholder='Apartment number'
-                                        value={aptNum}
-                                        onChange={(e) => setAptNum(e.target.value)}
+                                        value={formState.aptNum.value}
+                                        onChange={(e) => {
+                                            onInputChange(
+                                                'aptNum',
+                                                e.target.value,
+                                                dispatch,
+                                                formState
+                                            );
+                                        }}
+                                        onBlur={(e) => {
+                                            onFocusOut(
+                                                'aptNum',
+                                                e.target.value,
+                                                dispatch,
+                                                formState
+                                            );
+                                        }}
+                                        isValid={
+                                            formState.aptNum.touched && !formState.aptNum.hasError
+                                        }
+                                        isInvalid={
+                                            formState.aptNum.touched && formState.aptNum.hasError
+                                        }
                                     />
+                                    <Form.Control.Feedback type='invalid'>
+                                        {formState.aptNum.error}
+                                    </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -100,9 +175,33 @@ export function SignupModal(props) {
                                         id='email'
                                         type='email'
                                         placeholder='Email'
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        value={formState.email.value}
+                                        onChange={(e) => {
+                                            onInputChange(
+                                                'email',
+                                                e.target.value,
+                                                dispatch,
+                                                formState
+                                            );
+                                        }}
+                                        onBlur={(e) => {
+                                            onFocusOut(
+                                                'email',
+                                                e.target.value,
+                                                dispatch,
+                                                formState
+                                            );
+                                        }}
+                                        isValid={
+                                            formState.email.touched && !formState.email.hasError
+                                        }
+                                        isInvalid={
+                                            formState.email.touched && formState.email.hasError
+                                        }
                                     />
+                                    <Form.Control.Feedback type='invalid'>
+                                        {formState.email.error}
+                                    </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -113,9 +212,35 @@ export function SignupModal(props) {
                                         id='password'
                                         type='password'
                                         placeholder='New password'
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />{' '}
+                                        value={formState.password.value}
+                                        onChange={(e) => {
+                                            onInputChange(
+                                                'password',
+                                                e.target.value,
+                                                dispatch,
+                                                formState
+                                            );
+                                        }}
+                                        onBlur={(e) => {
+                                            onFocusOut(
+                                                'password',
+                                                e.target.value,
+                                                dispatch,
+                                                formState
+                                            );
+                                        }}
+                                        isValid={
+                                            formState.password.touched &&
+                                            !formState.password.hasError
+                                        }
+                                        isInvalid={
+                                            formState.password.touched &&
+                                            formState.password.hasError
+                                        }
+                                    />
+                                    <Form.Control.Feedback type='invalid'>
+                                        {formState.password.error}
+                                    </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
                         </Row>

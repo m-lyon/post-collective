@@ -26,14 +26,22 @@ export function getStandardDate(dateStr: string): Date{
     return date;
 }
 
-export function getInitialDates(numDays: number = 7): DateFormat[] {
+export function getInitialDates(isMobile: boolean, start?: DateFormat): DateFormat[] {
     const days = [];
+    const numDays = isMobile ? 7 : 28
+    console.log('getInitialDates called')
     for (let i = 0; i < numDays; i++) {
-        const nextDay = new DateFormat();
+        let nextDay: DateFormat;
+        if (start){
+            nextDay = new DateFormat(start);
+        } else {
+            nextDay = new DateFormat();
+        }
         nextDay.setUTCHours(0, 0, 0, 0);
         nextDay.setDate(nextDay.getDate() + i);
         days.push(nextDay);
     }
+    console.log(days)
     return days;
 }
 

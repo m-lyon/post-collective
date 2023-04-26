@@ -1,4 +1,11 @@
+const Sib = require('sib-api-v3-sdk');
+
 function sendEmail(email, subject, textContent) {
+    const client = Sib.ApiClient.instance;
+    const apiKey = client.authentications['api-key'];
+    apiKey.apiKey = process.env.SMTP_API_KEY;
+
+    const tranEmailApi = new Sib.TransactionalEmailsApi();
     const sender = {
         email: `noreply@${process.env.MAIL_DOMAIN}`,
         name: 'noreply',
@@ -26,7 +33,19 @@ function sendResetEmail(user, resetToken) {
     Note: This link will expire in 1 hour for security reasons. If you do not reset your password within that time, you will need to request a new password reset link.
     
     If you have any questions or concerns, please contact ${process.env.INFO_EMAIL}.`;
-    return sendEmail(email, subject, textContent);
+    return sendEmail(user.username, subject, textContent);
+}
+
+function sendRegistrationEmail(user){
+    const subject = 'New Balmoral House Postal Collective user registered'
+    const textContext = `New user registered:
+
+    Email: ${user.username}
+    Name: ${user.name}
+    Apartment Number: ${user.aptNum}
+    Verification Code: ${user.verificationCode}`
+    return sendEmail(`${process.env.INFO_EMAIL}`, subject, textContext)
 }
 
 exports.sendResetEmail = sendResetEmail;
+exports.sendRegistrationEmail = sendRegistrationEmail;
