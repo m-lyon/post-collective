@@ -40,7 +40,7 @@ interface OfferPickupButtonProps {
 export function OfferPickupButton({ token, date, toggleOffered }: OfferPickupButtonProps) {
     return (
         <div
-            className='select-box bg-white text-grey hvr-grow2'
+            className='select-box text-grey hvr-grow2 bottom-btn'
             onClick={() => sendPickupOffer(token, date, toggleOffered)}
         >
             Offer Pickup
@@ -61,7 +61,7 @@ export function CancelOfferButton(props: CancelOfferButtonProps) {
     return (
         <>
             <div
-                className='select-box bg-white text-grey hvr-grow2'
+                className='select-box text-grey hvr-grow2 bottom-btn'
                 onClick={() => {
                     console.log('CancelOfferButton has been clicked.');
                     cancelOfferHandler(token, offer, toggleOffered, setModalShow);
@@ -94,7 +94,7 @@ function ConfirmCancelModal(props: ConfirmCancelModalProps) {
     return (
         <Modal show={show} onHide={hide} centered>
             <Modal.Header closeButton>
-                <Modal.Title>There are active requests for this day</Modal.Title>
+                <Modal.Title>There are reservations for this day</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <p>Are you sure you want to cancel?</p>

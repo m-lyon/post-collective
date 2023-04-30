@@ -41,7 +41,6 @@ export function getInitialDates(isMobile: boolean, start?: DateFormat): DateForm
         nextDay.setDate(nextDay.getDate() + i);
         days.push(nextDay);
     }
-    console.log(days)
     return days;
 }
 

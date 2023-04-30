@@ -1,5 +1,5 @@
 import { Request } from '../utils/types';
-import { Modal, Container, Row } from 'react-bootstrap';
+import { Modal, ListGroup } from 'react-bootstrap';
 import { useState } from 'react';
 
 interface RequestDisplayProps {
@@ -11,13 +11,12 @@ export function RequestDisplay(props: RequestDisplayProps) {
     const [modalShow, setModalShow] = useState(false);
 
     if (userRequests.length === 0) {
-        return <div className='select-box bg-white text-grey disabled'>0 Requests</div>;
+        return <div className='select-box text-grey disabled'>0 Reservations</div>;
     }
-    // put modal nested in div?
     return (
         <>
-            <div className='select-box bg-white text-grey' onClick={() => setModalShow(true)}>
-                {userRequests.length} Request{userRequests.length === 1 ? '' : 's'}
+            <div className='select-box text-grey hvr-grow2' onClick={() => setModalShow(true)}>
+                {userRequests.length} Reservation{userRequests.length === 1 ? '' : 's'}
             </div>
             <ViewRequestsModal
                 userRequests={userRequests}
@@ -40,18 +39,20 @@ function ViewRequestsModal(props: ViewRequestsModalProps) {
     const { userRequests, show, onHide } = props;
     const aptList = userRequests.map((request) => {
         return (
-            <Row key={request.user.aptNum}>
+            <ListGroup.Item key={request.user.aptNum}>
                 {request.user.name} in Apartment {request.user.aptNum}
-            </Row>
+            </ListGroup.Item>
         );
     });
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Current Requests</Modal.Title>
+                <Modal.Title>Current Reservations</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Container>{aptList}</Container>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <ListGroup>{aptList}</ListGroup>
+                </div>
             </Modal.Body>
         </Modal>
     );

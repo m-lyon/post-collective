@@ -15,7 +15,8 @@ export function BottomButton(props: BottomButtonProps) {
     const [userContext] = useContext(UserContext);
 
     if (request !== null) {
-        return <div className='select-box bg-white text-grey disabled'>Offer Pickup</div>;
+        // If already have reservation for this day, cannot also offer
+        return <div className='select-box text-grey disabled bottom-btn'>Offer Pickup</div>;
     }
     if (offer !== null) {
         return (

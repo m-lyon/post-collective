@@ -1,13 +1,13 @@
 import axios from 'axios';
-import { Modal, Button, ButtonGroup } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import { useState } from 'react';
 import { Offer, Request, ToggleRequestedFunction } from '../utils/types';
 import { getConfig } from '../utils/auth';
 
-async function dropoffRequestHandler(
+async function sendReservationHandler(
     token: string,
     offer: Offer,
-    toggleRequested: ToggleRequestedFunction
+    handleSuccess: (data: Request) => void
 ) {
     try {
         const response = await axios.put(
@@ -16,17 +16,13 @@ async function dropoffRequestHandler(
             getConfig(token)
         );
         console.log(response);
-        toggleRequested(response.data);
+        handleSuccess(response.data);
     } catch (err) {
         console.log(err);
-        // TODO: this is here just to show the data structure
-        if (err.response.data.message === 'already-requested') {
-            console.log('day already requested');
-        }
     }
 }
 
-async function cancelDropoffHandler(
+async function cancelReservationHandler(
     token: string,
     request: Request,
     toggleRequested: ToggleRequestedFunction
@@ -44,19 +40,21 @@ async function cancelDropoffHandler(
     }
 }
 
-interface RequestDropoffButtonProps {
+interface ReserveDropoffButtonProps {
     token: string;
     unselect: () => void;
     toggleRequested: ToggleRequestedFunction;
     offers: Offer[];
+    showSuccessModal: () => void;
 }
-export function RequestDropoffButton(props: RequestDropoffButtonProps) {
+export function ReserveDropoffButton(props: ReserveDropoffButtonProps) {
+    const { token, unselect, toggleRequested, offers, showSuccessModal } = props;
     const [modalShow, setModalShow] = useState(false);
-    const { token, unselect, toggleRequested, offers } = props;
+
     return (
         <>
             <div
-                className='select-box bg-white text-grey hvr-grow2'
+                className='select-box text-grey hvr-grow2'
                 onClick={() => {
                     setModalShow(true);
                 }}
@@ -71,7 +69,11 @@ export function RequestDropoffButton(props: RequestDropoffButtonProps) {
                     unselect();
                     setModalShow(false);
                 }}
-                toggleRequested={toggleRequested}
+                handleSuccess={(data) => {
+                    toggleRequested(data);
+                    showSuccessModal();
+                    unselect();
+                }}
             />
         </>
     );
@@ -82,18 +84,18 @@ interface SelectDropoffModalProps {
     offers: Offer[];
     show: boolean;
     onHide: () => void;
-    toggleRequested: ToggleRequestedFunction;
+    handleSuccess: (data: Request) => void;
 }
 function SelectDropoffModal(props: SelectDropoffModalProps) {
-    const { token, offers, show, onHide, toggleRequested } = props;
+    const { token, offers, show, onHide, handleSuccess } = props;
+
     const buttons = offers.map((offer: Offer) => {
         return (
             <Button
+                variant='success'
+                className='request-btn'
                 key={offer.user.aptNum}
-                onClick={() => {
-                    dropoffRequestHandler(token, offer, toggleRequested);
-                    onHide();
-                }}
+                onClick={() => sendReservationHandler(token, offer, handleSuccess)}
             >
                 Apartment {offer.user.aptNum}
             </Button>
@@ -106,26 +108,28 @@ function SelectDropoffModal(props: SelectDropoffModalProps) {
             </Modal.Header>
             <Modal.Body>
                 <div style={{ marginBottom: '2em' }}>
-                    Select an apartment that you would like to collect your post
+                    Select an apartment that you would like to collect your post.
                 </div>
-                <ButtonGroup vertical>{buttons}</ButtonGroup>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>{buttons}</div>
+                </div>
             </Modal.Body>
         </Modal>
     );
 }
 
-interface CancelRequestButtonProps {
+interface CancelReservationButtonProps {
     token: string;
     toggleRequested: ToggleRequestedFunction;
     request: Request;
 }
 
-export function CancelRequestButton(props: CancelRequestButtonProps) {
+export function CancelReservationButton(props: CancelReservationButtonProps) {
     const { token, toggleRequested, request } = props;
     return (
         <div
-            className='select-box bg-white text-grey hvr-grow2'
-            onClick={() => cancelDropoffHandler(token, request, toggleRequested)}
+            className='select-box text-grey hvr-grow2'
+            onClick={() => cancelReservationHandler(token, request, toggleRequested)}
         >
             Cancel Request
         </div>

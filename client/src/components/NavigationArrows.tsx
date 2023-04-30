@@ -23,11 +23,15 @@ function setNewDays(setDays: SetDaysFunction, operator: string): void {
 
 interface NavigationArrowsProps {
     setDays: SetDaysFunction;
+    isMobile: boolean;
 }
 export function NavigationArrows(props: NavigationArrowsProps) {
-    const { setDays } = props;
+    const { setDays, isMobile } = props;
+    const className = isMobile
+        ? 'justify-content-end calendar-rows-mobile'
+        : 'justify-content-end calendar-rows';
     return (
-        <Row className='justify-content-end'>
+        <Row className={className}>
             <div className='svg-arrow'>
                 <svg
                     xmlns='http://www.w3.org/2000/svg'

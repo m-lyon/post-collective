@@ -1,5 +1,5 @@
 import { AvailableDay, Offer, Request, ToggleRequestedFunction } from '../utils/types';
-import { CancelRequestButton, RequestDropoffButton } from './RequestDropoff';
+import { CancelReservationButton, ReserveDropoffButton } from './ReserveDropoff';
 import { RequestDisplay } from './RequestDisplay';
 import { UserContext } from '../context/UserContext';
 import { useContext } from 'react';
@@ -11,9 +11,18 @@ interface TopButtonProps {
     requested: Request;
     offered: Offer;
     userRequests: Request[];
+    showSuccessModal: () => void;
 }
 export function TopButton(props: TopButtonProps) {
-    const { unselect, toggleRequested, availability, requested, offered, userRequests } = props;
+    const {
+        unselect,
+        toggleRequested,
+        availability,
+        requested,
+        offered,
+        userRequests,
+        showSuccessModal,
+    } = props;
     const [userContext] = useContext(UserContext);
 
     if (offered !== null) {
@@ -21,7 +30,7 @@ export function TopButton(props: TopButtonProps) {
     }
     if (requested !== null) {
         return (
-            <CancelRequestButton
+            <CancelReservationButton
                 token={userContext.token}
                 request={requested}
                 toggleRequested={toggleRequested}
@@ -30,11 +39,12 @@ export function TopButton(props: TopButtonProps) {
     }
     if (availability.length !== 0) {
         return (
-            <RequestDropoffButton
+            <ReserveDropoffButton
                 token={userContext.token}
                 unselect={unselect}
                 toggleRequested={toggleRequested}
                 offers={availability}
+                showSuccessModal={showSuccessModal}
             />
         );
     }
@@ -42,7 +52,7 @@ export function TopButton(props: TopButtonProps) {
     // the css of text so its not ugly.
     return (
         <>
-            <div className='select-box bg-white text-grey disabled'>No Drop-offs</div>
+            <div className='select-box text-grey disabled'>No Drop-offs</div>
         </>
     );
 }

@@ -33,15 +33,18 @@ interface CalendarDayProps {
     toggleRequested: ToggleRequestedFunction;
     requested: Request;
     offered: Offer;
+    showSuccessModal: () => void;
 }
-export function CalendarDay({
-    date,
-    availability,
-    toggleOffered,
-    toggleRequested,
-    requested,
-    offered,
-}: CalendarDayProps) {
+export function CalendarDay(props: CalendarDayProps) {
+    const {
+        date,
+        availability,
+        toggleOffered,
+        toggleRequested,
+        requested,
+        offered,
+        showSuccessModal,
+    } = props;
     const [isSelected, setSelected] = useState(false);
     const [userRequests, setuserRequests] = useState([]);
     const [userContext] = useContext(UserContext);
@@ -76,7 +79,7 @@ export function CalendarDay({
     return (
         <Col
             sm={4}
-            className={`hvr-grow day bg-white ${className}`}
+            className={`hvr-grow day ${className}`}
             onMouseEnter={() => setSelected(true)}
             onMouseLeave={() => setSelected(false)}
         >
@@ -93,6 +96,7 @@ export function CalendarDay({
                         requested={requested}
                         offered={offered}
                         userRequests={userRequests}
+                        showSuccessModal={showSuccessModal}
                     />
                     <BottomButton
                         unselect={() => setSelected(false)}
@@ -105,31 +109,4 @@ export function CalendarDay({
             </CSSTransition>
         </Col>
     );
-}
-
-export function getCalendarDaysArray(
-    days: DateFormat[],
-    availability: AvailableDays,
-    offeredDays: OfferedDays,
-    setOffered: SetOfferedFunction,
-    requestedDays: RequestedDays,
-    setRequested: SetRequestedFunction
-) {
-    console.log('getCalendarDaysArray called');
-    return days.map((day, index) => {
-        // TODO:  wrap days.map in useMemo
-        return (
-            <CalendarDay
-                date={day}
-                key={day.getDateStr()}
-                availability={availability[index]}
-                toggleOffered={(offer: Offer) => toggleOfferedDay(index, offer, setOffered)}
-                toggleRequested={(request: Request) =>
-                    toggleRequestedDay(index, request, setRequested)
-                }
-                requested={requestedDays[index]}
-                offered={offeredDays[index]}
-            />
-        );
-    });
 }

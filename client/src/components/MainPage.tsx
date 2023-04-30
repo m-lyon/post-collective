@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
-import { getCalendarDaysArray } from './CalendarDay';
 import { Row, Container } from 'react-bootstrap';
 import { getOffers, setOfferedDays } from '../utils/offers';
 import { getRequestedDaysForUser, setRequestedDays } from '../utils/requests';
@@ -9,6 +8,12 @@ import { BHNavbar } from './BHNavbar';
 import { UserContext } from '../context/UserContext';
 import { DateFormat, getInitialDates } from '../utils/dates';
 import { NavigationArrows } from './NavigationArrows';
+import { SuccessModal } from './SuccessModal';
+import { ErrorModal } from './ErrorModal';
+import { Request } from '../utils/types';
+import { toggleOfferedDay } from '../utils/offers';
+import { toggleRequestedDay } from '../utils/requests';
+import { CalendarDay } from './CalendarDay';
 
 /**
  * Requests offered days from other users from backend
@@ -38,12 +43,14 @@ function getAvailableDaysArray(
 }
 
 export function MainPage(props) {
+    const [userContext] = useContext(UserContext);
     const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
     const [days, setDays] = useState<DateFormat[]>([]);
     const [offeredDays, setOffered] = useState<OfferedDays>(days.map(() => null));
     const [availability, setAvailability] = useState<AvailableDays>(days.map(() => []));
     const [requestedDays, setRequested] = useState<RequestedDays>(days.map(() => null));
-    const [userContext] = useContext(UserContext);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
 
     function handleWindowSizeChange() {
         setIsMobile(window.innerWidth <= 768);
@@ -81,22 +88,41 @@ export function MainPage(props) {
     console.log('offeredDays', offeredDays);
     console.log('requestedDays', requestedDays);
 
-    const calendarDays = getCalendarDaysArray(
-        days,
-        availability,
-        offeredDays,
-        setOffered,
-        requestedDays,
-        setRequested
-    );
+    const getCalendarDaysArray = useCallback(() => {
+        console.log('getCalendarDaysArray called');
+        return days.map((day, index) => {
+            return (
+                <CalendarDay
+                    date={day}
+                    key={day.getDateStr()}
+                    availability={availability[index]}
+                    toggleOffered={(offer: Offer) => toggleOfferedDay(index, offer, setOffered)}
+                    toggleRequested={(request: Request) =>
+                        toggleRequestedDay(index, request, setRequested)
+                    }
+                    requested={requestedDays[index]}
+                    offered={offeredDays[index]}
+                    showSuccessModal={() => setShowSuccess(true)}
+                />
+            );
+        });
+    }, [availability, days, offeredDays, requestedDays]);
+
+    const calendarDays = getCalendarDaysArray();
+    const className = isMobile ? 'text-center calendar-rows-mobile' : 'text-center calendar-rows';
 
     return (
         <>
             <BHNavbar />
             <Container className='justify-content-center'>
-                <Row className='text-center'>{calendarDays}</Row>
-                <NavigationArrows setDays={setDays} />
+                <Row className={className}>{calendarDays}</Row>
+                <NavigationArrows isMobile={isMobile} setDays={setDays} />
             </Container>
+            <SuccessModal
+                show={showSuccess}
+                onHide={() => setShowSuccess(false)}
+                msg={'Your reservation has been sent!'}
+            />
         </>
     );
 }

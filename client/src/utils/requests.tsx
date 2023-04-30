@@ -54,7 +54,6 @@ export function toggleRequestedDay(
     request: Request,
     setRequested: SetRequestedFunction
 ): void {
-    // Recommended to not mutate array for setState callback
     console.log('updateRequestedDayState has been called.');
     setRequested((requestedDays) => {
         return requestedDays.map((requestedDay, i) => {

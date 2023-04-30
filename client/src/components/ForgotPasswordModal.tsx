@@ -2,18 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Col, Container, Modal, Row, Form, Button } from 'react-bootstrap';
 import { ErrorModal } from './ErrorModal';
-
-function SuccessModal(props) {
-    const { show, onHide, email } = props;
-    return (
-        <Modal show={show} onHide={onHide}>
-            <Modal.Header closeButton>
-                <Modal.Title>Success</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>A reset password link has been sent to {email}</Modal.Body>
-        </Modal>
-    );
-}
+import { SuccessModal } from './SuccessModal';
 
 export function ForgotPasswordModal(props) {
     const { show, onHide, initEmail, hideModal } = props;
@@ -28,6 +17,7 @@ export function ForgotPasswordModal(props) {
     }, [initEmail]);
 
     function formSubmitHandler(e) {
+        e.preventDefault();
         setIsSubmitting(true);
         setError('');
         const genericErrorMessage = 'Something went wrong! Please try again later.';
@@ -94,7 +84,7 @@ export function ForgotPasswordModal(props) {
                     setIsSubmitting(false);
                     hideModal();
                 }}
-                email={email}
+                msg={`A reset password link has been sent to ${email}`}
             />
             <ErrorModal
                 show={showErrorModal}

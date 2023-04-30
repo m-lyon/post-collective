@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
         }
         console.log(user);
         await sendResetEmail(user, token.token);
-        res.send('Success');
+        res.status(200).send('Success');
     } catch (err) {
         console.log(err);
         res.status(500).send(err);

@@ -46,7 +46,7 @@ function MessageItem(props: { token: string; msg: Message; updateMessages }) {
                 <div className='notification-circle'>
                     <NotificationCircle color='#F4F6F7' />
                 </div>
-                <div>{msg.text}</div>
+                <div style={{ width: '8em' }}>{msg.text}</div>
             </NavDropdown.Item>
         );
     }
@@ -61,7 +61,7 @@ function MessageItem(props: { token: string; msg: Message; updateMessages }) {
             <div className='notification-circle'>
                 <NotificationCircle color='currentColor' />
             </div>
-            <div>{msg.text}</div>
+            <div style={{ width: '8em' }}>{msg.text}</div>
         </NavDropdown.Item>
     );
 }
@@ -113,14 +113,6 @@ export function MailDropdown(props: MailDropdownProps) {
     const [moreAvail, setAvail] = useState(true);
     const [userContext] = useContext(UserContext);
 
-    // TODO: check that this logic is not required when logging in and out of different
-    // user accounts
-    // useEffect(() => {
-    //     // reset for different user
-    //     setDisplayedNum(3);
-    //     setAvail(true);
-    // }, [userId]);
-
     useEffect(() => {
         // Set number of unread
         setNumUnread(messages.filter((msg: Message) => !msg.seen).length);
@@ -167,7 +159,6 @@ export function MailDropdown(props: MailDropdownProps) {
             }
             id='notifications'
             align='end'
-            className='notification'
             disabled={messages.length === 0}
             autoClose='outside'
         >

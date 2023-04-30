@@ -1,13 +1,19 @@
 
 /* can use vw / vh to scale sizes as */
 /* will probably want to use breakpoints i think? */
+.calendar-rows {
+    width: 63em;
+}
+.calendar-rows-mobile {
+    width: 27em;
+}
+
 .day {
     aspect-ratio: 1 / 1;
     width: 8em;
-    /* width: 18vw; */
     border-radius: 0.5em;
     padding: 0px;
-    margin: 0.4em;
+    margin: 0.5em;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     display: flex;
     justify-content: space-between;
@@ -16,28 +22,32 @@
 }
 
 .available {
-    box-shadow: rgba(23, 157, 32, 0.8) 0px 3px 8px;
+    background-color: rgba(23, 157, 32, 0.2);
+    box-shadow: rgba(23, 157, 32, 0.6) 0px 3px 8px;
     border-style: solid;
     border-width: 0px;
     border-color: rgba(23, 157, 32, 0.3);
 }
 
 .offered {
-    box-shadow: rgba(23, 70, 157, 0.8) 0px 3px 8px;
+    background-color: rgba(23, 70, 157, 0.2);
+    box-shadow: rgba(23, 70, 157, 0.6) 0px 3px 8px;
     border-style: solid;
     border-width: 0px;
     border-color: rgba(23, 32, 157, 0.8);
 }
 
 .taken {
-    box-shadow: rgba(120, 15, 15, 0.8) 0px 3px 8px;
+    background-color: rgba(120, 15, 15, 0.2);
+    box-shadow: rgba(120, 15, 15, 0.6) 0px 3px 8px;
     border-style: solid;
     border-width: 0px;
     border-color: rgba(120, 15, 15, 0.8);
 }
 
 .requested {
-    box-shadow: rgba(113, 120, 15, 0.8) 0px 3px 8px;
+    background-color: rgba(183, 192, 50, 0.2);
+    box-shadow: rgba(113, 120, 15, 0.6) 0px 3px 8px;
     border-style: solid;
     border-width: 0px;
     border-color: rgba(113, 120, 15, 0.8);
@@ -70,13 +80,11 @@
 }
 
 .day-name {
-    /* float: left; */
     margin-left: 0.3em;
     margin-top: 0.1em;
 }
 
 .date {
-    /* float: right; */
     margin-right: 0.3em;
     margin-top: 0.1em;
 }
@@ -149,10 +157,6 @@
   transition: opacity 200ms;
 }
 
-/* .dropoff-btns-exit-done {
-    visibility: hidden;
-} */
-
 .row {
     max-width: 1100px;
 }
@@ -160,7 +164,6 @@
 .arrow {
     aspect-ratio: 1 / 1;
     box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px, rgba(0, 0, 0, 0.07) 0px 2px 4px, rgba(0, 0, 0, 0.07) 0px 4px 8px, rgba(0, 0, 0, 0.07) 0px 8px 16px, rgba(0, 0, 0, 0.07) 0px 16px 32px, rgba(0, 0, 0, 0.07) 0px 32px 64px;
-    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
     width: 2em;
     margin: 0.2em;
@@ -175,8 +178,8 @@
     max-width: 2em;
     margin-left: 0.5em;
     cursor: pointer;
-    /* padding: 0 1em 0 1em; */
-    padding: 0;
+    padding-left: 0;
+    padding-top: 0.5em;
 }
 
 .calendar-trans-enter {
@@ -186,7 +189,6 @@
 .calendar-trans-enter-active {
     transform: translateX(0);
     transition: transform 300ms;
-/* transition: opacity 2000ms; */
 }
   
 .calendar-trans-exit {
@@ -251,7 +253,6 @@
 }
 
 .login-box {
-    /* aspect-ratio: 1 / 1; */
     width: 25rem;
     border-radius: 0.5em;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -295,8 +296,11 @@
     color: var(--bs-link-hover-color);
 }
 
-.signup-error {
-    margin-top: 0.25rem;
-    color: #f65157;
-    font-size: small;
-  }
+.request-btn {
+    margin-bottom: 0.5em;
+}
+
+.bottom-btn {
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+}
