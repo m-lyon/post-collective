@@ -68,7 +68,7 @@ router.post('/signup', (req, res) => {
     });
 });
 
-router.post('/login', passport.authenticate('local'), (req, res, next) => {
+router.post('/login', passport.authenticate('local', { session: false }), (req, res, next) => {
     const token = getToken({ _id: req.user._id, isVerified: req.user.isVerified });
     const refreshToken = getRefreshToken({ _id: req.user._id });
     User.findById(req.user._id).then(
@@ -76,6 +76,7 @@ router.post('/login', passport.authenticate('local'), (req, res, next) => {
             user.refreshToken.push({ refreshToken });
             user.save((err, user) => {
                 if (err) {
+                    console.log(err);
                     res.status(500).send(err);
                 } else {
                     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
@@ -83,7 +84,9 @@ router.post('/login', passport.authenticate('local'), (req, res, next) => {
                 }
             });
         },
-        (err) => next(err)
+        (err) => {
+            next(err);
+        }
     );
 });
 
