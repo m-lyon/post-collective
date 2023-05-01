@@ -9,11 +9,12 @@ import { UserContext } from '../context/UserContext';
 import { DateFormat, getInitialDates } from '../utils/dates';
 import { NavigationArrows } from './NavigationArrows';
 import { SuccessModal } from './SuccessModal';
-import { ErrorModal } from './ErrorModal';
 import { Request } from '../utils/types';
 import { toggleOfferedDay } from '../utils/offers';
 import { toggleRequestedDay } from '../utils/requests';
 import { CalendarDay } from './CalendarDay';
+import { SelectDropoffModal } from './SelectDropoffModal';
+import { ErrorModal } from './ErrorModal';
 
 /**
  * Requests offered days from other users from backend
@@ -46,11 +47,9 @@ export function MainPage(props) {
     const [userContext] = useContext(UserContext);
     const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
     const [days, setDays] = useState<DateFormat[]>([]);
-    const [offeredDays, setOffered] = useState<OfferedDays>(days.map(() => null));
-    const [availability, setAvailability] = useState<AvailableDays>(days.map(() => []));
-    const [requestedDays, setRequested] = useState<RequestedDays>(days.map(() => null));
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [showError, setShowError] = useState(false);
+    const [offeredDays, setOffered] = useState<OfferedDays>(() => days.map(() => null));
+    const [availability, setAvailability] = useState<AvailableDays>(() => days.map(() => []));
+    const [requestedDays, setRequested] = useState<RequestedDays>(() => days.map(() => null));
 
     function handleWindowSizeChange() {
         setIsMobile(window.innerWidth <= 768);
@@ -102,7 +101,6 @@ export function MainPage(props) {
                     }
                     requested={requestedDays[index]}
                     offered={offeredDays[index]}
-                    showSuccessModal={() => setShowSuccess(true)}
                 />
             );
         });
@@ -118,11 +116,9 @@ export function MainPage(props) {
                 <Row className={className}>{calendarDays}</Row>
                 <NavigationArrows isMobile={isMobile} setDays={setDays} />
             </Container>
-            <SuccessModal
-                show={showSuccess}
-                onHide={() => setShowSuccess(false)}
-                msg={'Your reservation has been sent!'}
-            />
+            <SuccessModal />
+            <SelectDropoffModal />
+            <ErrorModal />
         </>
     );
 }

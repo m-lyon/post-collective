@@ -30,18 +30,9 @@ interface CalendarDayProps {
     toggleRequested: ToggleRequestedFunction;
     requested: Request;
     offered: Offer;
-    showSuccessModal: () => void;
 }
 export function CalendarDay(props: CalendarDayProps) {
-    const {
-        date,
-        availability,
-        toggleOffered,
-        toggleRequested,
-        requested,
-        offered,
-        showSuccessModal,
-    } = props;
+    const { date, availability, toggleOffered, toggleRequested, requested, offered } = props;
     const [isSelected, setSelected] = useState(false);
     const [userRequests, setuserRequests] = useState([]);
     const [userContext] = useContext(UserContext);
@@ -93,7 +84,6 @@ export function CalendarDay(props: CalendarDayProps) {
                         requested={requested}
                         offered={offered}
                         userRequests={userRequests}
-                        showSuccessModal={showSuccessModal}
                     />
                     <BottomButton
                         unselect={() => setSelected(false)}

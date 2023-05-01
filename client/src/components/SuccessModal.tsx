@@ -1,18 +1,17 @@
+import { useContext } from 'react';
 import { Modal } from 'react-bootstrap';
+import { SuccessModalContext } from '../context/ModalContext';
 
-interface SuccessModalProps {
-    show: boolean;
-    onHide: () => void;
-    msg: string;
-}
-export function SuccessModal(props: SuccessModalProps) {
-    const { show, onHide, msg } = props;
+export function SuccessModal(props) {
+    const { successProps } = useContext(SuccessModalContext);
+    const { show, message, onHide } = successProps;
+
     return (
-        <Modal show={show} onHide={onHide} onShow={() => console.log('i should be showing')}>
+        <Modal show={show} onHide={onHide}>
             <Modal.Header closeButton>
                 <Modal.Title>Success</Modal.Title>
             </Modal.Header>
-            <Modal.Body>{msg}</Modal.Body>
+            <Modal.Body>{message}</Modal.Body>
         </Modal>
     );
 }

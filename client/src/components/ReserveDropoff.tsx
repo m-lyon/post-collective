@@ -1,26 +1,9 @@
 import axios from 'axios';
-import { Modal, Button } from 'react-bootstrap';
-import { useState } from 'react';
+import { useContext } from 'react';
 import { Offer, Request, ToggleRequestedFunction } from '../utils/types';
+import { ErrorModalContext, SuccessModalContext } from '../context/ModalContext';
+import { DropoffModalContext } from '../context/ModalContext';
 import { getConfig } from '../utils/auth';
-
-async function sendReservationHandler(
-    token: string,
-    offer: Offer,
-    handleSuccess: (data: Request) => void
-) {
-    try {
-        const response = await axios.put(
-            `${process.env.REACT_APP_API_ENDPOINT}/requested/${offer.date}`,
-            { offeredDateId: offer._id },
-            getConfig(token)
-        );
-        console.log(response);
-        handleSuccess(response.data);
-    } catch (err) {
-        console.log(err);
-    }
-}
 
 async function cancelReservationHandler(
     token: string,
@@ -41,80 +24,56 @@ async function cancelReservationHandler(
 }
 
 interface ReserveDropoffButtonProps {
-    token: string;
-    unselect: () => void;
     toggleRequested: ToggleRequestedFunction;
     offers: Offer[];
-    showSuccessModal: () => void;
 }
 export function ReserveDropoffButton(props: ReserveDropoffButtonProps) {
-    const { token, unselect, toggleRequested, offers, showSuccessModal } = props;
-    const [modalShow, setModalShow] = useState(false);
+    const { toggleRequested, offers } = props;
+    const { setSuccessProps } = useContext(SuccessModalContext);
+    const { setErrorProps } = useContext(ErrorModalContext);
+    const { setDropoffProps } = useContext(DropoffModalContext);
 
     return (
-        <>
-            <div
-                className='select-box text-grey hvr-grow2'
-                onClick={() => {
-                    setModalShow(true);
-                }}
-            >
-                Reserve Drop-off
-            </div>
-            <SelectDropoffModal
-                token={token}
-                offers={offers}
-                show={modalShow}
-                onHide={() => {
-                    unselect();
-                    setModalShow(false);
-                }}
-                handleSuccess={(data) => {
-                    toggleRequested(data);
-                    showSuccessModal();
-                    unselect();
-                }}
-            />
-        </>
-    );
-}
-
-interface SelectDropoffModalProps {
-    token: string;
-    offers: Offer[];
-    show: boolean;
-    onHide: () => void;
-    handleSuccess: (data: Request) => void;
-}
-function SelectDropoffModal(props: SelectDropoffModalProps) {
-    const { token, offers, show, onHide, handleSuccess } = props;
-
-    const buttons = offers.map((offer: Offer) => {
-        return (
-            <Button
-                variant='success'
-                className='request-btn'
-                key={offer.user.aptNum}
-                onClick={() => sendReservationHandler(token, offer, handleSuccess)}
-            >
-                Apartment {offer.user.aptNum}
-            </Button>
-        );
-    });
-    return (
-        <Modal show={show} onHide={onHide} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Reserve Drop-off</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div style={{ marginBottom: '2em' }}>
-                    Select an apartment that you would like to collect your post.
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>{buttons}</div>
-                </div>
-            </Modal.Body>
-        </Modal>
+        <div
+            className='select-box text-grey hvr-grow2'
+            onClick={() => {
+                setDropoffProps((oldValues) => {
+                    return {
+                        ...oldValues,
+                        offers: offers,
+                        show: true,
+                        onHide: () => {
+                            setDropoffProps((oldValues) => ({ ...oldValues, show: false }));
+                        },
+                        onSuccess: (data) => {
+                            toggleRequested(data);
+                            setSuccessProps((oldValues) => ({
+                                ...oldValues,
+                                show: true,
+                                message: 'Your reservation has been sent!',
+                                onHide: () => {
+                                    setSuccessProps((oldValues) => ({ ...oldValues, show: false }));
+                                    setDropoffProps((oldValues) => ({ ...oldValues, show: false }));
+                                },
+                            }));
+                        },
+                        onFail: (err) => {
+                            setErrorProps((oldValues) => ({
+                                ...oldValues,
+                                show: true,
+                                message: 'Something went wrong, please try again later.',
+                                onHide: () => {
+                                    setErrorProps((oldValues) => ({ ...oldValues, show: false }));
+                                    setDropoffProps((oldValues) => ({ ...oldValues, show: false }));
+                                },
+                            }));
+                        },
+                    };
+                });
+            }}
+        >
+            Reserve Drop-off
+        </div>
     );
 }
 

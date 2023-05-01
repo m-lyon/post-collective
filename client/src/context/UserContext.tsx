@@ -14,9 +14,9 @@ const UserContext = createContext<[IUserContext, Dispatch<SetStateAction<IUserCo
     () => {},
 ]);
 
-const UserProvider = (props) => {
+function UserProvider(props) {
     const [state, setState] = useState({});
     return <UserContext.Provider value={[state, setState]}>{props.children}</UserContext.Provider>;
-};
+}
 
 export { UserContext, UserProvider };
