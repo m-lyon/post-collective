@@ -1,8 +1,9 @@
 import axios from 'axios';
+
 import { useContext } from 'react';
 import { Offer, Request, ToggleRequestedFunction } from '../utils/types';
-import { ErrorModalContext, SuccessModalContext } from '../context/ModalContext';
-import { DropoffModalContext } from '../context/ModalContext';
+import { ErrorModalContext, SuccessModalContext } from '../context/ActionModalContext';
+import { DropoffModalContext } from '../context/DropoffModalContext';
 import { getConfig } from '../utils/auth';
 
 async function cancelReservationHandler(

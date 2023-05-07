@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useState, useContext, useReducer } from 'react';
 import { Container, Form, Modal, Row, Col, Button } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
-import { ErrorModal } from './ErrorModal';
+import { ErrorModalContext } from '../context/ActionModalContext';
+import { SuccessModalContext } from '../context/ActionModalContext';
 import { getConfig } from '../utils/auth';
 import { UPDATE_FORM, onInputChange, onFocusOut, runFormStateValidation } from '../utils/forms';
 
@@ -32,9 +33,10 @@ const formsReducer = (state, action) => {
 export function SignupModal(props) {
     const { show, onHide } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
     const setUserContext = useContext(UserContext)[1];
-    const [showErrorModal, setShowErrorModal] = useState(false);
+    const { setErrorProps } = useContext(ErrorModalContext);
+    const { setSuccessProps } = useContext(SuccessModalContext);
+
     const [formState, dispatch] = useReducer(formsReducer, initialState);
 
     function formSubmitHandler(event) {
@@ -48,8 +50,6 @@ export function SignupModal(props) {
 
         // Server side submission & error handling
         setIsSubmitting(true);
-        setError('');
-        const genericErrorMessage = 'Something went wrong! Please try again later.';
         axios
             .post(
                 `${process.env.REACT_APP_API_ENDPOINT}/users/signup`,
@@ -63,34 +63,43 @@ export function SignupModal(props) {
             )
             .then((response) => {
                 setIsSubmitting(false);
-                if (response.status === 200) {
-                    const data = response.data;
-                    setUserContext((oldValues) => {
-                        return { ...oldValues, token: data.token, details: data.user };
-                    });
-                } else {
-                    setError(genericErrorMessage);
-                    setShowErrorModal(true);
-                }
+                setSuccessProps((oldValues) => ({
+                    ...oldValues,
+                    show: true,
+                    message:
+                        'Succesfully registered! A verification code will be sent to your postbox within the next few days.',
+                    onHide: () => {
+                        setSuccessProps((oldValues) => ({ ...oldValues, show: false }));
+                    },
+                }));
+                setUserContext((oldValues) => {
+                    return {
+                        ...oldValues,
+                        token: response.data.token,
+                        details: response.data.user,
+                    };
+                });
             })
             .catch((error) => {
                 setIsSubmitting(false);
+                let errorMsg = 'Something went wrong! Please try again later.';
                 if (error.response.status === 400) {
-                    setError('Please fill all the fields correctly!');
-                } else if (error.response.status === 401) {
-                    setError(genericErrorMessage);
+                    errorMsg = 'Please fill all the fields correctly!';
                 } else if (error.response.status === 409) {
                     if (error.response.data.message === 'apt-num-already-in-use') {
-                        setError('Apartment already in use.');
+                        errorMsg = 'Apartment already in use.';
                     } else if (error.response.data.message === 'user-already-exists') {
-                        setError('Email already in use.');
-                    } else {
-                        setError(genericErrorMessage);
+                        errorMsg = 'Email already in use.';
                     }
-                } else {
-                    setError(genericErrorMessage);
                 }
-                setShowErrorModal(true);
+                setErrorProps((oldValues) => ({
+                    ...oldValues,
+                    show: true,
+                    message: errorMsg,
+                    onHide: () => {
+                        setErrorProps((oldValues) => ({ ...oldValues, show: false }));
+                    },
+                }));
             });
     }
 
@@ -268,11 +277,6 @@ export function SignupModal(props) {
                                     >
                                         {`${isSubmitting ? 'Signing up...' : 'Sign up'}`}
                                     </Button>
-                                    <ErrorModal
-                                        show={showErrorModal}
-                                        onHide={() => setShowErrorModal(false)}
-                                        error={error}
-                                    />
                                 </div>
                             </Col>
                         </Row>

@@ -4,25 +4,22 @@ import { useState, useContext } from 'react';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { SignupModal } from './SignupModal';
 import { UserContext } from '../context/UserContext';
-import { ErrorModal } from './ErrorModal';
 import { getConfig } from '../utils/auth';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import { ErrorModalContext } from '../context/ActionModalContext';
 
 export function LoginPage(props) {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
-    const [showErrorModal, setShowErrorModal] = useState(false);
     const [showForgotModal, setShowForgotModal] = useState(false);
     const setUserContext = useContext(UserContext)[1];
+    const { setErrorProps } = useContext(ErrorModalContext);
 
     function formSubmitHandler(e) {
         e.preventDefault();
         setIsSubmitting(true);
-        setError('');
-        const genericErrorMessage = 'Something went wrong! Please try again later.';
         axios
             .post(
                 `${process.env.REACT_APP_API_ENDPOINT}/users/login`,
@@ -31,28 +28,30 @@ export function LoginPage(props) {
             )
             .then((response) => {
                 setIsSubmitting(false);
-                if (response.status === 200) {
-                    const data = response.data;
-                    setUserContext((oldValues) => {
-                        return { ...oldValues, token: data.token, details: data.user };
-                    });
-                } else {
-                    setError(genericErrorMessage);
-                    setShowErrorModal(true);
-                }
+                setUserContext((oldValues) => {
+                    return {
+                        ...oldValues,
+                        token: response.data.token,
+                        details: response.data.user,
+                    };
+                });
             })
             .catch((error) => {
                 setIsSubmitting(false);
+                let errorMsg = 'Something went wrong! Please try again later.';
                 if (error.response.status === 400) {
-                    setError('Please fill all the fields correctly!');
-                    setShowErrorModal(true);
+                    errorMsg = 'Please fill in both email and passwordl.';
                 } else if (error.response.status === 401) {
-                    setError('Invalid email and password combination.');
-                    setShowErrorModal(true);
-                } else {
-                    setError(genericErrorMessage);
-                    setShowErrorModal(true);
+                    errorMsg = 'Invalid email and password combination.';
                 }
+                setErrorProps((oldValues) => ({
+                    ...oldValues,
+                    show: true,
+                    message: errorMsg,
+                    onHide: () => {
+                        setErrorProps((oldValues) => ({ ...oldValues, show: false }));
+                    },
+                }));
             });
     }
 
@@ -114,11 +113,6 @@ export function LoginPage(props) {
                 hideModal={() => setShowForgotModal(false)}
             />
             <SignupModal show={showRegisterModal} onHide={() => setShowRegisterModal(false)} />
-            <ErrorModal
-                show={showErrorModal}
-                onHide={() => setShowErrorModal(false)}
-                error={error}
-            />
         </Container>
     );
 }

@@ -66,10 +66,7 @@ export function VerifyPage(props) {
                             <br />
                             Postal Collective
                         </h1>
-                        <p>
-                            Succesfully registered! A verification code will be sent to your postbox
-                            within the next few days.
-                        </p>
+                        <p>Please enter your verification code below.</p>
                         <Form onSubmit={formSubmitHandler}>
                             <Form.Group style={{ marginBottom: '0.5rem' }}>
                                 <Form.Control
@@ -91,16 +88,6 @@ export function VerifyPage(props) {
                                 />
                             </div>
                         </Form>
-                        {/* <div className='divider'></div>
-                        <div className='register'>
-                            <Button
-                                variant='danger'
-                                type='button'
-                                onClick={() => console.log('logout clicked.')}
-                            >
-                                Logout
-                            </Button>
-                        </div> */}
                     </Col>
                 </Row>
             </Container>

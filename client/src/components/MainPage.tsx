@@ -8,13 +8,11 @@ import { BHNavbar } from './BHNavbar';
 import { UserContext } from '../context/UserContext';
 import { DateFormat, getInitialDates } from '../utils/dates';
 import { NavigationArrows } from './NavigationArrows';
-import { SuccessModal } from './SuccessModal';
 import { Request } from '../utils/types';
 import { toggleOfferedDay } from '../utils/offers';
 import { toggleRequestedDay } from '../utils/requests';
 import { CalendarDay } from './CalendarDay';
-import { SelectDropoffModal } from './SelectDropoffModal';
-import { ErrorModal } from './ErrorModal';
+import { DropoffModalProvider } from '../context/DropoffModalContext';
 
 /**
  * Requests offered days from other users from backend
@@ -110,15 +108,12 @@ export function MainPage(props) {
     const className = isMobile ? 'text-center calendar-rows-mobile' : 'text-center calendar-rows';
 
     return (
-        <>
+        <DropoffModalProvider>
             <BHNavbar />
             <Container className='justify-content-center'>
                 <Row className={className}>{calendarDays}</Row>
                 <NavigationArrows isMobile={isMobile} setDays={setDays} />
             </Container>
-            <SuccessModal />
-            <SelectDropoffModal />
-            <ErrorModal />
-        </>
+        </DropoffModalProvider>
     );
 }

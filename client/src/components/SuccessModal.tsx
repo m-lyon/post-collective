@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Modal } from 'react-bootstrap';
-import { SuccessModalContext } from '../context/ModalContext';
+import { SuccessModalContext } from '../context/ActionModalContext';
 
 export function SuccessModal(props) {
     const { successProps } = useContext(SuccessModalContext);

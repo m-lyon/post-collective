@@ -5,7 +5,6 @@ import { MainPage } from './MainPage';
 import { UserContext } from '../context/UserContext';
 import { LoginPage } from './LoginPage';
 import { VerifyPage } from './VerifyPage';
-import { ModalProviders } from '../context/ModalContext';
 
 export function App() {
     const [userContext, setUserContext] = useContext(UserContext);
@@ -63,11 +62,7 @@ export function App() {
 
     if (userContext.token) {
         if (userContext.details.isVerified) {
-            return (
-                <ModalProviders>
-                    <MainPage />
-                </ModalProviders>
-            );
+            return <MainPage />;
         } else {
             return <VerifyPage />;
         }

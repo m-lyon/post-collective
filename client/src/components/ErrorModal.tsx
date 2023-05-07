@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Modal } from 'react-bootstrap';
-import { ErrorModalContext } from '../context/ModalContext';
+import { ErrorModalContext } from '../context/ActionModalContext';
 
 export function ErrorModal(props) {
     const { errorProps } = useContext(ErrorModalContext);

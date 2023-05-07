@@ -1,5 +1,6 @@
 import { Offer, Request, ToggleOfferedFunction } from '../utils/types';
-import { OfferPickupButton, CancelOfferButton } from './OfferPickup';
+import { OfferPickupButton } from './OfferPickup';
+import { CancelOfferButton } from './CancelOfferButton';
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 
