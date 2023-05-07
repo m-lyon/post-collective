@@ -6,25 +6,11 @@ import { ConfirmCancelModal } from './ConfirmCancelModal';
 import { Offer, ToggleOfferedFunction } from '../utils/types';
 import { ErrorModalContext, SuccessModalContext } from '../context/ActionModalContext';
 
-function sendOfferCancel(
-    token: string,
-    offer: Offer,
-    toggleOffered: ToggleOfferedFunction,
-    setSuccessProps,
-    setErrorProps
-) {
+function sendOfferCancel(token: string, offer: Offer, onSuccess: (res) => void, setErrorProps) {
     axios
         .delete(`${process.env.REACT_APP_API_ENDPOINT}/offered/${offer._id}`, getConfig(token))
         .then((response) => {
-            setSuccessProps((oldValues) => ({
-                ...oldValues,
-                show: true,
-                message: 'Offer cancelled. The reservation holders have been notified.',
-                onHide: () => {
-                    setSuccessProps((oldValues) => ({ ...oldValues, show: false }));
-                },
-            }));
-            toggleOffered(response.data);
+            onSuccess(response);
         })
         .catch((err) => {
             setErrorProps((oldValues) => ({
@@ -65,8 +51,7 @@ export function CancelOfferButton(props: CancelOfferButtonProps) {
                         sendOfferCancel(
                             token,
                             offer,
-                            toggleOffered,
-                            setSuccessProps,
+                            (res) => toggleOffered(res.data),
                             setErrorProps
                         );
                     }
@@ -77,7 +62,23 @@ export function CancelOfferButton(props: CancelOfferButtonProps) {
             <ConfirmCancelModal
                 show={modalShow}
                 sendCancel={() =>
-                    sendOfferCancel(token, offer, toggleOffered, setSuccessProps, setErrorProps)
+                    sendOfferCancel(
+                        token,
+                        offer,
+                        (res) => {
+                            setSuccessProps((oldValues) => ({
+                                ...oldValues,
+                                show: true,
+                                message:
+                                    'Offer cancelled. The reservation holders have been notified.',
+                                onHide: () => {
+                                    setSuccessProps((oldValues) => ({ ...oldValues, show: false }));
+                                },
+                            }));
+                            toggleOffered(res.data);
+                        },
+                        setErrorProps
+                    )
                 }
                 setModalShow={setModalShow}
                 unselect={unselect}

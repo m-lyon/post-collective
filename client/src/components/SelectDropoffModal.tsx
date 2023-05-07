@@ -14,6 +14,7 @@ export function SelectDropoffModal(props) {
     const buttons = offers.map((offer: Offer) => {
         return (
             <DropoffButton
+                key={offer._id}
                 token={userContext.token}
                 offer={offer}
                 onSuccess={onSuccess}

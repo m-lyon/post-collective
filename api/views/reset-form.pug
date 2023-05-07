@@ -12,7 +12,7 @@ html
             | Balmoral House
             br
             | Postal Collective 
-          form(action="/resetPassword/#{userId}/#{token}" method="post") 
+          form(action=`/resetPassword/${userId}/${token}` method="post") 
             div.reset-item.form-group 
               label(for="pass")
               input(type="password" id="pass" name="password" required placeholder="New password").form-control

@@ -63,13 +63,13 @@ router.put('/:date', [authenticateUser, isVerified], async function (req, res) {
         return res.status(400).send({ message: 'already-requested' });
     }
 
-    // return res.status(500).send('Unknown error.');
-
     // Add request to database
     try {
         request = new RequestedDate(data);
         await request.save();
-        request = await request.populate('user', '_id aptNum');
+        request = await request.populate('offeredDate', 'user');
+        // .populate('user', 'aptNum')
+        // .execPopulate();
     } catch (err) {
         console.log(err.message);
         return res.status(500).send({ message: 'cannot-add-request' });

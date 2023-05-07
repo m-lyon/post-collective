@@ -46,12 +46,14 @@ export function ReserveDropoffButton(props: ReserveDropoffButtonProps) {
                         onHide: () => {
                             setDropoffProps((oldValues) => ({ ...oldValues, show: false }));
                         },
-                        onSuccess: (data) => {
-                            toggleRequested(data);
+                        onSuccess: (request) => {
+                            console.log('request ->', request);
+                            // ${request.offeredDate.user.aptNum}
+                            toggleRequested(request);
                             setSuccessProps((oldValues) => ({
                                 ...oldValues,
                                 show: true,
-                                message: 'Your reservation has been sent!',
+                                message: `Your reservation has been sent. Please direct your courier to deliver to Apartment.`,
                                 onHide: () => {
                                     setSuccessProps((oldValues) => ({ ...oldValues, show: false }));
                                     setDropoffProps((oldValues) => ({ ...oldValues, show: false }));
