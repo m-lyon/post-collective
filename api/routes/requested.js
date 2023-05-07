@@ -67,9 +67,10 @@ router.put('/:date', [authenticateUser, isVerified], async function (req, res) {
     try {
         request = new RequestedDate(data);
         await request.save();
-        request = await request.populate('offeredDate', 'user');
-        // .populate('user', 'aptNum')
-        // .execPopulate();
+        request = await request.populate([
+            { path: 'user', select: 'aptNum' },
+            { path: 'offeredDate', select: 'user', populate: { path: 'user', select: 'aptNum' } },
+        ]);
     } catch (err) {
         console.log(err.message);
         return res.status(500).send({ message: 'cannot-add-request' });

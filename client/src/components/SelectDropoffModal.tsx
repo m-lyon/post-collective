@@ -4,7 +4,7 @@ import { Offer } from '../utils/types';
 
 import { UserContext } from '../context/UserContext';
 import { DropoffButton } from './DropoffButton';
-import { DropoffModalContext } from '../context/DropoffModalContext';
+import { DropoffModalContext } from '../context/ReservationModalContext';
 
 export function SelectDropoffModal(props) {
     const [userContext] = useContext(UserContext);

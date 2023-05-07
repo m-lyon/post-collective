@@ -1,20 +1,12 @@
+import { useContext } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { SetModalShowFunction } from '../utils/types';
+import { CancelOfferModalContext } from '../context/ReservationModalContext';
 
-interface ConfirmCancelModalProps {
-    show: boolean;
-    sendCancel: () => void;
-    setModalShow: SetModalShowFunction;
-    unselect: () => void;
-}
-export function ConfirmCancelModal(props: ConfirmCancelModalProps) {
-    const { show, sendCancel, setModalShow, unselect } = props;
-    const hide = () => {
-        unselect();
-        setModalShow(false);
-    };
+export function ConfirmCancelModal(props) {
+    const { cancelProps } = useContext(CancelOfferModalContext);
+    const { show, sendCancel, onHide, onSuccess, onFail } = cancelProps;
     return (
-        <Modal show={show} onHide={hide} centered>
+        <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
                 <Modal.Title>There are reservations for this day</Modal.Title>
             </Modal.Header>
@@ -23,15 +15,12 @@ export function ConfirmCancelModal(props: ConfirmCancelModalProps) {
             </Modal.Body>
             <Modal.Footer>
                 <Button
-                    onClick={() => {
-                        sendCancel();
-                        unselect();
-                    }}
+                    onClick={() => sendCancel().then(onSuccess).catch(onFail)}
                     variant='primary'
                 >
                     Yes
                 </Button>
-                <Button onClick={hide} variant='secondary'>
+                <Button onClick={onHide} variant='secondary'>
                     No
                 </Button>
             </Modal.Footer>

@@ -12,7 +12,7 @@ import { Request } from '../utils/types';
 import { toggleOfferedDay } from '../utils/offers';
 import { toggleRequestedDay } from '../utils/requests';
 import { CalendarDay } from './CalendarDay';
-import { DropoffModalProvider } from '../context/DropoffModalContext';
+import { DropoffModalProvider } from '../context/ReservationModalContext';
 
 /**
  * Requests offered days from other users from backend

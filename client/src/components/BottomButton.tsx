@@ -9,10 +9,9 @@ interface BottomButtonProps {
     toggleOffered: ToggleOfferedFunction;
     request: Request;
     offer: Offer;
-    unselect: () => void;
 }
 export function BottomButton(props: BottomButtonProps) {
-    const { date, toggleOffered, request, offer, unselect } = props;
+    const { date, toggleOffered, request, offer } = props;
     const [userContext] = useContext(UserContext);
 
     if (request !== null) {
@@ -25,7 +24,6 @@ export function BottomButton(props: BottomButtonProps) {
                 token={userContext.token}
                 offer={offer}
                 toggleOffered={toggleOffered}
-                unselect={unselect}
             />
         );
     }

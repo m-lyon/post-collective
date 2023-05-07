@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useContext } from 'react';
 import { Offer, Request, ToggleRequestedFunction } from '../utils/types';
 import { ErrorModalContext, SuccessModalContext } from '../context/ActionModalContext';
-import { DropoffModalContext } from '../context/DropoffModalContext';
+import { DropoffModalContext } from '../context/ReservationModalContext';
 import { getConfig } from '../utils/auth';
 
 async function cancelReservationHandler(
@@ -48,12 +48,11 @@ export function ReserveDropoffButton(props: ReserveDropoffButtonProps) {
                         },
                         onSuccess: (request) => {
                             console.log('request ->', request);
-                            // ${request.offeredDate.user.aptNum}
                             toggleRequested(request);
                             setSuccessProps((oldValues) => ({
                                 ...oldValues,
                                 show: true,
-                                message: `Your reservation has been sent. Please direct your courier to deliver to Apartment.`,
+                                message: `Your reservation has been sent. Please direct your courier to deliver to Apartment ${request.offeredDate.user.aptNum}.`,
                                 onHide: () => {
                                     setSuccessProps((oldValues) => ({ ...oldValues, show: false }));
                                     setDropoffProps((oldValues) => ({ ...oldValues, show: false }));
