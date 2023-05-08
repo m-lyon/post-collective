@@ -54,7 +54,6 @@ export function toggleRequestedDay(
     request: Request,
     setRequested: SetRequestedFunction
 ): void {
-    console.log('updateRequestedDayState has been called.');
     setRequested((requestedDays) => {
         return requestedDays.map((requestedDay, i) => {
             if (i === index) {

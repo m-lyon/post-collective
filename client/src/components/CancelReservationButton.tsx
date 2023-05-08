@@ -14,9 +14,7 @@ async function cancelReservationHandler(
             getConfig(token)
         );
         toggleRequested(response.data);
-    } catch (err) {
-        console.log(err);
-    }
+    } catch (err) {}
 }
 
 interface CancelReservationButtonProps {

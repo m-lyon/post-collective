@@ -19,7 +19,6 @@ function getDayMonthFormat(date, shorthand = true) {
     if (!dayjs(date, 'YYYY-MM-DD').isValid()) {
         throw new Error(`Invalid date format given: ${date}`);
     }
-    console.log(date.slice(5, 7));
     const monthStr = MONTH_MAP[date.slice(5, 7)];
     const dayStr = date.slice(8, 10);
     return shorthand ? `${dayStr} ${monthStr.slice(0, 3)}` : `${dayStr} ${monthStr}`;

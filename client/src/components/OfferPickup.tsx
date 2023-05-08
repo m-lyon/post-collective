@@ -4,7 +4,6 @@ import { getConfig } from '../utils/auth';
 import { ToggleOfferedFunction } from '../utils/types';
 
 async function sendPickupOffer(token: string, date: string, toggleOffered: ToggleOfferedFunction) {
-    console.log('sendPickupOffer called');
     try {
         const response = await axios.put(
             `${process.env.REACT_APP_API_ENDPOINT}/offered`,
@@ -12,9 +11,7 @@ async function sendPickupOffer(token: string, date: string, toggleOffered: Toggl
             getConfig(token)
         );
         toggleOffered(response.data);
-    } catch (err) {
-        console.log('error', err);
-    }
+    } catch (err) {}
 }
 
 interface OfferPickupButtonProps {

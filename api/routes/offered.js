@@ -13,7 +13,6 @@ router.get('/', [authenticateUser, isVerified], async function (req, res) {
     const { user, startDate, endDate } = req.query;
 
     const dates = await OfferedDate.findDates(user, startDate, endDate);
-    console.log('offeredDates -> ', dates);
     res.send(dates);
 });
 

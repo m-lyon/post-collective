@@ -61,7 +61,6 @@ export function MainPage(props) {
 
     useEffect(() => {
         setDays((days) => {
-            console.log('useEffect getInitialDates called');
             if (days.length > 0) {
                 return getInitialDates(isMobile, days[0]);
             }
@@ -90,7 +89,6 @@ export function MainPage(props) {
     }, [setCalendarState]);
 
     const getCalendarDaysArray = useCallback(() => {
-        console.log('getCalendarDaysArray called');
         return days.map((day, index) => {
             return (
                 <CalendarDay

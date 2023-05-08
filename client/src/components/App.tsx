@@ -29,7 +29,6 @@ export function App() {
                     setUserContext((oldValues) => {
                         return { ...oldValues, token: null, details: null };
                     });
-                    console.log('Something went wrong');
                 }
                 // call refreshToken every 5 minutes to renew the authentication token.
                 setTimeout(verifyUser, 5 * 60 * 1000);

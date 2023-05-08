@@ -95,7 +95,6 @@ router.post('/refreshToken', (req, res, next) => {
     const { refreshToken } = signedCookies;
 
     if (!refreshToken) {
-        console.log('no refresh token found');
         return res.status(401).send('Unauthorized.');
     }
     try {
@@ -158,8 +157,6 @@ router.post('/verify', authenticateUser, async function (req, res, user) {
             next(err);
         }
     } else {
-        console.log('code -> ', code);
-        console.log('req.user.verificationCode -> ', req.user.verificationCode);
         return res.status(401).send('Unauthorized.');
     }
 });

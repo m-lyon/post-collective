@@ -43,8 +43,6 @@ export function setOfferedDays(
 }
 
 export function toggleOfferedDay(index: number, offer: Offer, setOffered: SetOfferedFunction) {
-    // Recommended to not mutate array for setState callback
-    console.log('toggleOfferedDay has been called.');
     setOffered((offeredDays) => {
         return offeredDays.map((offeredDay: Offer, i: number) => {
             if (i === index) {

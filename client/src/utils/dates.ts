@@ -29,7 +29,6 @@ export function getStandardDate(dateStr: string): Date{
 export function getInitialDates(isMobile: boolean, start?: DateFormat): DateFormat[] {
     const days = [];
     const numDays = isMobile ? 7 : 28
-    console.log('getInitialDates called')
     for (let i = 0; i < numDays; i++) {
         let nextDay: DateFormat;
         if (start){

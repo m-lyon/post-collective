@@ -31,10 +31,7 @@ async function setMessageAsSeen(token: string, msg: Message) {
             { seen: true },
             getConfig(token)
         );
-        console.log(res);
-    } catch (err) {
-        console.log('error', err);
-    }
+    } catch (err) {}
 }
 
 function MessageItem(props: { token: string; msg: Message; updateMessages }) {
@@ -72,7 +69,6 @@ async function fetchMessages(
     maxNum: number,
     setAvail: Dispatch<SetStateAction<boolean>>
 ) {
-    console.log(`fetching ${maxNum} messages.`);
     const messageResponse = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/notify`,
         getConfig(token, { length: maxNum })
@@ -93,7 +89,6 @@ function Ellipsis(props) {
         <NavDropdown.Item
             className='ellipsis'
             onClick={() => {
-                console.log('now', displayedNum, 'next', nextNum);
                 setDisplayedNum(nextNum);
             }}
         >
@@ -125,7 +120,6 @@ export function MailDropdown(props: MailDropdownProps) {
     }, [userContext.token, userContext.details, displayedNum]);
 
     useEffect(() => {
-        console.log('getMessageNavbarItems has been called.');
         const messageNavbarItems = messages.map((msg) => (
             <MessageItem
                 token={userContext.token}
