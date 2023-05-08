@@ -13,7 +13,7 @@ function sendReservationHandler(
 ) {
     return axios
         .put(
-            `${process.env.REACT_APP_API_ENDPOINT}/requested/${offer.date}`,
+            `${process.env.REACT_APP_API_ENDPOINT}/requested`,
             { offeredDateId: offer._id },
             getConfig(token)
         )

@@ -1,28 +1,7 @@
-import axios from 'axios';
-
 import { useContext } from 'react';
-import { Offer, Request, ToggleRequestedFunction } from '../utils/types';
+import { Offer, ToggleRequestedFunction } from '../utils/types';
 import { ErrorModalContext, SuccessModalContext } from '../context/ActionModalContext';
 import { DropoffModalContext } from '../context/ReservationModalContext';
-import { getConfig } from '../utils/auth';
-
-async function cancelReservationHandler(
-    token: string,
-    request: Request,
-    toggleRequested: ToggleRequestedFunction
-) {
-    console.log(request);
-    try {
-        const response = await axios.delete(
-            `${process.env.REACT_APP_API_ENDPOINT}/requested/${request._id}`,
-            getConfig(token)
-        );
-        console.log(response);
-        toggleRequested(response.data);
-    } catch (err) {
-        console.log(err);
-    }
-}
 
 interface ReserveDropoffButtonProps {
     toggleRequested: ToggleRequestedFunction;
@@ -47,7 +26,6 @@ export function ReserveDropoffButton(props: ReserveDropoffButtonProps) {
                             setDropoffProps((oldValues) => ({ ...oldValues, show: false }));
                         },
                         onSuccess: (request) => {
-                            console.log('request ->', request);
                             toggleRequested(request);
                             setSuccessProps((oldValues) => ({
                                 ...oldValues,
@@ -75,24 +53,6 @@ export function ReserveDropoffButton(props: ReserveDropoffButtonProps) {
             }}
         >
             Reserve Drop-off
-        </div>
-    );
-}
-
-interface CancelReservationButtonProps {
-    token: string;
-    toggleRequested: ToggleRequestedFunction;
-    request: Request;
-}
-
-export function CancelReservationButton(props: CancelReservationButtonProps) {
-    const { token, toggleRequested, request } = props;
-    return (
-        <div
-            className='select-box text-grey hvr-grow2'
-            onClick={() => cancelReservationHandler(token, request, toggleRequested)}
-        >
-            Cancel Request
         </div>
     );
 }

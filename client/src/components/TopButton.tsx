@@ -1,5 +1,6 @@
 import { AvailableDay, Offer, Request, ToggleRequestedFunction } from '../utils/types';
-import { CancelReservationButton, ReserveDropoffButton } from './ReserveDropoff';
+import { ReserveDropoffButton } from './ReserveDropoff';
+import { CancelReservationButton } from './CancelReservationButton';
 import { RequestDisplay } from './RequestDisplay';
 import { UserContext } from '../context/UserContext';
 import { useContext } from 'react';

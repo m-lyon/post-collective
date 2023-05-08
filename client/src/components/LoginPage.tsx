@@ -7,27 +7,25 @@ import { UserContext } from '../context/UserContext';
 import { getConfig } from '../utils/auth';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { ErrorModalContext } from '../context/ActionModalContext';
+import { useSubmit } from '../hooks/useSubmit';
 
 export function LoginPage(props) {
     const [showRegisterModal, setShowRegisterModal] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showForgotModal, setShowForgotModal] = useState(false);
     const setUserContext = useContext(UserContext)[1];
     const { setErrorProps } = useContext(ErrorModalContext);
+    const { isSubmitting, hasSubmitted, handleSubmit, resetSubmit } = useSubmit();
 
-    function formSubmitHandler(e) {
-        e.preventDefault();
-        setIsSubmitting(true);
-        axios
+    function formSubmitHandler() {
+        return axios
             .post(
                 `${process.env.REACT_APP_API_ENDPOINT}/users/login`,
                 { username: email, password: password },
                 getConfig()
             )
             .then((response) => {
-                setIsSubmitting(false);
                 setUserContext((oldValues) => {
                     return {
                         ...oldValues,
@@ -37,7 +35,6 @@ export function LoginPage(props) {
                 });
             })
             .catch((error) => {
-                setIsSubmitting(false);
                 let errorMsg = 'Something went wrong! Please try again later.';
                 if (error.response.status === 400) {
                     errorMsg = 'Please fill in both email and passwordl.';
@@ -50,6 +47,7 @@ export function LoginPage(props) {
                     message: errorMsg,
                     onHide: () => {
                         setErrorProps((oldValues) => ({ ...oldValues, show: false }));
+                        resetSubmit();
                     },
                 }));
             });
@@ -64,7 +62,12 @@ export function LoginPage(props) {
                         <br />
                         Postal Collective
                     </h1>
-                    <Form onSubmit={formSubmitHandler}>
+                    <Form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSubmit(formSubmitHandler);
+                        }}
+                    >
                         <Form.Group style={{ marginBottom: '0.5rem' }}>
                             <Form.Control
                                 id='email'
@@ -84,7 +87,11 @@ export function LoginPage(props) {
                             />
                         </Form.Group>
                         <div className='d-grid gap-2' style={{ paddingTop: '0.5rem' }}>
-                            <Button variant='primary' type='submit' disabled={isSubmitting}>
+                            <Button
+                                variant='primary'
+                                type='submit'
+                                disabled={isSubmitting || hasSubmitted}
+                            >
                                 {`${isSubmitting ? 'Logging in...' : 'Log in'}`}
                             </Button>
                         </div>

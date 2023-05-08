@@ -35,8 +35,7 @@ router.get('/', [authenticateUser, isVerified], async function (req, res, next) 
 /**
  * Adds a request for an offered date
  */
-router.put('/:date', [authenticateUser, isVerified], async function (req, res) {
-    const date = req.params.date;
+router.put('/', [authenticateUser, isVerified], async function (req, res) {
     let { offeredDateId } = req.body;
 
     // Check date offered exists
@@ -45,17 +44,12 @@ router.put('/:date', [authenticateUser, isVerified], async function (req, res) {
         return res.status(400).send({ message: msg });
     }
 
-    // Validate that offeredDate and requestedDate have same date
-    if (offeredDate.date !== date) {
-        return res.status(400).send({ message: 'dates-mismatch' });
-    }
-
     // Validate that offeredDate and requestedDate are from different users.
     if (offeredDate.user._id === req.user._id) {
         return res.status(400).send({ message: 'same-user-for-offer-and-request' });
     }
 
-    const data = { date, user: req.user._id, offeredDate: offeredDateId };
+    const data = { date: offeredDate.date, user: req.user._id, offeredDate: offeredDate._id };
 
     // Verify user does not already have offer on that day
     let request = await RequestedDate.findOne(data);

@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-import { useState, useContext, useReducer } from 'react';
+import { useContext, useReducer } from 'react';
 import { Container, Form, Modal, Row, Col, Button } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
 import { ErrorModalContext } from '../context/ActionModalContext';
 import { SuccessModalContext } from '../context/ActionModalContext';
 import { getConfig } from '../utils/auth';
 import { UPDATE_FORM, onInputChange, onFocusOut, runFormStateValidation } from '../utils/forms';
+import { useSubmit } from '../hooks/useSubmit';
 
 const initialState = {
     name: { value: '', touched: false, hasError: true, error: '' },
@@ -25,6 +26,8 @@ const formsReducer = (state, action) => {
                 [name]: { ...state[name], value, hasError, error, touched },
                 isFormValid,
             };
+        case 'RESET_FORM':
+            return initialState;
         default:
             return state;
     }
@@ -32,16 +35,14 @@ const formsReducer = (state, action) => {
 
 export function SignupModal(props) {
     const { show, onHide } = props;
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const setUserContext = useContext(UserContext)[1];
     const { setErrorProps } = useContext(ErrorModalContext);
     const { setSuccessProps } = useContext(SuccessModalContext);
+    const { isSubmitting, handleSubmit, resetSubmit } = useSubmit();
 
     const [formState, dispatch] = useReducer(formsReducer, initialState);
 
-    function formSubmitHandler(event) {
-        event.preventDefault();
-
+    function formSubmitHandler() {
         // Client-side validation
         runFormStateValidation(formState, dispatch);
         if (!formState.isFormValid) {
@@ -49,8 +50,7 @@ export function SignupModal(props) {
         }
 
         // Server side submission & error handling
-        setIsSubmitting(true);
-        axios
+        return axios
             .post(
                 `${process.env.REACT_APP_API_ENDPOINT}/users/signup`,
                 {
@@ -62,7 +62,6 @@ export function SignupModal(props) {
                 getConfig()
             )
             .then((response) => {
-                setIsSubmitting(false);
                 setSuccessProps((oldValues) => ({
                     ...oldValues,
                     show: true,
@@ -70,6 +69,7 @@ export function SignupModal(props) {
                         'Succesfully registered! A verification code will be sent to your postbox within the next few days.',
                     onHide: () => {
                         setSuccessProps((oldValues) => ({ ...oldValues, show: false }));
+                        resetSubmit();
                     },
                 }));
                 setUserContext((oldValues) => {
@@ -81,7 +81,6 @@ export function SignupModal(props) {
                 });
             })
             .catch((error) => {
-                setIsSubmitting(false);
                 let errorMsg = 'Something went wrong! Please try again later.';
                 if (error.response.status === 400) {
                     errorMsg = 'Please fill all the fields correctly!';
@@ -98,18 +97,32 @@ export function SignupModal(props) {
                     message: errorMsg,
                     onHide: () => {
                         setErrorProps((oldValues) => ({ ...oldValues, show: false }));
+                        resetSubmit();
                     },
                 }));
             });
     }
 
     return (
-        <Modal show={show} onHide={onHide} centered>
+        <Modal
+            show={show}
+            onHide={() => {
+                onHide();
+                dispatch({ type: 'RESET_FORM' });
+            }}
+            centered
+        >
             <Modal.Header closeButton>
                 <Modal.Title>Sign Up</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form noValidate onSubmit={formSubmitHandler}>
+                <Form
+                    noValidate
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSubmit(formSubmitHandler);
+                    }}
+                >
                     <Container className='register-form'>
                         <Row>
                             <Col>

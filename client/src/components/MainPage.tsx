@@ -82,8 +82,12 @@ export function MainPage(props) {
         setCalendarState();
     }, [setCalendarState]);
 
-    console.log('offeredDays', offeredDays);
-    console.log('requestedDays', requestedDays);
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCalendarState();
+        }, 30 * 1000); // 30s in milliseconds
+        return () => clearInterval(intervalId);
+    }, [setCalendarState]);
 
     const getCalendarDaysArray = useCallback(() => {
         console.log('getCalendarDaysArray called');

@@ -15,7 +15,7 @@ async function getRequestsForOfferedDay(token: string, offer: Offer) {
     if (!offer) {
         return [];
     }
-    console.log('getRequestsForOfferedDay called', offer);
+    console.log('getRequestsForOfferedDay called');
     const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/requested`,
         getConfig(token, { offeredDateId: offer })

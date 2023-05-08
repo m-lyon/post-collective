@@ -11,7 +11,6 @@ async function sendPickupOffer(token: string, date: string, toggleOffered: Toggl
             { date: date },
             getConfig(token)
         );
-        console.log(response);
         toggleOffered(response.data);
     } catch (err) {
         console.log('error', err);
