@@ -26,7 +26,7 @@ function NotificationCircle(props) {
 
 async function setMessageAsSeen(token: string, msg: Message) {
     try {
-        const res = await axios.patch(
+        await axios.patch(
             `${process.env.REACT_APP_API_ENDPOINT}/notify/${msg._id}`,
             { seen: true },
             getConfig(token)
