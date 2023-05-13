@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { getConfig } from '../utils/auth';
-import { ConfirmCancelModal } from './ConfirmCancelModal';
 import { Offer, ToggleOfferedFunction } from '../utils/types';
 import { ErrorModalContext, SuccessModalContext } from '../context/ActionModalContext';
 import { CancelOfferModalContext } from '../context/ReservationModalContext';
