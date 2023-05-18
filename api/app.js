@@ -6,10 +6,8 @@ const logger = require('morgan');
 const cors = require('cors');
 const passport = require('passport');
 
-if (process.env.NODE_ENV !== 'production') {
-    // Load environment variables from .env file in non prod environments
-    require('dotenv').config();
-}
+// Load env variables
+require('dotenv').config();
 
 require('./utils/connectdb');
 require('./strategies/JwtStrategy');
@@ -49,7 +47,7 @@ app.use(passport.initialize());
 app.use(logger('dev'));
 app.use(express.json()); // parses JSON requests
 app.use(express.urlencoded({ extended: false })); // parses url-encoded form requests
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/post-api-public', express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
