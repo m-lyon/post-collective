@@ -82,13 +82,15 @@ export function SignupModal(props) {
             })
             .catch((error) => {
                 let errorMsg = 'Something went wrong! Please try again later.';
-                if (error.response.status === 400) {
-                    errorMsg = 'Please fill all the fields correctly!';
-                } else if (error.response.status === 409) {
-                    if (error.response.data.message === 'apt-num-already-in-use') {
-                        errorMsg = 'Apartment already in use.';
-                    } else if (error.response.data.message === 'user-already-exists') {
-                        errorMsg = 'Email already in use.';
+                if (error.response) {
+                    if (error.response.status === 400) {
+                        errorMsg = 'Please fill all the fields correctly!';
+                    } else if (error.response.status === 409) {
+                        if (error.response.data.message === 'apt-num-already-in-use') {
+                            errorMsg = 'Apartment already in use.';
+                        } else if (error.response.data.message === 'user-already-exists') {
+                            errorMsg = 'Email already in use.';
+                        }
                     }
                 }
                 setErrorProps((oldValues) => ({

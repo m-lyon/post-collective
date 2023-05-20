@@ -37,7 +37,11 @@ export function ForgotPasswordModal(props) {
             })
             .catch((err) => {
                 let errorMsg = 'Something went wrong! Please try again later.';
-                if (err.response.status === 400 && err.response.data.message === 'user-not-found') {
+                if (
+                    err.response &&
+                    err.response.status === 400 &&
+                    err.response.data.message === 'user-not-found'
+                ) {
                     errorMsg = 'Email address not found.';
                 }
                 setErrorProps((oldValues) => ({

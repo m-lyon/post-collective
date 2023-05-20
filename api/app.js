@@ -49,12 +49,12 @@ app.use(express.json()); // parses JSON requests
 app.use(express.urlencoded({ extended: false })); // parses url-encoded form requests
 app.use('/post-api-public', express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/offered', offeredRouter);
-app.use('/requested', requestRouter);
-app.use('/notify', messageRouter);
-app.use('/resetPassword', resetPasswordRouter);
+app.use('/post-api', indexRouter);
+app.use('/post-api/users', usersRouter);
+app.use('/post-api/offered', offeredRouter);
+app.use('/post-api/requested', requestRouter);
+app.use('/post-api/notify', messageRouter);
+app.use('/post-api/resetPassword', resetPasswordRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

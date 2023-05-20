@@ -36,10 +36,12 @@ export function LoginPage(props) {
             })
             .catch((error) => {
                 let errorMsg = 'Something went wrong! Please try again later.';
-                if (error.response.status === 400) {
-                    errorMsg = 'Please fill in both email and passwordl.';
-                } else if (error.response.status === 401) {
-                    errorMsg = 'Invalid email and password combination.';
+                if (error.response){
+                    if (error.response.status === 400) {
+                        errorMsg = 'Please fill in both email and passwordl.';
+                    } else if (error.response.status === 401) {
+                        errorMsg = 'Invalid email and password combination.';
+                    }
                 }
                 setErrorProps((oldValues) => ({
                     ...oldValues,

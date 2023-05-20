@@ -34,10 +34,12 @@ export function App() {
                 setTimeout(verifyUser, 5 * 60 * 1000);
             })
             .catch((error) => {
-                if (error.response.status === 401) {
+                if (error.response && error.response.status === 401){
                     setUserContext((oldValues) => {
                         return { ...oldValues, token: null, details: null };
                     });
+                } else {
+                    console.log('unknown error');
                 }
             });
     }, [setUserContext]);
