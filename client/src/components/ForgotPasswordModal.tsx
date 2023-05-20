@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { useEffect, useState, useContext } from 'react';
-import { Col, Container, Modal, Row, Form, Button } from 'react-bootstrap';
+import { Col, Container, Modal, Row, Form, Button, Spinner } from 'react-bootstrap';
 import { ErrorModalContext } from '../context/ActionModalContext';
 import { SuccessModalContext } from '../context/ActionModalContext';
 import { useSubmit } from '../hooks/useSubmit';
@@ -86,8 +86,11 @@ export function ForgotPasswordModal(props) {
                                         type='submit'
                                         disabled={isSubmitting || hasSubmitted}
                                     >
+                                        {isSubmitting && <Spinner animation='border' size='sm' />}
                                         {`${
-                                            isSubmitting ? 'Sending...' : 'Send reset password link'
+                                            isSubmitting
+                                                ? ' Sending...'
+                                                : 'Send reset password link'
                                         }`}
                                     </Button>
                                 </div>

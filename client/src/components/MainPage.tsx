@@ -99,8 +99,8 @@ export function MainPage(props) {
                     toggleRequested={(request: Request) =>
                         toggleRequestedDay(index, request, setRequested)
                     }
-                    requested={requestedDays[index]}
-                    offered={offeredDays[index]}
+                    request={requestedDays[index]}
+                    offer={offeredDays[index]}
                 />
             );
         });

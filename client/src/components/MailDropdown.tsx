@@ -146,9 +146,9 @@ export function MailDropdown(props: MailDropdownProps) {
         <NavDropdown
             title={
                 numUnread === 0 ? (
-                    <EnvelopeFill size='2em' />
+                    <EnvelopeFill size='2em' className='hvr-grow3' />
                 ) : (
-                    <EnvelopeExclamationFill size='2em' />
+                    <EnvelopeExclamationFill size='2em' className='hvr-grow3' />
                 )
             }
             id='notifications'

@@ -18,9 +18,9 @@ const requestedDateSchema = new Schema({
     offeredDate: { type: Schema.Types.ObjectId, ref: 'OfferedDate', required: true },
 });
 
-requestedDateSchema.statics.findDatesForOffer = async function (offer) {
+requestedDateSchema.statics.findDatesForOffer = function (offer) {
     const query = { offeredDate: offer };
-    return this.find(query).populate('user', 'aptNum name');
+    return this.find(query);
 };
 
 requestedDateSchema.statics.findDates = findDates;

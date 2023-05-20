@@ -1,22 +1,29 @@
-import { Offer, Request, ToggleOfferedFunction } from '../utils/types';
+import { Offer, Request, ToggleOfferedFunction, ToggleRequestedFunction } from '../utils/types';
 import { OfferPickupButton } from './OfferPickup';
 import { CancelOfferButton } from './CancelOfferButton';
+import { CancelDropoffButton } from './CancelDropoffButton';
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 
 interface BottomButtonProps {
     date: string;
+    toggleRequested: ToggleRequestedFunction;
     toggleOffered: ToggleOfferedFunction;
     request: Request;
     offer: Offer;
 }
 export function BottomButton(props: BottomButtonProps) {
-    const { date, toggleOffered, request, offer } = props;
+    const { date, toggleRequested, toggleOffered, request, offer } = props;
     const [userContext] = useContext(UserContext);
 
     if (request !== null) {
-        // If already have reservation for this day, cannot also offer
-        return <div className='select-box text-grey disabled bottom-btn'>Offer Pickup</div>;
+        return (
+            <CancelDropoffButton
+                token={userContext.token}
+                request={request}
+                toggleRequested={toggleRequested}
+            />
+        );
     }
     if (offer !== null) {
         return (

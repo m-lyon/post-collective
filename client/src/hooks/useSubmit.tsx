@@ -6,6 +6,9 @@ export function useSubmit() {
 
     async function handleSubmit(callback: () => Promise<void>) {
         setIsSubmitting(true);
+        if (process.env.NODE_ENV === 'development') {
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
         await callback();
         setIsSubmitting(false);
         setHasSubmitted(true);

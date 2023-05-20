@@ -1,25 +1,22 @@
-import { Request } from '../utils/types';
-import { Modal, ListGroup } from 'react-bootstrap';
+import { Offer } from '../utils/types';
+import { Modal } from 'react-bootstrap';
 import { useState } from 'react';
 
 interface RequestDisplayProps {
-    userRequests: Request[];
+    offer: Offer;
     unselect: () => void;
 }
 export function RequestDisplay(props: RequestDisplayProps) {
-    const { userRequests, unselect } = props;
+    const { offer, unselect } = props;
     const [modalShow, setModalShow] = useState(false);
 
-    if (userRequests.length === 0) {
-        return <div className='select-box text-grey disabled'>0 Reservations</div>;
-    }
     return (
         <>
             <div className='select-box text-grey hvr-grow2' onClick={() => setModalShow(true)}>
-                {userRequests.length} Reservation{userRequests.length === 1 ? '' : 's'}
+                Show Drop-off
             </div>
-            <ViewRequestsModal
-                userRequests={userRequests}
+            <ViewRequestModal
+                offer={offer}
                 show={modalShow}
                 onHide={() => {
                     unselect();
@@ -31,28 +28,20 @@ export function RequestDisplay(props: RequestDisplayProps) {
 }
 
 interface ViewRequestsModalProps {
-    userRequests: Request[];
+    offer: Offer;
     show: boolean;
     onHide: () => void;
 }
-function ViewRequestsModal(props: ViewRequestsModalProps) {
-    const { userRequests, show, onHide } = props;
-    const aptList = userRequests.map((request) => {
-        return (
-            <ListGroup.Item key={request.user.aptNum}>
-                {request.user.name} in Apartment {request.user.aptNum}
-            </ListGroup.Item>
-        );
-    });
+function ViewRequestModal(props: ViewRequestsModalProps) {
+    const { offer, show, onHide } = props;
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Current Reservations</Modal.Title>
+                <Modal.Title>Drop-off</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <ListGroup>{aptList}</ListGroup>
-                </div>
+                Direct your courier to deliver to {offer.user.name} in Apartment {offer.user.aptNum}
+                .
             </Modal.Body>
         </Modal>
     );

@@ -6,7 +6,7 @@ import { UserContext } from '../context/UserContext';
 import { DropoffButton } from './DropoffButton';
 import { DropoffModalContext } from '../context/ReservationModalContext';
 
-export function SelectDropoffModal(props) {
+export function ReserveDropoffModal(props) {
     const [userContext] = useContext(UserContext);
     const { dropoffProps } = useContext(DropoffModalContext);
     const { offers, show, onHide, onSuccess, onFail } = dropoffProps;

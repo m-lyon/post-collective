@@ -6,8 +6,6 @@
 
 const app = require('../app');
 const debug = require('debug')('api:server');
-const https = require('https');
-const fs = require('fs');
 
 /**
  * Get port from environment and store in Express.
@@ -16,14 +14,19 @@ const fs = require('fs');
 const port = normalizePort(process.env.PORT || '9000');
 app.set('port', port);
 
-/**
- * Create HTTPS server.
- */
-const options = {
-    key: fs.readFileSync(process.env.PRIVKEY_PEM),
-    cert: fs.readFileSync(process.env.FULLCHAIN_PEM),
-};
-const server = https.createServer(options, app);
+let server;
+if (process.env.NODE_ENV === 'development') {
+    const http = require('http');
+    server = http.createServer(app);
+} else {
+    const https = require('https');
+    const fs = require('fs');
+    const options = {
+        key: fs.readFileSync(process.env.PRIVKEY_PEM),
+        cert: fs.readFileSync(process.env.FULLCHAIN_PEM),
+    };
+    server = https.createServer(options, app);
+}
 
 /**
  * Listen on provided port, on all network interfaces.

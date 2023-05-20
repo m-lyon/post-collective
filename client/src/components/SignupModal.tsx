@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { useContext, useReducer } from 'react';
-import { Container, Form, Modal, Row, Col, Button } from 'react-bootstrap';
+import { Container, Form, Modal, Row, Col, Button, Spinner } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
 import { ErrorModalContext } from '../context/ActionModalContext';
 import { SuccessModalContext } from '../context/ActionModalContext';
@@ -290,7 +290,14 @@ export function SignupModal(props) {
                                         type='submit'
                                         disabled={isSubmitting}
                                     >
-                                        {`${isSubmitting ? 'Signing up...' : 'Sign up'}`}
+                                        {isSubmitting && (
+                                            <Spinner
+                                                animation='border'
+                                                size='sm'
+                                                style={{ width: '1.4rem', height: '1.4rem' }}
+                                            />
+                                        )}
+                                        {`${isSubmitting ? ' Signing up...' : 'Sign up'}`}
                                     </Button>
                                 </div>
                             </Col>

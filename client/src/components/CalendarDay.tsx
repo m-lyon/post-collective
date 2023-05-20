@@ -27,20 +27,20 @@ interface CalendarDayProps {
     availability: AvailableDay;
     toggleOffered: ToggleOfferedFunction;
     toggleRequested: ToggleRequestedFunction;
-    requested: Request;
-    offered: Offer;
+    request: Request;
+    offer: Offer;
 }
 export function CalendarDay(props: CalendarDayProps) {
-    const { date, availability, toggleOffered, toggleRequested, requested, offered } = props;
+    const { date, availability, toggleOffered, toggleRequested, request, offer } = props;
     const [isSelected, setSelected] = useState(false);
     const [userRequests, setuserRequests] = useState([]);
     const [userContext] = useContext(UserContext);
     const [className, setClassName] = useState('');
 
     useEffect(() => {
-        if (requested !== null) {
+        if (request !== null) {
             setClassName('requested');
-        } else if (offered) {
+        } else if (offer) {
             if (userRequests.length === 0) {
                 setClassName('offered');
             } else {
@@ -51,17 +51,17 @@ export function CalendarDay(props: CalendarDayProps) {
         } else {
             setClassName('');
         }
-    }, [requested, offered, availability, userRequests]);
+    }, [request, offer, availability, userRequests]);
 
     useEffect(() => {
         async function func() {
             if (userContext.token) {
-                const requests = await getRequestsForOfferedDay(userContext.token, offered);
+                const requests = await getRequestsForOfferedDay(userContext.token, offer);
                 setuserRequests(requests);
             }
         }
         func();
-    }, [userContext.token, offered]);
+    }, [userContext.token, offer]);
 
     return (
         <Col
@@ -80,15 +80,16 @@ export function CalendarDay(props: CalendarDayProps) {
                         unselect={() => setSelected(false)}
                         toggleRequested={toggleRequested}
                         availability={availability}
-                        requested={requested}
-                        offered={offered}
+                        request={request}
+                        offer={offer}
                         userRequests={userRequests}
                     />
                     <BottomButton
                         date={date.getDateStr()}
+                        toggleRequested={toggleRequested}
                         toggleOffered={toggleOffered}
-                        request={requested}
-                        offer={offered}
+                        request={request}
+                        offer={offer}
                     />
                 </div>
             </CSSTransition>

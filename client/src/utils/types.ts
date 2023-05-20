@@ -17,7 +17,7 @@ export interface Request {
     _id: string;
     date: string;
     user: User;
-    offeredDate: string;
+    offeredDate: any;
 }
 
 export interface Message {

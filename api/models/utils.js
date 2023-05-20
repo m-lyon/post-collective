@@ -1,5 +1,5 @@
 // TODO: test this with the new string dates
-async function findDates(userId, startDate, endDate) {
+function findDates(userId, startDate, endDate) {
     const query = userId !== undefined ? { user: userId } : {};
     if (startDate !== undefined || endDate !== undefined) {
         query.date = {};
@@ -10,7 +10,7 @@ async function findDates(userId, startDate, endDate) {
             query.date['$lte'] = endDate;
         }
     }
-    return this.find(query).populate('user', 'aptNum');
+    return this.find(query);
 }
 
 async function checkExists(id, name) {

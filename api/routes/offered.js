@@ -12,7 +12,7 @@ const { getFormattedDateStr } = require('../utils/dates');
 router.get('/', [authenticateUser, isVerified], async function (req, res) {
     const { user, startDate, endDate } = req.query;
 
-    const dates = await OfferedDate.findDates(user, startDate, endDate);
+    const dates = await OfferedDate.findDates(user, startDate, endDate).populate('user', 'aptNum');
     res.send(dates);
 });
 
@@ -79,7 +79,7 @@ router.delete('/:dateId', [authenticateUser, isVerified], async function (req, r
 
     // Delete requests associated with offer
     try {
-        const dates = await RequestedDate.findDatesForOffer(offer);
+        const dates = await RequestedDate.findDatesForOffer(offer).populate('user');
         if (dates.length > 0) {
             const ids = dates.map((request) => request._id);
             await RequestedDate.deleteMany({ _id: { $in: ids } });

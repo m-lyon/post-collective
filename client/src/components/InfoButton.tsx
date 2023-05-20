@@ -31,24 +31,28 @@ function LoggedInInfoModal(props) {
                     <h5>Reserving a Drop-off</h5>
                 </div>
                 <ul>
-                    <li>
-                        The green tiles are days where other people are able to collect post for you
-                    </li>
+                    <li>Green tiles are days when someone can collect post for you</li>
                     <li>Click on 'Reserve Drop-off' to select an apartment to collect your post</li>
                     <li>
-                        Next, make sure to let the courier service know which apartment to leave
-                        your parcel at
+                        Next, make sure you let the courier service know which apartment to drop
+                        your parcel off at
                     </li>
                 </ul>
                 <div style={{ marginBottom: '1em' }}>
                     <h5>Offering a Pickup</h5>
                 </div>
                 <ul>
-                    <li>
-                        Select which days you are able to collect post for other people by clicking
-                        'Offer Pickup'
-                    </li>
+                    <li>To offer to collect post on a particular day, click on 'Offer Pickup'</li>
                     <li>You will be notified when someone reserves a drop-off at your apartment</li>
+                </ul>
+                <div style={{ marginBottom: '1em' }}>
+                    <h5>More Information</h5>
+                </div>
+                <ul>
+                    <li>
+                        If you have further questions, or would like to report a problem, please
+                        email balmoral.post@gmail.com
+                    </li>
                 </ul>
             </Modal.Body>
         </Modal>

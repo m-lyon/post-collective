@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { useState, useContext } from 'react';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Spinner } from 'react-bootstrap';
 import { SignupModal } from './SignupModal';
 import { UserContext } from '../context/UserContext';
 import { getConfig } from '../utils/auth';
@@ -36,7 +36,7 @@ export function LoginPage(props) {
             })
             .catch((error) => {
                 let errorMsg = 'Something went wrong! Please try again later.';
-                if (error.response){
+                if (error.response) {
                     if (error.response.status === 400) {
                         errorMsg = 'Please fill in both email and passwordl.';
                     } else if (error.response.status === 401) {
@@ -94,7 +94,8 @@ export function LoginPage(props) {
                                 type='submit'
                                 disabled={isSubmitting || hasSubmitted}
                             >
-                                {`${isSubmitting ? 'Logging in...' : 'Log in'}`}
+                                {isSubmitting && <Spinner animation='border' size='sm' />}
+                                {`${isSubmitting ? ' Logging in...' : 'Log in'}`}
                             </Button>
                         </div>
                         <div style={{ paddingTop: '1rem', textAlign: 'center' }}>

@@ -1,5 +1,5 @@
 import { useState, createContext } from 'react';
-import { SelectDropoffModal } from '../components/SelectDropoffModal';
+import { ReserveDropoffModal } from '../components/ReserveDropoffModal';
 import { ConfirmCancelModal } from '../components/ConfirmCancelModal';
 
 // Dropoff Modal
@@ -46,7 +46,7 @@ export function DropoffModalProvider({ children }) {
     return (
         <DropoffModalContext.Provider value={{ dropoffProps, setDropoffProps }}>
             <CancelOfferModalContext.Provider value={{ cancelProps, setCancelProps }}>
-                <SelectDropoffModal />
+                <ReserveDropoffModal />
                 <ConfirmCancelModal />
                 {children}
             </CancelOfferModalContext.Provider>

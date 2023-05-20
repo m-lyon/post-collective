@@ -21,10 +21,18 @@ router.get('/', [authenticateUser, isVerified], async function (req, res, next) 
             if (!req.user._id.equals(offeredDate.user._id)) {
                 return res.status(401).send('Unauthorized.');
             }
-            dates = await RequestedDate.findDatesForOffer(offeredDateId);
+            dates = RequestedDate.findDatesForOffer(offeredDateId);
         } else {
-            dates = await RequestedDate.findDates(req.user._id, startDate, endDate);
+            dates = RequestedDate.findDates(req.user._id, startDate, endDate);
         }
+        dates = await dates.populate([
+            { path: 'user', select: 'aptNum name' },
+            {
+                path: 'offeredDate',
+                select: 'user',
+                populate: { path: 'user', select: 'aptNum name' },
+            },
+        ]);
         res.send(dates);
     } catch (error) {
         console.log(error);
@@ -63,7 +71,11 @@ router.put('/', [authenticateUser, isVerified], async function (req, res) {
         await request.save();
         request = await request.populate([
             { path: 'user', select: 'aptNum' },
-            { path: 'offeredDate', select: 'user', populate: { path: 'user', select: 'aptNum' } },
+            {
+                path: 'offeredDate',
+                select: 'user',
+                populate: { path: 'user', select: 'aptNum name' },
+            },
         ]);
     } catch (err) {
         console.log(err.message);
