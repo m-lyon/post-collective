@@ -13,6 +13,7 @@ import { toggleOfferedDay } from '../utils/offers';
 import { toggleRequestedDay } from '../utils/requests';
 import { CalendarDay } from './CalendarDay';
 import { DropoffModalProvider } from '../context/ReservationModalContext';
+import { DisplayContext } from '../context/DisplayContext';
 
 /**
  * Requests offered days from other users from backend
@@ -43,21 +44,11 @@ function getAvailableDaysArray(
 
 export function MainPage(props) {
     const [userContext] = useContext(UserContext);
-    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
     const [days, setDays] = useState<DateFormat[]>([]);
     const [offeredDays, setOffered] = useState<OfferedDays>(() => days.map(() => null));
     const [availability, setAvailability] = useState<AvailableDays>(() => days.map(() => []));
     const [requestedDays, setRequested] = useState<RequestedDays>(() => days.map(() => null));
-
-    function handleWindowSizeChange() {
-        setIsMobile(window.innerWidth <= 768);
-    }
-    useEffect(() => {
-        window.addEventListener('resize', handleWindowSizeChange);
-        return () => {
-            window.removeEventListener('resize', handleWindowSizeChange);
-        };
-    }, []);
+    const isMobile = useContext(DisplayContext);
 
     useEffect(() => {
         setDays((days) => {
@@ -107,14 +98,17 @@ export function MainPage(props) {
     }, [availability, days, offeredDays, requestedDays]);
 
     const calendarDays = getCalendarDaysArray();
-    const className = isMobile ? 'text-center calendar-rows-mobile' : 'text-center calendar-rows';
 
     return (
         <DropoffModalProvider>
             <BHNavbar />
-            <Container className='justify-content-center'>
-                <Row className={className}>{calendarDays}</Row>
-                <NavigationArrows isMobile={isMobile} setDays={setDays} />
+            <Container>
+                <div className='calendar-div'>
+                    <Row className='text-center calendar-rows'>{calendarDays}</Row>
+                </div>
+                <div className='calendar-div'>
+                    <NavigationArrows setDays={setDays} />
+                </div>
             </Container>
         </DropoffModalProvider>
     );

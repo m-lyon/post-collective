@@ -8,6 +8,7 @@ import { SuccessModalContext } from '../context/ActionModalContext';
 import { getConfig } from '../utils/auth';
 import { UPDATE_FORM, onInputChange, onFocusOut, runFormStateValidation } from '../utils/forms';
 import { useSubmit } from '../hooks/useSubmit';
+import { DisplayContext } from '../context/DisplayContext';
 
 const initialState = {
     name: { value: '', touched: false, hasError: true, error: '' },
@@ -36,6 +37,7 @@ const formsReducer = (state, action) => {
 export function SignupModal(props) {
     const { show, onHide } = props;
     const setUserContext = useContext(UserContext)[1];
+    const isMobile = useContext(DisplayContext);
     const { setErrorProps } = useContext(ErrorModalContext);
     const { setSuccessProps } = useContext(SuccessModalContext);
     const { isSubmitting, handleSubmit, resetSubmit } = useSubmit();
@@ -161,7 +163,7 @@ export function SignupModal(props) {
                                     <Form.Control
                                         id='aptNum'
                                         type='text'
-                                        placeholder='Apartment number'
+                                        placeholder={isMobile ? 'Apt Number' : 'Apartment Number'}
                                         value={formState.aptNum.value}
                                         onChange={(e) => {
                                             onInputChange(

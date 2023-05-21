@@ -1,11 +1,12 @@
 
-/* can use vw / vh to scale sizes as */
-/* will probably want to use breakpoints i think? */
 .calendar-rows {
     width: 63em;
 }
-.calendar-rows-mobile {
-    width: 27em;
+
+@media (max-width: 768px) {
+    .calendar-rows {
+        width: 21em;
+    }
 }
 
 .day {
@@ -19,6 +20,22 @@
     justify-content: space-between;
     flex-direction: column;
     cursor: default;
+}
+
+@media (max-width: 768px){
+    .day {
+        width: 6em;
+    }
+}
+
+.calendar-div {
+    display: flex;
+}
+
+@media (max-width: 768px) {
+    .calendar-div {
+        justify-content: center;
+    }
 }
 
 .available {
@@ -60,6 +77,12 @@
     flex-direction: row;
 }
 
+@media (max-width: 768px) {
+    .day-date-text {
+        font-size: 14px;
+    }
+}
+
 .select-box {
     font-size: 14px;
     height: 3.4em;
@@ -67,6 +90,18 @@
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     bottom: 0;
     cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .select-box {
+        font-size: 12px;
+        height: 2.8em;
+    }
+}
+
+.select-box-mobile {
+    height: 2em;
+    line-height: 2em;
 }
 
 .disabled {
