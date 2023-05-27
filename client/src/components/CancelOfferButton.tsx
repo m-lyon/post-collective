@@ -14,12 +14,13 @@ function sendOfferCancel(token: string, offer: Offer) {
 }
 
 interface CancelOfferButtonProps {
+    unselect: () => void;
     token: string;
     offer: Offer;
     toggleOffered: ToggleOfferedFunction;
 }
 export function CancelOfferButton(props: CancelOfferButtonProps) {
-    const { token, offer, toggleOffered } = props;
+    const { unselect, token, offer, toggleOffered } = props;
     const { setErrorProps } = useContext(ErrorModalContext);
     const { setSuccessProps } = useContext(SuccessModalContext);
     const { setCancelProps } = useContext(CancelOfferModalContext);
@@ -75,7 +76,10 @@ export function CancelOfferButton(props: CancelOfferButtonProps) {
                     }));
                 } else {
                     sendOfferCancel(token, offer)
-                        .then((res) => toggleOffered(res.data))
+                        .then((res) => {
+                            unselect();
+                            toggleOffered(res.data);
+                        })
                         .catch((err) => {
                             setErrorProps((oldValues) => ({
                                 ...oldValues,

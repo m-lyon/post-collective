@@ -14,14 +14,19 @@ function sendPickupOffer(token: string, date: string) {
 }
 
 interface OfferPickupButtonProps {
+    unselect: () => void;
     token: string;
     date: string;
     toggleOffered: ToggleOfferedFunction;
 }
-export function OfferPickupButton({ token, date, toggleOffered }: OfferPickupButtonProps) {
+export function OfferPickupButton(props: OfferPickupButtonProps) {
+    const { unselect, token, date, toggleOffered } = props;
     const { setErrorProps } = useContext(ErrorModalContext);
 
-    const onSuccess = (response) => toggleOffered(response.data);
+    const onSuccess = (response) => {
+        unselect();
+        toggleOffered(response.data);
+    };
     const onFail = (err) => {
         setErrorProps((oldValues) => ({
             ...oldValues,

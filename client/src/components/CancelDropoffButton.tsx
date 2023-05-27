@@ -13,16 +13,20 @@ function cancelDropoffHandler(token: string, request: Request) {
 }
 
 interface CancelDropoffButtonProps {
+    unselect: () => void;
     token: string;
     toggleRequested: ToggleRequestedFunction;
     request: Request;
 }
 
 export function CancelDropoffButton(props: CancelDropoffButtonProps) {
-    const { token, toggleRequested, request } = props;
+    const { unselect, token, toggleRequested, request } = props;
     const { setErrorProps } = useContext(ErrorModalContext);
 
-    const onSuccess = (response) => toggleRequested(response.data);
+    const onSuccess = (response) => {
+        unselect();
+        toggleRequested(response.data);
+    };
     const onFail = (err) => {
         setErrorProps((oldValues) => ({
             ...oldValues,

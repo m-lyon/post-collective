@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 
 interface BottomButtonProps {
+    unselect: () => void;
     date: string;
     toggleRequested: ToggleRequestedFunction;
     toggleOffered: ToggleOfferedFunction;
@@ -13,12 +14,13 @@ interface BottomButtonProps {
     offer: Offer;
 }
 export function BottomButton(props: BottomButtonProps) {
-    const { date, toggleRequested, toggleOffered, request, offer } = props;
+    const { unselect, date, toggleRequested, toggleOffered, request, offer } = props;
     const [userContext] = useContext(UserContext);
 
     if (request !== null) {
         return (
             <CancelDropoffButton
+                unselect={unselect}
                 token={userContext.token}
                 request={request}
                 toggleRequested={toggleRequested}
@@ -28,6 +30,7 @@ export function BottomButton(props: BottomButtonProps) {
     if (offer !== null) {
         return (
             <CancelOfferButton
+                unselect={unselect}
                 token={userContext.token}
                 offer={offer}
                 toggleOffered={toggleOffered}
@@ -35,6 +38,11 @@ export function BottomButton(props: BottomButtonProps) {
         );
     }
     return (
-        <OfferPickupButton token={userContext.token} date={date} toggleOffered={toggleOffered} />
+        <OfferPickupButton
+            unselect={unselect}
+            token={userContext.token}
+            date={date}
+            toggleOffered={toggleOffered}
+        />
     );
 }

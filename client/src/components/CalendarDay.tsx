@@ -85,6 +85,7 @@ export function CalendarDay(props: CalendarDayProps) {
                         userRequests={userRequests}
                     />
                     <BottomButton
+                        unselect={() => setSelected(false)}
                         date={date.getDateStr()}
                         toggleRequested={toggleRequested}
                         toggleOffered={toggleOffered}
