@@ -14,6 +14,7 @@ import { toggleRequestedDay } from '../utils/requests';
 import { CalendarDay } from './CalendarDay';
 import { DropoffModalProvider } from '../context/ReservationModalContext';
 import { DisplayContext } from '../context/DisplayContext';
+import { AnimatePresence } from 'framer-motion';
 
 /**
  * Requests offered days from other users from backend
@@ -102,14 +103,16 @@ export function MainPage(props) {
     return (
         <DropoffModalProvider>
             <BHNavbar />
-            <Container>
-                <div className='calendar-div'>
-                    <Row className='text-center calendar-rows'>{calendarDays}</Row>
-                </div>
-                <div className='calendar-div'>
-                    <NavigationArrows setDays={setDays} />
-                </div>
-            </Container>
+            <AnimatePresence initial={true}>
+                <Container>
+                    <div className='calendar-div'>
+                        <Row className='text-center calendar-rows'>{calendarDays}</Row>
+                    </div>
+                    <div className='calendar-div'>
+                        <NavigationArrows setDays={setDays} />
+                    </div>
+                </Container>
+            </AnimatePresence>
         </DropoffModalProvider>
     );
 }

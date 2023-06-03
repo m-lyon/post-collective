@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { Col } from 'react-bootstrap';
 import { useEffect, useState, useContext } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { TopButton } from './TopButton';
@@ -10,6 +9,7 @@ import { Offer } from '../utils/types';
 import { UserContext } from '../context/UserContext';
 import { getConfig } from '../utils/auth';
 import { DateFormat } from '../utils/dates';
+import { motion } from 'framer-motion';
 
 async function getRequestsForOfferedDay(token: string, offer: Offer) {
     if (!offer) {
@@ -64,9 +64,13 @@ export function CalendarDay(props: CalendarDayProps) {
     }, [userContext.token, offer]);
 
     return (
-        <Col
-            sm={4}
-            className={`hvr-grow day ${className}`}
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            key={date.getDateStr()}
+            className={`col-sm-4 hvr-grow day ${className}`}
             onMouseEnter={() => setSelected(true)}
             onMouseLeave={() => setSelected(false)}
         >
@@ -94,6 +98,6 @@ export function CalendarDay(props: CalendarDayProps) {
                     />
                 </div>
             </CSSTransition>
-        </Col>
+        </motion.div>
     );
 }
