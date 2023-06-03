@@ -36,7 +36,7 @@ export function getInitialDates(isMobile: boolean, start?: DateFormat): DateForm
         } else {
             nextDay = new DateFormat();
         }
-        nextDay.setUTCHours(0, 0, 0, 0);
+        nextDay.setUTCHours(10, 0, 0, 0);
         nextDay.setDate(nextDay.getDate() + i);
         days.push(nextDay);
     }

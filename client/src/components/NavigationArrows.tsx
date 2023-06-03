@@ -1,6 +1,6 @@
 import { Row } from 'react-bootstrap';
 import { SetDaysFunction } from '../utils/types';
-import { getStandardDate } from '../utils/dates';
+import { DateFormat } from '../utils/dates';
 
 function setNewDays(setDays: SetDaysFunction, operator: string): void {
     if (!['+', '-'].includes(operator)) {
@@ -8,14 +8,16 @@ function setNewDays(setDays: SetDaysFunction, operator: string): void {
     }
     setDays((days) => {
         const newDays = [];
-        for (let day of days) {
-            const date = getStandardDate(day.getDateStr());
+        for (let i = 0; i < days.length; i++) {
+            // for (let day of days) {
+            const nextDay = new DateFormat(days[0]);
+            nextDay.setUTCHours(10, 0, 0, 0);
             if (operator === '+') {
-                date.setDate(date.getDate() + days.length);
+                nextDay.setDate(nextDay.getDate() + days.length + i);
             } else {
-                date.setDate(date.getDate() - days.length);
+                nextDay.setDate(nextDay.getDate() - days.length + i);
             }
-            newDays.push(date);
+            newDays.push(nextDay);
         }
         return newDays;
     });
