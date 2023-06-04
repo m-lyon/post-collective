@@ -11,11 +11,8 @@
     "cors": "^2.8.5",
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.3",
-<<<<<<< Updated upstream
     "framer-motion": "^10.12.16",
-=======
     "express": "^4.18.2",
->>>>>>> Stashed changes
     "prettier": "^2.8.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.0",
