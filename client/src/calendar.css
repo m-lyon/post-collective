@@ -20,6 +20,8 @@
     justify-content: space-between;
     flex-direction: column;
     cursor: default;
+    border-style: solid;
+    border-width: 0px;
 }
 
 @media (max-width: 768px){
@@ -36,38 +38,6 @@
     .calendar-div {
         justify-content: center;
     }
-}
-
-.available {
-    background-color: rgba(23, 157, 32, 0.2);
-    box-shadow: rgba(23, 157, 32, 0.6) 0px 3px 8px;
-    border-style: solid;
-    border-width: 0px;
-    border-color: rgba(23, 157, 32, 0.3);
-}
-
-.offered {
-    background-color: rgba(23, 70, 157, 0.2);
-    box-shadow: rgba(23, 70, 157, 0.6) 0px 3px 8px;
-    border-style: solid;
-    border-width: 0px;
-    border-color: rgba(23, 32, 157, 0.8);
-}
-
-.taken {
-    background-color: rgba(120, 15, 15, 0.2);
-    box-shadow: rgba(120, 15, 15, 0.6) 0px 3px 8px;
-    border-style: solid;
-    border-width: 0px;
-    border-color: rgba(120, 15, 15, 0.8);
-}
-
-.requested {
-    background-color: rgba(183, 192, 50, 0.2);
-    box-shadow: rgba(113, 120, 15, 0.6) 0px 3px 8px;
-    border-style: solid;
-    border-width: 0px;
-    border-color: rgba(113, 120, 15, 0.8);
 }
 
 .day-date-text {

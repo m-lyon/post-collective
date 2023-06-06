@@ -22,6 +22,41 @@ async function getRequestsForOfferedDay(token: string, offer: Offer) {
     return response.data;
 }
 
+const bgAlpha: number = 0.3;
+
+const variants = {
+    initial: {
+        opacity: 0,
+    },
+    available: {
+        opacity: 1,
+        backgroundColor: `rgba(23, 157, 32, ${bgAlpha})`,
+        boxShadow: 'rgba(23, 157, 32, 0.6) 0px 3px 8px',
+        borderColor: 'rgba(23, 157, 32, 0.3)',
+    },
+    offered: {
+        opacity: 1,
+        backgroundColor: `rgba(23, 70, 157, ${bgAlpha})`,
+        boxShadow: 'rgba(23, 70, 157, 0.6) 0px 3px 8px',
+        borderColor: 'rgba(23, 32, 157, 0.8)',
+    },
+    taken: {
+        opacity: 1,
+        backgroundColor: `rgba(120, 15, 15, ${bgAlpha})`,
+        boxShadow: 'rgba(120, 15, 15, 0.6) 0px 3px 8px',
+        borderColor: 'rgba(120, 15, 15, 0.8)',
+    },
+    requested: {
+        opacity: 1,
+        backgroundColor: `rgba(183, 192, 50, ${bgAlpha})`,
+        boxShadow: 'rgba(113, 120, 15, 0.6) 0px 3px 8px',
+        borderColor: 'rgba(113, 120, 15, 0.8)',
+    },
+    none: {
+        opacity: 1,
+    },
+};
+
 interface CalendarDayProps {
     date: DateFormat;
     availability: AvailableDay;
@@ -36,7 +71,7 @@ export function CalendarDay(props: CalendarDayProps) {
     const [userRequests, setuserRequests] = useState([]);
     const [userContext] = useContext(UserContext);
 
-    let className: string = '';
+    let className: string = 'none';
     if (request !== null) {
         className = 'requested';
     } else if (offer) {
@@ -61,12 +96,13 @@ export function CalendarDay(props: CalendarDayProps) {
 
     return (
         <motion.div
-            initial={{ opacity: 0, className: '' }}
-            animate={{ opacity: 1, className: className }}
-            exit={{ opacity: 0, className: '' }}
+            variants={variants}
+            initial='initial'
+            animate={className}
+            exit='initial'
             transition={{ duration: 1 }}
             key={date.getDateStr()}
-            className={`col-sm-4 hvr-grow day ${className}`}
+            className={`col-sm-4 hvr-grow day`}
             onMouseEnter={() => setSelected(true)}
             onMouseLeave={() => setSelected(false)}
         >
