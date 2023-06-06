@@ -35,23 +35,19 @@ export function CalendarDay(props: CalendarDayProps) {
     const [isSelected, setSelected] = useState(false);
     const [userRequests, setuserRequests] = useState([]);
     const [userContext] = useContext(UserContext);
-    const [className, setClassName] = useState('');
 
-    useEffect(() => {
-        if (request !== null) {
-            setClassName('requested');
-        } else if (offer) {
-            if (userRequests.length === 0) {
-                setClassName('offered');
-            } else {
-                setClassName('taken');
-            }
-        } else if (availability.length !== 0) {
-            setClassName('available');
+    let className: string = '';
+    if (request !== null) {
+        className = 'requested';
+    } else if (offer) {
+        if (userRequests.length === 0) {
+            className = 'offered';
         } else {
-            setClassName('');
+            className = 'taken';
         }
-    }, [request, offer, availability, userRequests]);
+    } else if (availability.length !== 0) {
+        className = 'available';
+    }
 
     useEffect(() => {
         async function func() {
