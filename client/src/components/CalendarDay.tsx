@@ -61,9 +61,9 @@ export function CalendarDay(props: CalendarDayProps) {
 
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, className: '' }}
+            animate={{ opacity: 1, className: className }}
+            exit={{ opacity: 0, className: '' }}
             transition={{ duration: 1 }}
             key={date.getDateStr()}
             className={`col-sm-4 hvr-grow day ${className}`}
