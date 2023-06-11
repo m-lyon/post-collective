@@ -1,6 +1,6 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const dev = process.env.NODE_ENV !== 'production';
+const dev = process.env.NODE_ENV === 'development';
 
 exports.COOKIE_OPTIONS = {
     httpOnly: true,
@@ -9,7 +9,7 @@ exports.COOKIE_OPTIONS = {
     secure: !dev,
     signed: true,
     maxAge: eval(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-    sameSite: dev ? undefined : 'none',
+    sameSite: dev ? 'lax' : 'none',
 };
 
 exports.getToken = (user) => {

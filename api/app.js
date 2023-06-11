@@ -15,6 +15,7 @@ require('./strategies/LocalStrategy');
 require('./authenticate');
 
 const indexRouter = require('./routes/index');
+const detailsRouter = require('./routes/details');
 const usersRouter = require('./routes/users');
 const offeredRouter = require('./routes/offered');
 const requestRouter = require('./routes/requested');
@@ -50,6 +51,7 @@ app.use(express.urlencoded({ extended: false })); // parses url-encoded form req
 app.use('/post-api-public', express.static(path.join(__dirname, 'public')));
 
 app.use('/post-api', indexRouter);
+app.use('/post-api/details', detailsRouter);
 app.use('/post-api/users', usersRouter);
 app.use('/post-api/offered', offeredRouter);
 app.use('/post-api/requested', requestRouter);

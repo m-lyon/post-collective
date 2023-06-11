@@ -34,11 +34,14 @@ export function App() {
                 setTimeout(verifyUser, 5 * 60 * 1000);
             })
             .catch((error) => {
-                if (error.response && error.response.status === 401){
+                if (error.response && error.response.status === 401) {
                     setUserContext((oldValues) => {
                         return { ...oldValues, token: null, details: null };
                     });
                 } else {
+                    setUserContext((oldValues) => {
+                        return { ...oldValues, token: null, details: null };
+                    });
                     console.log('unknown error');
                 }
             });
@@ -67,6 +70,9 @@ export function App() {
         } else {
             return <VerifyPage />;
         }
+    } else if (userContext.token === null) {
+        return <LoginPage />;
+    } else {
+        return <div></div>;
     }
-    return <LoginPage />;
 }
