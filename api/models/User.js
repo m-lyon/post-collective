@@ -13,7 +13,17 @@ const sessionSchema = new Schema({
 const userSchema = new Schema({
     name: { type: String, required: true },
     refreshToken: { type: [sessionSchema] },
-    aptNum: { type: Number, required: true, unique: true },
+    aptNum: {
+        type: Number,
+        required: true,
+        unique: true,
+        validate: {
+            validator: function (value) {
+                return Number.isInteger(value) && value >= 1 && value <= 32;
+            },
+            message: 'aptNum must be an integer between 1 and 32',
+        },
+    },
     isVerified: { type: Boolean, required: true },
     verificationCode: { type: String },
 });

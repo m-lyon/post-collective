@@ -40,6 +40,8 @@ router.post('/signup', (req, res) => {
                     return res.status(409).send({ message: 'apt-num-already-in-use' });
                 } else if (err.name === 'UserExistsError') {
                     return res.status(409).send({ message: 'user-already-exists' });
+                } else if (err.name === 'ValidationError' && err.errors.aptNum) {
+                    return res.status(409).send({ message: 'invalid-apt-num' });
                 } else {
                     console.log('Unexpected error in register user: ', err);
                     return res.status(400).send('Unknown error');

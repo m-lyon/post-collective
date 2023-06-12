@@ -92,6 +92,8 @@ export function SignupModal(props) {
                             errorMsg = 'Apartment already in use.';
                         } else if (error.response.data.message === 'user-already-exists') {
                             errorMsg = 'Email already in use.';
+                        } else if (error.response.data.message === 'invalid-apt-num') {
+                            errorMsg = 'Invalid Apartment Number given.';
                         }
                     }
                 }
