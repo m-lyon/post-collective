@@ -9,12 +9,15 @@
     width: 25rem;
     border-radius: 0.5em;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    print-color-adjust: exact;
 }
 
 .info-box {
     width: 30rem;
     border-radius: 0.5em;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    print-color-adjust: exact;
+    -webkit-filter: blur(0);
 }
 
 .reset-form {
