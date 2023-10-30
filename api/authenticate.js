@@ -1,24 +1,30 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const dev = process.env.NODE_ENV === 'development';
+const {
+    DEV,
+    REFRESH_TOKEN_SECRET,
+    REFRESH_TOKEN_EXPIRY,
+    JWT_SECRET,
+    SESSION_EXPIRY,
+} = require('./constants');
 
 exports.COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: !dev,
+    secure: !DEV,
     signed: true,
-    maxAge: eval(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-    sameSite: dev ? 'lax' : 'none',
+    maxAge: eval(REFRESH_TOKEN_EXPIRY) * 1000,
+    sameSite: DEV ? 'lax' : 'none',
 };
 
 exports.getToken = (user) => {
-    return jwt.sign(user, process.env.JWT_SECRET, {
-        expiresIn: eval(process.env.SESSION_EXPIRY),
+    return jwt.sign(user, JWT_SECRET, {
+        expiresIn: eval(SESSION_EXPIRY),
     });
 };
 
 exports.getRefreshToken = (user) => {
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: eval(process.env.REFRESH_TOKEN_EXPIRY),
+    const refreshToken = jwt.sign(user, REFRESH_TOKEN_SECRET, {
+        expiresIn: eval(REFRESH_TOKEN_EXPIRY),
     });
     return refreshToken;
 };

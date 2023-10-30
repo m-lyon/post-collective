@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const passportLocalMongoose = require('passport-local-mongoose');
 const { Schema } = mongoose;
 const { checkExists } = require('./utils');
+const { DEMO } = require('../constants');
 
 const sessionSchema = new Schema({
     refreshToken: {
@@ -15,7 +16,7 @@ const userSchema = new Schema({
     refreshToken: { type: [sessionSchema] },
     aptNum: {
         type: Number,
-        required: true,
+        required: DEMO ? false : true,
         unique: true,
         validate: {
             validator: function (value) {

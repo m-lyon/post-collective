@@ -3,6 +3,7 @@ import { useCallback, useContext } from 'react';
 import { NavDropdown } from 'react-bootstrap';
 import { UserContext } from '../context/UserContext';
 import { getConfig } from '../utils/auth';
+import { DEMO } from '../constants';
 
 function UserIcon() {
     return (
@@ -35,7 +36,7 @@ export function UserNavDropdown(props) {
 
     return (
         <NavDropdown align='end' title={UserIcon()} id='user-toggle'>
-            <NavDropdown.Item className='info-box' onClick={logoutHandler}>
+            <NavDropdown.Item className='info-box' onClick={logoutHandler} disabled={DEMO}>
                 Logout
             </NavDropdown.Item>
         </NavDropdown>

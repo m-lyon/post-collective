@@ -8,6 +8,7 @@ const passport = require('passport');
 
 // Load env variables
 require('dotenv').config();
+const { WHITELISTED_DOMAINS, DEMO, COOKIE_SECRET } = require('./constants');
 
 require('./utils/connectdb');
 require('./strategies/JwtStrategy');
@@ -16,11 +17,17 @@ require('./authenticate');
 
 const indexRouter = require('./routes/index');
 const detailsRouter = require('./routes/details');
-const usersRouter = require('./routes/users');
 const offeredRouter = require('./routes/offered');
 const requestRouter = require('./routes/requested');
 const messageRouter = require('./routes/notify');
 const resetPasswordRouter = require('./routes/resetPassword');
+
+let usersRouter;
+if (DEMO) {
+    usersRouter = require('./demoRoutes/users');
+} else {
+    usersRouter = require('./routes/users');
+}
 
 const app = express();
 
@@ -28,9 +35,9 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-//Add the client URL to the CORS policy
+// Add the client URL to the CORS policy
 
-const whitelist = process.env.WHITELISTED_DOMAINS ? process.env.WHITELISTED_DOMAINS.split(',') : [];
+const whitelist = WHITELISTED_DOMAINS ? WHITELISTED_DOMAINS.split(',') : [];
 const corsOptions = {
     origin: function (origin, callback) {
         if (!origin || whitelist.indexOf(origin) !== -1) {
@@ -42,21 +49,28 @@ const corsOptions = {
     credentials: true,
 };
 
-app.use(cookieParser(process.env.COOKIE_SECRET));
+let routeName;
+if (DEMO) {
+    routeName = 'post-api-demo';
+} else {
+    routeName = 'post-api';
+}
+console.log('Route name: ', routeName);
+
+app.use(cookieParser(COOKIE_SECRET));
 app.use(cors(corsOptions));
 app.use(passport.initialize());
 app.use(logger('dev'));
 app.use(express.json()); // parses JSON requests
 app.use(express.urlencoded({ extended: false })); // parses url-encoded form requests
-app.use('/post-api-public', express.static(path.join(__dirname, 'public')));
-
-app.use('/post-api', indexRouter);
-app.use('/post-api/details', detailsRouter);
-app.use('/post-api/users', usersRouter);
-app.use('/post-api/offered', offeredRouter);
-app.use('/post-api/requested', requestRouter);
-app.use('/post-api/notify', messageRouter);
-app.use('/post-api/resetPassword', resetPasswordRouter);
+app.use(`/${routeName}-public`, express.static(path.join(__dirname, 'public')));
+app.use(`/${routeName}`, indexRouter);
+app.use(`/${routeName}/details`, detailsRouter);
+app.use(`/${routeName}/users`, usersRouter);
+app.use(`/${routeName}/offered`, offeredRouter);
+app.use(`/${routeName}/requested`, requestRouter);
+app.use(`/${routeName}/notify`, messageRouter);
+app.use(`/${routeName}/resetPassword`, resetPasswordRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
