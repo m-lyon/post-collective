@@ -7,7 +7,7 @@ const connect = mongoose.connect(url, {
 });
 connect
     .then((db) => {
-        console.log('connected to db');
+        console.log('connected to db at ', url);
     })
     .catch((err) => {
         console.log(err);
