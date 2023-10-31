@@ -16,8 +16,8 @@ const userSchema = new Schema({
     refreshToken: { type: [sessionSchema] },
     aptNum: {
         type: Number,
-        required: DEMO ? false : true,
-        unique: true,
+        required: true,
+        unique: DEMO ? false : true,
         validate: {
             validator: function (value) {
                 return Number.isInteger(value) && value >= 1 && value <= 32;
